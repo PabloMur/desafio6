@@ -1,7 +1,7 @@
 {
   "name": "desafio",
   "version": "1.0.0",
-  "main": "index.js",
+  
   "repository": "git@github.com:PabloMur/desafio6.git",
   "author": "Pablo <pablomurillo.sp@gmail.com>",
   "license": "MIT",
@@ -23,8 +23,8 @@
     "dev:front":"parcel serve ./src/index.html",
     "build:front":"parcel build ./src/index.html",
     "dev": "nodemon --watch './index.ts' --exec 'ts-node ./dev.ts'",
-    "build:api":"tsc ./index.ts",
+    "build:api":"tsc index.ts",
     "build":"yarn build:front && yarn build:api",
-    "start":"node ./index.js"
+    "start":"node index.js"
   }
 }
