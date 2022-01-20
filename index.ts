@@ -2,7 +2,7 @@ import * as express from "express";
 import * as cors from "cors";
 import { rtdb, firestore } from "./firestore";
 
-const port = 3002;
+const port = process.env.PORT || 3002;
 
 const app = express();
 
