@@ -1,3 +1,5 @@
+import "./pages/home-page/homePage";
+
 import { Router } from "@vaadin/router";
 
 const router = new Router(document.querySelector(".root"));
