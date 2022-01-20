@@ -527,7 +527,7 @@ var _routerTs = require("./router.ts");
 var _state = require("./state");
 _state.state.init();
 
-},{"./state":"1Yeju","./router.ts":"4QFWt","./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz"}],"1Yeju":[function(require,module,exports) {
+},{"./state":"1Yeju","./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./router.ts":"4QFWt"}],"1Yeju":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state
@@ -61781,8 +61781,95 @@ var isArrayLike = require('./isArrayLike');
 }
 module.exports = createBaseEach;
 
-},{"./isArrayLike":"gMCbp"}],"4QFWt":[function(require,module,exports) {
+},{"./isArrayLike":"gMCbp"}],"h4YWK":[function(require,module,exports) {
+class Header extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+            <div class="header"></div>
+        `;
+        style.innerHTML = `
+        .header{
+            height: 10vh;
+            width: 100%;
+            background: red;
+        }
+        `;
+        this.appendChild(style);
+    }
+}
+customElements.define("custom-header", Header);
+
+},{}],"e43ts":[function(require,module,exports) {
+class CustomText extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        this.innerHTML = `
+        <p>texto de prueba</p>
+      `;
+    }
+}
+customElements.define("custom-text", CustomText);
+
+},{}],"jqdBz":[function(require,module,exports) {
+class Button extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        const button = document.createElement("button");
+        const style = document.createElement("style");
+        button.className = "root";
+        style.innerHTML = `
+              .root{
+                  font-size: 18px;
+                  border-radius: 4px;
+                  padding: 17px 13px;
+                  background-color:#006CFC;
+                  color:#D8FCFC;
+                  width: 90vw;
+                  border: 10px solid #001997;
+                  animation: lower .4s ease ;
+              }
+              @media screen and (min-width: 960px){
+                .root{
+                  max-width: 600px;
+                  margin: 0 auto;
+                }
+              }
+              @keyframes lower{
+                0%{
+                    transform: translateY(100%);
+                }
+                75%{
+                    transform: translateY(-10%);
+                }
+                100%{
+                    transform: translateY(0%);
+                }
+            }
+            `;
+        button.textContent = this.textContent || "ups!";
+        this.shadow.appendChild(button);
+        this.shadow.appendChild(style);
+    }
+    constructor(...args){
+        super(...args);
+        this.shadow = this.attachShadow({
+            mode: "open"
+        });
+    }
+}
+customElements.define("custom-button", Button);
+
+},{}],"4QFWt":[function(require,module,exports) {
 var _homePage = require("./pages/home-page/homePage");
+var _accessPage = require("./pages/access-page/accessPage");
 var _router = require("@vaadin/router");
 const router = new _router.Router(document.querySelector(".root"));
 router.setRoutes([
@@ -61791,12 +61878,48 @@ router.setRoutes([
         component: "home-page"
     },
     {
-        path: "/chat",
-        component: "chat-page"
+        path: "/access-room",
+        component: "access-page"
     }, 
 ]);
 
-},{"@vaadin/router":"kVZrF","./pages/home-page/homePage":"lkl5B"}],"kVZrF":[function(require,module,exports) {
+},{"./pages/home-page/homePage":"lkl5B","@vaadin/router":"kVZrF","./pages/access-page/accessPage":"jEqGg"}],"lkl5B":[function(require,module,exports) {
+var _router = require("@vaadin/router");
+class Home extends HTMLElement {
+    connectedCallback() {
+        this.render();
+        const newGameButton = document.querySelector(".newGame");
+        const accessToRoomButton = document.querySelector(".accessToRoom");
+        newGameButton.addEventListener("click", ()=>{
+            console.log("funcionando correctamente");
+        });
+        accessToRoomButton.addEventListener("click", ()=>{
+            console.log("estas queriendo acceder a una room conocida");
+            _router.Router.go("/access-room");
+        });
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+        <custom-header></custom-header>
+        <div class="container">
+         <h1>Vamo Poli vos podes</h1>
+         <custom-text>Piedra Papel o Tijera</custom-text>
+         <custom-button class="newGame">Nuevo Juego</custom-button>
+         <custom-button class="accessToRoom">Ingresar a una Sala</custom-button>
+        </div>
+      `;
+        style.innerHTML = `
+      .container{
+        background: pink;
+      }
+    `;
+        this.appendChild(style);
+    }
+}
+customElements.define("home-page", Home);
+
+},{"@vaadin/router":"kVZrF"}],"kVZrF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Resolver", ()=>Resolver
@@ -64151,10 +64274,10 @@ Router.NavigationTrigger = {
     CLICK
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lkl5B":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jEqGg":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-class Home extends HTMLElement {
+class AccessRoomPage extends HTMLElement {
     connectedCallback() {
         this.render();
         const newGameButton = document.querySelector(".newGame");
@@ -64167,103 +64290,26 @@ class Home extends HTMLElement {
         });
     }
     render() {
-        this.innerHTML = `
-        <custom-header></custom-header>
-        <h1>Vamo Poli vos podes</h1>
-        <custom-text>Piedra Papel o Tijera</custom-text>
-        <custom-button class="newGame">Nuevo Juego</custom-button>
-        <custom-button class="accessToRoom">Ingresar a una Sala</custom-button>
-      `;
-    }
-}
-customElements.define("home-page", Home);
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"h4YWK":[function(require,module,exports) {
-class Header extends HTMLElement {
-    connectedCallback() {
-        this.render();
-    }
-    render() {
         const style = document.createElement("style");
         this.innerHTML = `
-            <div class="header"></div>
-        `;
+        <custom-header></custom-header>
+        <div class="container">
+         <h1>Vamo Poli vos podes</h1>
+         <custom-text>Piedra Papel o Tijera</custom-text>
+         <custom-button class="newGame">Nuevo Juego</custom-button>
+         <custom-button class="accessToRoom">Ingresar a una Sala</custom-button>
+        </div>
+      `;
         style.innerHTML = `
-        .header{
-            height: 10vh;
-            width: 100%;
-            background: red;
-        }
-        `;
+      .container{
+        background: pink;
+      }
+    `;
         this.appendChild(style);
     }
 }
-customElements.define("custom-header", Header);
+customElements.define("access-page", AccessRoomPage);
 
-},{}],"e43ts":[function(require,module,exports) {
-class CustomText extends HTMLElement {
-    connectedCallback() {
-        this.render();
-    }
-    render() {
-        this.innerHTML = `
-        <p>texto de prueba</p>
-      `;
-    }
-}
-customElements.define("custom-text", CustomText);
-
-},{}],"jqdBz":[function(require,module,exports) {
-class Button extends HTMLElement {
-    connectedCallback() {
-        this.render();
-    }
-    render() {
-        const button = document.createElement("button");
-        const style = document.createElement("style");
-        button.className = "root";
-        style.innerHTML = `
-              .root{
-                  font-size: 18px;
-                  border-radius: 4px;
-                  padding: 17px 13px;
-                  background-color:#006CFC;
-                  color:#D8FCFC;
-                  width: 90vw;
-                  border: 10px solid #001997;
-                  animation: lower .4s ease ;
-              }
-              @media screen and (min-width: 960px){
-                .root{
-                  max-width: 600px;
-                  margin: 0 auto;
-                }
-              }
-              @keyframes lower{
-                0%{
-                    transform: translateY(100%);
-                }
-                75%{
-                    transform: translateY(-10%);
-                }
-                100%{
-                    transform: translateY(0%);
-                }
-            }
-            `;
-        button.textContent = this.textContent || "ups!";
-        this.shadow.appendChild(button);
-        this.shadow.appendChild(style);
-    }
-    constructor(...args){
-        super(...args);
-        this.shadow = this.attachShadow({
-            mode: "open"
-        });
-    }
-}
-customElements.define("custom-button", Button);
-
-},{}]},["8wcER","h7u1C"], "h7u1C", "parcelRequireca0a")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["8wcER","h7u1C"], "h7u1C", "parcelRequireca0a")
 
 //# sourceMappingURL=index.b71e74eb.js.map
