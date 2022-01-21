@@ -19,12 +19,10 @@ class Home extends HTMLElement {
   render() {
     const style = document.createElement("style");
     this.innerHTML = `
-        <custom-header></custom-header>
         <div class="container">
-         <h1>Vamo Poli vos podes</h1>
          <custom-text>Piedra Papel o Tijera</custom-text>
          <custom-button class="newGame">Nuevo Juego</custom-button>
-         <custom-button class="accessToRoom">Ingresar a una Sala</custom-button>
+         <custom-button class="accessToRoom">Ingresar a Sala</custom-button>
         </div>
       `;
     style.innerHTML = `

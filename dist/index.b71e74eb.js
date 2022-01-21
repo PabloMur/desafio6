@@ -61870,6 +61870,7 @@ customElements.define("custom-button", Button);
 },{}],"4QFWt":[function(require,module,exports) {
 var _homePage = require("./pages/home-page/homePage");
 var _accessPage = require("./pages/access-page/accessPage");
+var _newRoomPage = require("./pages/new-room/newRoomPage");
 var _router = require("@vaadin/router");
 const router = new _router.Router(document.querySelector(".root"));
 router.setRoutes([
@@ -61880,10 +61881,14 @@ router.setRoutes([
     {
         path: "/access-room",
         component: "access-page"
+    },
+    {
+        path: "/new-room",
+        component: "new-room-page"
     }, 
 ]);
 
-},{"./pages/home-page/homePage":"lkl5B","@vaadin/router":"kVZrF","./pages/access-page/accessPage":"jEqGg"}],"lkl5B":[function(require,module,exports) {
+},{"./pages/home-page/homePage":"lkl5B","@vaadin/router":"kVZrF","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ"}],"lkl5B":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 class Home extends HTMLElement {
     connectedCallback() {
@@ -61901,12 +61906,10 @@ class Home extends HTMLElement {
     render() {
         const style = document.createElement("style");
         this.innerHTML = `
-        <custom-header></custom-header>
         <div class="container">
-         <h1>Vamo Poli vos podes</h1>
          <custom-text>Piedra Papel o Tijera</custom-text>
          <custom-button class="newGame">Nuevo Juego</custom-button>
-         <custom-button class="accessToRoom">Ingresar a una Sala</custom-button>
+         <custom-button class="accessToRoom">Ingresar a Sala</custom-button>
         </div>
       `;
         style.innerHTML = `
@@ -64309,6 +64312,42 @@ class AccessRoomPage extends HTMLElement {
     }
 }
 customElements.define("access-page", AccessRoomPage);
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3NBdJ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+class NewRoomPage extends HTMLElement {
+    connectedCallback() {
+        this.render();
+        const newGameButton = document.querySelector(".newGame");
+        const accessToRoomButton = document.querySelector(".accesToRoom");
+        newGameButton.addEventListener("click", ()=>{
+            console.log("funcionando correctamente");
+        });
+        accessToRoomButton.addEventListener("click", ()=>{
+            console.log("estas queriendo acceder a una room conocida");
+        });
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+        <custom-header></custom-header>
+        <div class="container">
+         <h1>Vamo Poli vos podes</h1>
+         <custom-text>Piedra Papel o Tijera</custom-text>
+         <custom-button class="newGame">Nuevo Juego</custom-button>
+         <custom-button class="accessToRoom">Ingresar a una Sala</custom-button>
+        </div>
+      `;
+        style.innerHTML = `
+      .container{
+        background: pink;
+      }
+    `;
+        this.appendChild(style);
+    }
+}
+customElements.define("new-room-page", NewRoomPage);
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["8wcER","h7u1C"], "h7u1C", "parcelRequireca0a")
 
