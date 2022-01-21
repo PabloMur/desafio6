@@ -61809,9 +61809,32 @@ class CustomText extends HTMLElement {
         this.render();
     }
     render() {
-        this.innerHTML = `
-        <p>texto de prueba</p>
+        const variant = this.getAttribute("variant") || "body";
+        const div = document.createElement("div");
+        const style = document.createElement("style");
+        style.innerHTML = `
+        .title{
+            font-size:80px;
+            font-weight: bold;
+            color: #009048;
+            transition: all 3s ease;
+        }
+        .body{
+            font-size: 30px;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
       `;
+        div.className = variant;
+        div.textContent = this.textContent;
+        this.shadow.appendChild(div);
+        this.shadow.appendChild(style);
+    }
+    constructor(...args){
+        super(...args);
+        this.shadow = this.attachShadow({
+            mode: "open"
+        });
     }
 }
 customElements.define("custom-text", CustomText);
@@ -61897,6 +61920,7 @@ class Home extends HTMLElement {
         const accessToRoomButton = document.querySelector(".accessToRoom");
         newGameButton.addEventListener("click", ()=>{
             console.log("funcionando correctamente");
+            _router.Router.go("/new-room");
         });
         accessToRoomButton.addEventListener("click", ()=>{
             console.log("estas queriendo acceder a una room conocida");
@@ -61907,15 +61931,31 @@ class Home extends HTMLElement {
         const style = document.createElement("style");
         this.innerHTML = `
         <div class="container">
-         <custom-text>Piedra Papel o Tijera</custom-text>
-         <custom-button class="newGame">Nuevo Juego</custom-button>
-         <custom-button class="accessToRoom">Ingresar a Sala</custom-button>
+         <custom-text variant="title" class="title">Piedra Papel o Tijera</custom-text>
+         <div class="button-container">
+          <custom-button class="newGame">Nuevo Juego</custom-button>
+          <custom-button class="accessToRoom">Ingresar a Sala</custom-button>
+         </div>
         </div>
       `;
         style.innerHTML = `
       .container{
-        background: pink;
+        height: 95vh;
+        width: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
       }
+
+      .button-container{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 30%;
+      }
+
     `;
         this.appendChild(style);
     }

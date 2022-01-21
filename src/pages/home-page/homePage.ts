@@ -9,6 +9,7 @@ class Home extends HTMLElement {
 
     newGameButton.addEventListener("click", () => {
       console.log("funcionando correctamente");
+      Router.go("/new-room");
     });
 
     accessToRoomButton.addEventListener("click", () => {
@@ -20,15 +21,31 @@ class Home extends HTMLElement {
     const style = document.createElement("style");
     this.innerHTML = `
         <div class="container">
-         <custom-text>Piedra Papel o Tijera</custom-text>
-         <custom-button class="newGame">Nuevo Juego</custom-button>
-         <custom-button class="accessToRoom">Ingresar a Sala</custom-button>
+         <custom-text variant="title" class="title">Piedra Papel o Tijera</custom-text>
+         <div class="button-container">
+          <custom-button class="newGame">Nuevo Juego</custom-button>
+          <custom-button class="accessToRoom">Ingresar a Sala</custom-button>
+         </div>
         </div>
       `;
     style.innerHTML = `
       .container{
-        background: pink;
+        height: 95vh;
+        width: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
       }
+
+      .button-container{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 30%;
+      }
+
     `;
     this.appendChild(style);
   }
