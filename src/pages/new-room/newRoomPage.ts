@@ -1,35 +1,48 @@
 import { Router } from "@vaadin/router";
+import { state } from "../../state";
 
 class NewRoomPage extends HTMLElement {
   connectedCallback() {
     this.render();
 
-    const newGameButton = document.querySelector(".newGame");
-    const accessToRoomButton = document.querySelector(".accesToRoom");
+    const startRoom = document.querySelector(".startRoom");
+    const nombreDelJugador = document.querySelector(".playerName") as any;
 
-    newGameButton.addEventListener("click", () => {
-      console.log("funcionando correctamente");
-    });
-
-    accessToRoomButton.addEventListener("click", () => {
-      console.log("estas queriendo acceder a una room conocida");
+    startRoom.addEventListener("click", () => {
+      state.setNombre(nombreDelJugador.value);
+      state.newPlayer(nombreDelJugador.value);
+      Router.go("/game-room");
     });
   }
   render() {
     const style = document.createElement("style");
     this.innerHTML = `
-        <custom-header></custom-header>
         <div class="container">
-         <h1>Vamo Poli vos podes</h1>
-         <custom-text>Piedra Papel o Tijera</custom-text>
-         <custom-button class="newGame">Nuevo Juego</custom-button>
-         <custom-button class="accessToRoom">Ingresar a una Sala</custom-button>
+         <custom-text variant="title">Piedra Papel o Tijera</custom-text>
+         
+          <input type="text" name="nombre" placeholder="Ingresa tu nombre" class="playerName">
+         
+         <custom-button class="startRoom">Comenzar</custom-button>
         </div>
       `;
     style.innerHTML = `
-      .container{
-        background: pink;
-      }
+    .container{
+      height: 95vh;
+      width: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .playerName{
+      width: 57%;
+      height: 10vh;
+      border: 5px solid blue;
+      border-radius: 5px;
+      padding: 7px;
+      text-align: center;
+    }
     `;
     this.appendChild(style);
   }

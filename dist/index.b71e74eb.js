@@ -523,24 +523,26 @@ function hmrAcceptRun(bundle, id) {
 var _header = require("./components/header");
 var _customText = require("./components/customText");
 var _button = require("./components/button");
+var _showName = require("./components/showName");
+var _columnContainer = require("./components/columnContainer");
 var _routerTs = require("./router.ts");
 var _state = require("./state");
 _state.state.init();
 
-},{"./state":"1Yeju","./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./router.ts":"4QFWt"}],"1Yeju":[function(require,module,exports) {
+},{"./state":"1Yeju","./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./router.ts":"4QFWt","./components/showName":"1S6hc","./components/columnContainer":"fVUTk"}],"1Yeju":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state
 );
 var _rtdb = require("./rtdb");
 var _map = require("lodash/map");
-const API_BASE = "http://localhost:3000";
+const API_BASE = "http://localhost:3002";
 const state = {
     data: {
         nombre: "",
-        messages: [
-            ""
-        ]
+        userId: "",
+        roomId: "",
+        rtdbRoomId: ""
     },
     listeners: [],
     init () {
@@ -571,6 +573,24 @@ const state = {
                 from: nombreDelState,
                 message: message
             })
+        });
+    },
+    newPlayer (nombre) {
+        const cs = this.getState();
+        fetch(API_BASE + "/player", {
+            method: "post",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                nombre: nombre
+            })
+        }).then((response)=>{
+            return response.json();
+        }).then((data)=>{
+            console.log(data);
+            cs.userId = data.id;
+            this.setState(cs);
         });
     },
     setState (newState) {
@@ -61894,6 +61914,7 @@ customElements.define("custom-button", Button);
 var _homePage = require("./pages/home-page/homePage");
 var _accessPage = require("./pages/access-page/accessPage");
 var _newRoomPage = require("./pages/new-room/newRoomPage");
+var _gameRoomPage = require("./pages/game-room/gameRoomPage");
 var _router = require("@vaadin/router");
 const router = new _router.Router(document.querySelector(".root"));
 router.setRoutes([
@@ -61908,10 +61929,14 @@ router.setRoutes([
     {
         path: "/new-room",
         component: "new-room-page"
+    },
+    {
+        path: "/game-room",
+        component: "game-room-page"
     }, 
 ]);
 
-},{"./pages/home-page/homePage":"lkl5B","@vaadin/router":"kVZrF","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ"}],"lkl5B":[function(require,module,exports) {
+},{"./pages/home-page/homePage":"lkl5B","@vaadin/router":"kVZrF","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO"}],"lkl5B":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 class Home extends HTMLElement {
     connectedCallback() {
@@ -64323,29 +64348,33 @@ parcelHelpers.defineInteropFlag(exports);
 class AccessRoomPage extends HTMLElement {
     connectedCallback() {
         this.render();
-        const newGameButton = document.querySelector(".newGame");
-        const accessToRoomButton = document.querySelector(".accesToRoom");
-        newGameButton.addEventListener("click", ()=>{
-            console.log("funcionando correctamente");
-        });
-        accessToRoomButton.addEventListener("click", ()=>{
-            console.log("estas queriendo acceder a una room conocida");
-        });
     }
     render() {
         const style = document.createElement("style");
         this.innerHTML = `
-        <custom-header></custom-header>
         <div class="container">
-         <h1>Vamo Poli vos podes</h1>
-         <custom-text>Piedra Papel o Tijera</custom-text>
-         <custom-button class="newGame">Nuevo Juego</custom-button>
+         <custom-text variant="title">Piedra Papel o Tijera</custom-text>
+         <input type="text" name="nombre" placeholder="codigo" class="playerName">
          <custom-button class="accessToRoom">Ingresar a una Sala</custom-button>
         </div>
       `;
         style.innerHTML = `
       .container{
-        background: pink;
+        height: 95vh;
+        width: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+      }
+      .playerName{
+        width: 57%;
+        height: 10vh;
+        border: 5px solid blue;
+        border-radius: 5px;
+        padding: 7px;
+        text-align: center;
       }
     `;
         this.appendChild(style);
@@ -64354,41 +64383,140 @@ class AccessRoomPage extends HTMLElement {
 customElements.define("access-page", AccessRoomPage);
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3NBdJ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
+var _router = require("@vaadin/router");
+var _state = require("../../state");
 class NewRoomPage extends HTMLElement {
     connectedCallback() {
         this.render();
-        const newGameButton = document.querySelector(".newGame");
-        const accessToRoomButton = document.querySelector(".accesToRoom");
-        newGameButton.addEventListener("click", ()=>{
-            console.log("funcionando correctamente");
-        });
-        accessToRoomButton.addEventListener("click", ()=>{
-            console.log("estas queriendo acceder a una room conocida");
+        const startRoom = document.querySelector(".startRoom");
+        const nombreDelJugador = document.querySelector(".playerName");
+        startRoom.addEventListener("click", ()=>{
+            _state.state.setNombre(nombreDelJugador.value);
+            _state.state.newPlayer(nombreDelJugador.value);
+            _router.Router.go("/game-room");
         });
     }
     render() {
         const style = document.createElement("style");
         this.innerHTML = `
-        <custom-header></custom-header>
         <div class="container">
-         <h1>Vamo Poli vos podes</h1>
-         <custom-text>Piedra Papel o Tijera</custom-text>
-         <custom-button class="newGame">Nuevo Juego</custom-button>
-         <custom-button class="accessToRoom">Ingresar a una Sala</custom-button>
+         <custom-text variant="title">Piedra Papel o Tijera</custom-text>
+         
+          <input type="text" name="nombre" placeholder="Ingresa tu nombre" class="playerName">
+         
+         <custom-button class="startRoom">Comenzar</custom-button>
         </div>
       `;
         style.innerHTML = `
-      .container{
-        background: pink;
-      }
+    .container{
+      height: 95vh;
+      width: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .playerName{
+      width: 57%;
+      height: 10vh;
+      border: 5px solid blue;
+      border-radius: 5px;
+      padding: 7px;
+      text-align: center;
+    }
     `;
         this.appendChild(style);
     }
 }
 customElements.define("new-room-page", NewRoomPage);
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["8wcER","h7u1C"], "h7u1C", "parcelRequireca0a")
+},{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"37vkO":[function(require,module,exports) {
+var _state = require("../../state");
+class GameRoomPage extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        const nombreDelState = _state.state.getState().nombre;
+        const style = document.createElement("style");
+        this.innerHTML = `
+        <div class="container">
+         <custom-text variant="title">Piedra Papel o Tijera</custom-text>
+         <show-name></show-name>
+         
+         <custom-button class="startRoom">${nombreDelState}</custom-button>
+        </div>
+      `;
+        style.innerHTML = `
+    .container{
+      height: 95vh;
+      width: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .playerName{
+      width: 57%;
+      height: 10vh;
+      border: 5px solid blue;
+      border-radius: 5px;
+      padding: 7px;
+      text-align: center;
+    }
+    `;
+        this.appendChild(style);
+    }
+}
+customElements.define("game-room-page", GameRoomPage);
+
+},{"../../state":"1Yeju"}],"1S6hc":[function(require,module,exports) {
+var _state = require("../state");
+class ShowName extends HTMLElement {
+    connectedCallback() {
+        _state.state.subscribe(()=>{
+            this.syncWithState();
+        });
+        this.syncWithState();
+    }
+    syncWithState() {
+        const lastState = _state.state.getState();
+        this.nombre = lastState.nombre;
+        this.render();
+    }
+    render() {
+        this.innerHTML = `<p>${this.nombre}</p>`;
+    }
+}
+customElements.define("show-name", ShowName);
+
+},{"../state":"1Yeju"}],"fVUTk":[function(require,module,exports) {
+class ColumnContainer extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+            <div class="column-container"></div>
+        `;
+        style.innerHTML = `
+        .column-container{
+            height: 95vh;
+            width: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+        }
+    `;
+    }
+}
+customElements.define("column-div", ColumnContainer);
+
+},{}]},["8wcER","h7u1C"], "h7u1C", "parcelRequireca0a")
 
 //# sourceMappingURL=index.b71e74eb.js.map

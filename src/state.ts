@@ -1,10 +1,12 @@
-const API_BASE = "http://localhost:3000";
+const API_BASE = "http://localhost:3002";
 import { rtdb } from "./rtdb";
 import * as map from "lodash/map";
 const state = {
   data: {
     nombre: "",
-    messages: [""],
+    userId: "",
+    roomId: "",
+    rtdbRoomId: "",
   },
   listeners: [],
 
@@ -36,6 +38,24 @@ const state = {
         message: message,
       }),
     });
+  },
+  newPlayer(nombre: string) {
+    const cs = this.getState();
+    fetch(API_BASE + "/player", {
+      method: "post",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ nombre: nombre }),
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        cs.userId = data.id;
+        this.setState(cs);
+      });
   },
   setState(newState) {
     this.data = newState;

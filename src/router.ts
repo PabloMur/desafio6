@@ -1,6 +1,7 @@
 import "./pages/home-page/homePage";
 import "./pages/access-page/accessPage";
 import "./pages/new-room/newRoomPage";
+import "./pages/game-room/gameRoomPage";
 
 import { Router } from "@vaadin/router";
 
@@ -9,4 +10,5 @@ router.setRoutes([
   { path: "/", component: "home-page" },
   { path: "/access-room", component: "access-page" },
   { path: "/new-room", component: "new-room-page" },
+  { path: "/game-room", component: "game-room-page" },
 ]);
