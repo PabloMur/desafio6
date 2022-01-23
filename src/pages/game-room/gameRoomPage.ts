@@ -6,14 +6,13 @@ class GameRoomPage extends HTMLElement {
     this.render();
   }
   render() {
-    const nombreDelState = state.getState().nombre;
     const style = document.createElement("style");
     this.innerHTML = `
         <div class="container">
-         <custom-text variant="title">Piedra Papel o Tijera</custom-text>
-         <show-name></show-name>
          
-         <custom-button class="startRoom">${nombreDelState}</custom-button>
+         <show-name></show-name>
+         <room-code></room-code>
+         <custom-button class="createRoom">Crear Sala de Juego</custom-button>
         </div>
       `;
     style.innerHTML = `

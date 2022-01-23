@@ -21,7 +21,7 @@
   },
   "scripts": {
     "dev:front":"parcel serve ./src/index.html",
-    "dev": "nodemon --watch './index.ts' --exec 'ts-node ./dev.ts'",
+    "dev": "nodemon --watch './index.ts' --exec 'ts-node ./dev.ts'", 
     "build:front":"parcel build ./src/index.html",
     "build:api":"tsc",
     "build":"yarn build:front && yarn build:api",

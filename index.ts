@@ -35,6 +35,7 @@ app.post("/game-rooms", (req, res) => {
       gameRoomRef
         .set({
           creator: userId,
+          currentGame: {},
         })
         .then((rtdbRespose) => {
           const longGameRoomId = gameRoomRef.key;
@@ -44,17 +45,30 @@ app.post("/game-rooms", (req, res) => {
             .doc(shortGameRoomId.toString())
             .set({
               rtdbGameRoomId: longGameRoomId,
+              creator: userId,
+              friendlyId: shortGameRoomId.toString(),
             })
             .then(() => {
               res.json({
                 friendlyId: shortGameRoomId.toString(),
+                longGameRoomId: longGameRoomId.toString(),
               });
             });
         });
     });
 });
 
-app.get("/game-rooms/:game-roomsid");
+app.get("/game-rooms/:roomId", (req, res) => {
+  const { roomId } = req.params;
+
+  gameRoomsCollection
+    .doc(roomId.toString())
+    .get()
+    .then((snap) => {
+      const snapData = snap.data();
+      res.json(snapData.rtdbGameRoomId);
+    });
+});
 
 //Sirve la carpeta dist creada por parcel
 app.use(express.static("dist"));

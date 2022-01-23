@@ -1,16 +1,25 @@
 import { Router } from "@vaadin/router";
+import { state } from "../../state";
 
 class AccessRoomPage extends HTMLElement {
   connectedCallback() {
     this.render();
+    const accessToRoomButton = document.querySelector(".access");
+    const code = document.querySelector(".codeRoomId") as any;
+
+    accessToRoomButton.addEventListener("click", () => {
+      console.log(typeof code.value);
+      state.accesToGameRoom(code.value);
+      Router.go("new-room");
+    });
   }
   render() {
     const style = document.createElement("style");
     this.innerHTML = `
         <div class="container">
          <custom-text variant="title">Piedra Papel o Tijera</custom-text>
-         <input type="text" name="nombre" placeholder="codigo" class="playerName">
-         <custom-button class="accessToRoom">Ingresar a una Sala</custom-button>
+         <input type="text" name="nombre" placeholder="codigo" class="codeRoomId">
+         <custom-button class="access">Ingresar a una Sala</custom-button>
         </div>
       `;
     style.innerHTML = `
@@ -23,7 +32,7 @@ class AccessRoomPage extends HTMLElement {
         justify-content: space-around;
         align-items: center;
       }
-      .playerName{
+      .codeRoomId{
         width: 57%;
         height: 10vh;
         border: 5px solid blue;
