@@ -9,7 +9,6 @@ class NewRoomPage extends HTMLElement {
     const nombreDelJugador = document.querySelector(".playerName") as any;
 
     startRoom.addEventListener("click", () => {
-      state.setNombre(nombreDelJugador.value);
       state.newPlayer(nombreDelJugador.value);
       Router.go("/game-room");
     });

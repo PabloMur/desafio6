@@ -568,22 +568,13 @@ const state = {
         const localData = localStorage.getItem("saved-state");
         this.setState(JSON.parse(localData));
     },
-    listenRTDBData () {
-        const gameRoomRef = _rtdb.rtdb.ref(`gamerooms/${this.data.rtdbRoomId}`);
-        gameRoomRef.on("value", (snapshot)=>{
-            const cs = this.getState();
-            const dataFromServer = snapshot.val();
-            cs.rtdbData = dataFromServer.rtdbData;
-            this.setState(cs);
-        });
-    },
     getState () {
         return this.data;
     },
     setNombre (nombre) {
-        const currentState = this.getState();
-        currentState.nombre = nombre;
-        this.setState(currentState);
+        const cs = this.getState();
+        cs.nombre = nombre;
+        this.setState(cs);
     },
     newPlayer (nombre) {
         const cs = this.getState();
@@ -599,6 +590,10 @@ const state = {
             return r.json();
         }).then((data)=>{
             cs.userId = data.id;
+            cs.nombre = nombre;
+            this.askNewGameRoom();
+            return true;
+        }).then(()=>{
             this.setState(cs);
         });
     },
@@ -634,8 +629,17 @@ const state = {
         }).then((data)=>{
             cs.roomGuest = true;
             cs.roomCreator = false;
-            cs.rtdbRoomId = data.rtdbGameRoomId;
+            cs.rtdbRoomId = data;
             cs.roomId = roomId;
+            this.setState(cs);
+        });
+    },
+    listenRTDBData () {
+        const gameRoomRef = _rtdb.rtdb.ref(`gamerooms/${this.data.rtdbRoomId}`);
+        gameRoomRef.on("value", (snapshot)=>{
+            const cs = this.getState();
+            const dataFromServer = snapshot.val();
+            cs.rtdbData = dataFromServer.rtdbData;
             this.setState(cs);
         });
     },
@@ -61994,9 +61998,9 @@ class AccessRoomPage extends HTMLElement {
         const accessToRoomButton = document.querySelector(".access");
         const code = document.querySelector(".codeRoomId");
         accessToRoomButton.addEventListener("click", ()=>{
-            console.log(typeof code.value);
+            console.log(code.value);
             _state.state.accesToGameRoom(code.value);
-            _router.Router.go("new-room");
+            _router.Router.go("pre-game-room");
         });
     }
     render() {
@@ -62041,7 +62045,6 @@ class NewRoomPage extends HTMLElement {
         const startRoom = document.querySelector(".startRoom");
         const nombreDelJugador = document.querySelector(".playerName");
         startRoom.addEventListener("click", ()=>{
-            _state.state.setNombre(nombreDelJugador.value);
             _state.state.newPlayer(nombreDelJugador.value);
             _router.Router.go("/game-room");
         });
@@ -62123,25 +62126,30 @@ class GameRoomPage extends HTMLElement {
 customElements.define("game-room-page", GameRoomPage);
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bDFvm":[function(require,module,exports) {
+var _router = require("@vaadin/router");
 var _state = require("../../state");
 class PreGameRoomPage extends HTMLElement {
     connectedCallback() {
         this.render();
-        const createRoom = document.querySelector(".createRoom");
-        createRoom.addEventListener("click", ()=>{
-            _state.state.askNewGameRoom();
-            console.log("crear Sala");
+        const getInGameRoom = document.querySelector(".startRoom");
+        const nombre = document.querySelector(".playerName");
+        getInGameRoom.addEventListener("click", ()=>{
+            const cs = _state.state.getState();
+            console.log("Ingresando a Una sala previamente creada");
+            _state.state.setNombre(nombre.value);
+            _state.state.accesToGameRoom(cs.roomId);
+            _router.Router.go("/game-room");
         });
     }
     render() {
         const style = document.createElement("style");
         this.innerHTML = `
         <div class="container">
-        <h1>Donde se Va a CREAR una room y, una vez creada, te dirijira a la sala de la rtdb</h1>
-         <custom-text variant="title">Piedra Papel o Tijera</custom-text>
-         <show-name></show-name>
+         <custom-text variant="title">Ingresa tu nombre</custom-text>
          
-         <custom-button class="createRoom">Crear Sala de Juego</custom-button>
+          <input type="text" name="nombre" placeholder="Ingresa tu nombre" class="playerName">
+         
+         <custom-button class="startRoom">Comenzar</custom-button>
         </div>
       `;
         style.innerHTML = `
@@ -62168,7 +62176,7 @@ class PreGameRoomPage extends HTMLElement {
 }
 customElements.define("pre-game-room-page", PreGameRoomPage);
 
-},{"../../state":"1Yeju"}],"9Cky9":[function(require,module,exports) {
+},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"9Cky9":[function(require,module,exports) {
 var _state = require("../state");
 class RoomCode extends HTMLElement {
     connectedCallback() {

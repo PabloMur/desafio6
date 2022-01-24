@@ -4,21 +4,27 @@ import { state } from "../../state";
 class PreGameRoomPage extends HTMLElement {
   connectedCallback() {
     this.render();
-    const createRoom = document.querySelector(".createRoom");
-    createRoom.addEventListener("click", () => {
-      state.askNewGameRoom();
-      console.log("crear Sala");
+
+    const getInGameRoom = document.querySelector(".startRoom");
+    const nombre = document.querySelector(".playerName") as any;
+
+    getInGameRoom.addEventListener("click", () => {
+      const cs = state.getState();
+      console.log("Ingresando a Una sala previamente creada");
+      state.setNombre(nombre.value);
+      state.accesToGameRoom(cs.roomId);
+      Router.go("/game-room");
     });
   }
   render() {
     const style = document.createElement("style");
     this.innerHTML = `
         <div class="container">
-        <h1>Donde se Va a CREAR una room y, una vez creada, te dirijira a la sala de la rtdb</h1>
-         <custom-text variant="title">Piedra Papel o Tijera</custom-text>
-         <show-name></show-name>
+         <custom-text variant="title">Ingresa tu nombre</custom-text>
          
-         <custom-button class="createRoom">Crear Sala de Juego</custom-button>
+          <input type="text" name="nombre" placeholder="Ingresa tu nombre" class="playerName">
+         
+         <custom-button class="startRoom">Comenzar</custom-button>
         </div>
       `;
     style.innerHTML = `

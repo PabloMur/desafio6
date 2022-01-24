@@ -16,23 +16,13 @@ const state = {
     const localData = localStorage.getItem("saved-state");
     this.setState(JSON.parse(localData));
   },
-  listenRTDBData() {
-    const gameRoomRef = rtdb.ref(`gamerooms/${this.data.rtdbRoomId}`);
-    gameRoomRef.on("value", (snapshot) => {
-      const cs = this.getState();
-      const dataFromServer = snapshot.val();
-      cs.rtdbData = dataFromServer.rtdbData;
-      this.setState(cs);
-    });
-  },
-
   getState() {
     return this.data;
   },
   setNombre(nombre: string) {
-    const currentState = this.getState();
-    currentState.nombre = nombre;
-    this.setState(currentState);
+    const cs = this.getState();
+    cs.nombre = nombre;
+    this.setState(cs);
   },
   newPlayer(nombre: string) {
     const cs = this.getState();
@@ -48,6 +38,11 @@ const state = {
       })
       .then((data) => {
         cs.userId = data.id;
+        cs.nombre = nombre;
+        this.askNewGameRoom();
+        return true;
+      })
+      .then(() => {
         this.setState(cs);
       });
   },
@@ -85,10 +80,19 @@ const state = {
       .then((data) => {
         cs.roomGuest = true;
         cs.roomCreator = false;
-        cs.rtdbRoomId = data.rtdbGameRoomId;
+        cs.rtdbRoomId = data;
         cs.roomId = roomId;
         this.setState(cs);
       });
+  },
+  listenRTDBData() {
+    const gameRoomRef = rtdb.ref(`gamerooms/${this.data.rtdbRoomId}`);
+    gameRoomRef.on("value", (snapshot) => {
+      const cs = this.getState();
+      const dataFromServer = snapshot.val();
+      cs.rtdbData = dataFromServer.rtdbData;
+      this.setState(cs);
+    });
   },
   setState(newState) {
     this.data = newState;
