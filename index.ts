@@ -35,9 +35,30 @@ app.post("/game-rooms", (req, res) => {
       gameRoomRef
         .set({
           creator: userId,
-          currentGame: {},
+          currentGame: {
+            playerOne: {
+              id: userId,
+              choice: null,
+              start: false,
+              date: new Date(),
+              online: false,
+              creator: true,
+              local: true,
+              guest: false,
+            },
+            playerTwo: {
+              id: null,
+              choice: null,
+              start: false,
+              date: new Date(),
+              online: false,
+              creator: false,
+              local: false,
+              guest: true,
+            },
+          },
         })
-        .then((rtdbRespose) => {
+        .then(() => {
           const longGameRoomId = gameRoomRef.key;
           const shortGameRoomId = 1000 + Math.floor(Math.random() * 999);
 

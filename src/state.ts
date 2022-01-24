@@ -1,5 +1,6 @@
 const API_BASE = "http://localhost:3002";
 import { rtdb } from "./rtdb";
+import * as map from "lodash/map";
 const state = {
   data: {
     nombre: "",
@@ -8,13 +9,24 @@ const state = {
     rtdbRoomId: "",
     roomCreator: "",
     roomGuest: "",
-    rtdbData: {},
+    rtdbData: "",
   },
   listeners: [],
 
   init() {
     const localData = localStorage.getItem("saved-state");
     this.setState(JSON.parse(localData));
+  },
+  listenRTDBData() {
+    const currentState = this.getState();
+    const gameRoomRef = rtdb.ref("/gamerooms/" + currentState.rtdbRoomId);
+    gameRoomRef.on("value", (snapshot) => {
+      const cs = this.getState();
+      const data = snapshot.val();
+      cs.rtdbData = data.currentGame;
+      console.log(data);
+      this.setState(cs);
+    });
   },
   getState() {
     return this.data;
@@ -64,6 +76,7 @@ const state = {
         cs.roomCreator = true;
         cs.roomGuest = false;
         this.setState(cs);
+        this.listenRTDBData();
       });
   },
   accesToGameRoom(roomId: string) {
@@ -82,18 +95,11 @@ const state = {
         cs.roomCreator = false;
         cs.rtdbRoomId = data;
         cs.roomId = roomId;
+        this.listenRTDBData();
         this.setState(cs);
       });
   },
-  listenRTDBData() {
-    const gameRoomRef = rtdb.ref(`gamerooms/${this.data.rtdbRoomId}`);
-    gameRoomRef.on("value", (snapshot) => {
-      const cs = this.getState();
-      const dataFromServer = snapshot.val();
-      cs.rtdbData = dataFromServer.rtdbData;
-      this.setState(cs);
-    });
-  },
+
   setState(newState) {
     this.data = newState;
     for (const cb of this.listeners) {

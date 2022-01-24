@@ -10,7 +10,6 @@ class PreGameRoomPage extends HTMLElement {
 
     getInGameRoom.addEventListener("click", () => {
       const cs = state.getState();
-      console.log("Ingresando a Una sala previamente creada");
       state.setNombre(nombre.value);
       state.accesToGameRoom(cs.roomId);
       Router.go("/game-room");

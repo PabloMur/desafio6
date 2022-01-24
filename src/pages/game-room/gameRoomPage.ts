@@ -9,10 +9,9 @@ class GameRoomPage extends HTMLElement {
     const style = document.createElement("style");
     this.innerHTML = `
         <div class="container">
-         
          <show-name></show-name>
          <room-code></room-code>
-         <custom-button class="createRoom">Crear Sala de Juego</custom-button>
+         <div class="currentState"></div>
         </div>
       `;
     style.innerHTML = `

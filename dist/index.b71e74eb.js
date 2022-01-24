@@ -545,7 +545,7 @@ var _router = require("@vaadin/router");
     });
 })();
 
-},{"./state":"1Yeju","./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./components/showName":"1S6hc","./components/columnContainer":"fVUTk","./router.ts":"4QFWt","@vaadin/router":"kVZrF","./components/roomCode":"9Cky9"}],"1Yeju":[function(require,module,exports) {
+},{"./state":"1Yeju","./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./router.ts":"4QFWt","./components/showName":"1S6hc","./components/columnContainer":"fVUTk","./components/roomCode":"9Cky9","@vaadin/router":"kVZrF"}],"1Yeju":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state
@@ -560,13 +560,23 @@ const state = {
         rtdbRoomId: "",
         roomCreator: "",
         roomGuest: "",
-        rtdbData: {
-        }
+        rtdbData: ""
     },
     listeners: [],
     init () {
         const localData = localStorage.getItem("saved-state");
         this.setState(JSON.parse(localData));
+    },
+    listenRTDBData () {
+        const currentState = this.getState();
+        const gameRoomRef = _rtdb.rtdb.ref("/gamerooms/" + currentState.rtdbRoomId);
+        gameRoomRef.on("value", (snapshot)=>{
+            const cs = this.getState();
+            const data = snapshot.val();
+            cs.rtdbData = data.currentGame;
+            console.log(data);
+            this.setState(cs);
+        });
     },
     getState () {
         return this.data;
@@ -615,6 +625,7 @@ const state = {
             cs.roomCreator = true;
             cs.roomGuest = false;
             this.setState(cs);
+            this.listenRTDBData();
         });
     },
     accesToGameRoom (roomId) {
@@ -631,15 +642,7 @@ const state = {
             cs.roomCreator = false;
             cs.rtdbRoomId = data;
             cs.roomId = roomId;
-            this.setState(cs);
-        });
-    },
-    listenRTDBData () {
-        const gameRoomRef = _rtdb.rtdb.ref(`gamerooms/${this.data.rtdbRoomId}`);
-        gameRoomRef.on("value", (snapshot)=>{
-            const cs = this.getState();
-            const dataFromServer = snapshot.val();
-            cs.rtdbData = dataFromServer.rtdbData;
+            this.listenRTDBData();
             this.setState(cs);
         });
     },
@@ -59507,51 +59510,6 @@ class Button extends HTMLElement {
 }
 customElements.define("custom-button", Button);
 
-},{}],"1S6hc":[function(require,module,exports) {
-var _state = require("../state");
-class ShowName extends HTMLElement {
-    connectedCallback() {
-        _state.state.subscribe(()=>{
-            this.syncWithState();
-        });
-        this.syncWithState();
-    }
-    syncWithState() {
-        const lastState = _state.state.getState();
-        this.nombre = lastState.nombre;
-        this.render();
-    }
-    render() {
-        this.innerHTML = `<p>${this.nombre}</p>`;
-    }
-}
-customElements.define("show-name", ShowName);
-
-},{"../state":"1Yeju"}],"fVUTk":[function(require,module,exports) {
-class ColumnContainer extends HTMLElement {
-    connectedCallback() {
-        this.render();
-    }
-    render() {
-        const style = document.createElement("style");
-        this.innerHTML = `
-            <div class="column-container"></div>
-        `;
-        style.innerHTML = `
-        .column-container{
-            height: 95vh;
-            width: 100%;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            align-items: center;
-        }
-    `;
-    }
-}
-customElements.define("column-div", ColumnContainer);
-
 },{}],"4QFWt":[function(require,module,exports) {
 var _homePage = require("./pages/home-page/homePage");
 var _accessPage = require("./pages/access-page/accessPage");
@@ -59583,7 +59541,7 @@ router.setRoutes([
     }, 
 ]);
 
-},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","@vaadin/router":"kVZrF"}],"lkl5B":[function(require,module,exports) {
+},{"./pages/home-page/homePage":"lkl5B","@vaadin/router":"kVZrF","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm"}],"lkl5B":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 class Home extends HTMLElement {
     connectedCallback() {
@@ -62095,10 +62053,9 @@ class GameRoomPage extends HTMLElement {
         const style = document.createElement("style");
         this.innerHTML = `
         <div class="container">
-         
          <show-name></show-name>
          <room-code></room-code>
-         <custom-button class="createRoom">Crear Sala de Juego</custom-button>
+         <div class="currentState"></div>
         </div>
       `;
         style.innerHTML = `
@@ -62135,7 +62092,6 @@ class PreGameRoomPage extends HTMLElement {
         const nombre = document.querySelector(".playerName");
         getInGameRoom.addEventListener("click", ()=>{
             const cs = _state.state.getState();
-            console.log("Ingresando a Una sala previamente creada");
             _state.state.setNombre(nombre.value);
             _state.state.accesToGameRoom(cs.roomId);
             _router.Router.go("/game-room");
@@ -62176,7 +62132,52 @@ class PreGameRoomPage extends HTMLElement {
 }
 customElements.define("pre-game-room-page", PreGameRoomPage);
 
-},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"9Cky9":[function(require,module,exports) {
+},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"1S6hc":[function(require,module,exports) {
+var _state = require("../state");
+class ShowName extends HTMLElement {
+    connectedCallback() {
+        _state.state.subscribe(()=>{
+            this.syncWithState();
+        });
+        this.syncWithState();
+    }
+    syncWithState() {
+        const lastState = _state.state.getState();
+        this.nombre = lastState.nombre;
+        this.render();
+    }
+    render() {
+        this.innerHTML = `<p>${this.nombre}</p>`;
+    }
+}
+customElements.define("show-name", ShowName);
+
+},{"../state":"1Yeju"}],"fVUTk":[function(require,module,exports) {
+class ColumnContainer extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+            <div class="column-container"></div>
+        `;
+        style.innerHTML = `
+        .column-container{
+            height: 95vh;
+            width: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+        }
+    `;
+    }
+}
+customElements.define("column-div", ColumnContainer);
+
+},{}],"9Cky9":[function(require,module,exports) {
 var _state = require("../state");
 class RoomCode extends HTMLElement {
     connectedCallback() {
