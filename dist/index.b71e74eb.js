@@ -62093,6 +62093,7 @@ class PreGameRoomPage extends HTMLElement {
         getInGameRoom.addEventListener("click", ()=>{
             const cs = _state.state.getState();
             _state.state.setNombre(nombre.value);
+            _state.state.newPlayer(nombre.value);
             _state.state.accesToGameRoom(cs.roomId);
             _router.Router.go("/game-room");
         });

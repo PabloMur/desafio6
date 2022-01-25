@@ -50,7 +50,7 @@ app.post("/game-rooms", (req, res) => {
               id: null,
               choice: null,
               start: false,
-              date: new Date(),
+              date: new Date().toString(),
               online: false,
               creator: false,
               local: false,
