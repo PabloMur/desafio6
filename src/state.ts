@@ -10,6 +10,7 @@ const state = {
     roomCreator: "",
     roomGuest: "",
     rtdbData: "",
+    online: false,
   },
   listeners: [],
 
@@ -58,6 +59,28 @@ const state = {
         this.setState(cs);
       });
   },
+
+  guestPlayer(nombre: string) {
+    const cs = this.getState();
+    fetch(API_BASE + "/player", {
+      method: "post",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ nombre: nombre }),
+    })
+      .then((r) => {
+        return r.json();
+      })
+      .then((data) => {
+        cs.userId = data.id;
+        cs.nombre = nombre;
+        return true;
+      })
+      .then(() => {
+        this.setState(cs);
+      });
+  },
   askNewGameRoom() {
     const cs = this.getState();
     fetch(API_BASE + "/game-rooms", {
@@ -75,8 +98,8 @@ const state = {
         cs.rtdbRoomId = data.longGameRoomId;
         cs.roomCreator = true;
         cs.roomGuest = false;
-        this.setState(cs);
         this.listenRTDBData();
+        this.setState(cs);
       });
   },
   accesToGameRoom(roomId: string) {
@@ -98,6 +121,14 @@ const state = {
         this.listenRTDBData();
         this.setState(cs);
       });
+  },
+  inOnline() {
+    const cs = this.getState();
+    if (cs.online) {
+      console.log("online");
+    } else {
+      console.log("offline");
+    }
   },
 
   setState(newState) {

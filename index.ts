@@ -16,6 +16,10 @@ app.post("/player", (req, res) => {
   const { nombre } = req.body;
 
   playersCollection.add({ nombre }).then((newPlayerRef) => {
+    playersCollection.doc(newPlayerRef.id).update({
+      id: newPlayerRef.id,
+    });
+
     res.json({
       nombre,
       id: newPlayerRef.id,
@@ -23,6 +27,14 @@ app.post("/player", (req, res) => {
     });
   });
 });
+
+// app.post("/guest-player",(req,res)=>{
+//   const {nombre} = req.body
+
+//   playersCollection.add({nombre}).then((newGuestPlayerRef)=>{
+
+//   })
+// })
 
 app.post("/game-rooms", (req, res) => {
   const { userId } = req.body;
@@ -47,10 +59,10 @@ app.post("/game-rooms", (req, res) => {
               guest: false,
             },
             playerTwo: {
-              id: null,
-              choice: null,
+              id: 123,
+              choice: "none",
               start: false,
-              date: new Date().toString(),
+              date: new Date(),
               online: false,
               creator: false,
               local: false,
@@ -73,6 +85,9 @@ app.post("/game-rooms", (req, res) => {
               res.json({
                 friendlyId: shortGameRoomId.toString(),
                 longGameRoomId: longGameRoomId.toString(),
+              });
+              playersCollection.doc(userId.toString()).update({
+                rooms: [shortGameRoomId],
               });
             });
         });

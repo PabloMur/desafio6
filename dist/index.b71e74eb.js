@@ -560,7 +560,8 @@ const state = {
         rtdbRoomId: "",
         roomCreator: "",
         roomGuest: "",
-        rtdbData: ""
+        rtdbData: "",
+        online: false
     },
     listeners: [],
     init () {
@@ -607,6 +608,26 @@ const state = {
             this.setState(cs);
         });
     },
+    guestPlayer (nombre) {
+        const cs = this.getState();
+        fetch(API_BASE + "/player", {
+            method: "post",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                nombre: nombre
+            })
+        }).then((r)=>{
+            return r.json();
+        }).then((data)=>{
+            cs.userId = data.id;
+            cs.nombre = nombre;
+            return true;
+        }).then(()=>{
+            this.setState(cs);
+        });
+    },
     askNewGameRoom () {
         const cs = this.getState();
         fetch(API_BASE + "/game-rooms", {
@@ -624,8 +645,8 @@ const state = {
             cs.rtdbRoomId = data.longGameRoomId;
             cs.roomCreator = true;
             cs.roomGuest = false;
-            this.setState(cs);
             this.listenRTDBData();
+            this.setState(cs);
         });
     },
     accesToGameRoom (roomId) {
@@ -645,6 +666,11 @@ const state = {
             this.listenRTDBData();
             this.setState(cs);
         });
+    },
+    inOnline () {
+        const cs = this.getState();
+        if (cs.online) console.log("online");
+        else console.log("offline");
     },
     setState (newState) {
         this.data = newState;
@@ -61956,7 +61982,6 @@ class AccessRoomPage extends HTMLElement {
         const accessToRoomButton = document.querySelector(".access");
         const code = document.querySelector(".codeRoomId");
         accessToRoomButton.addEventListener("click", ()=>{
-            console.log(code.value);
             _state.state.accesToGameRoom(code.value);
             _router.Router.go("pre-game-room");
         });
@@ -62043,11 +62068,14 @@ class NewRoomPage extends HTMLElement {
 customElements.define("new-room-page", NewRoomPage);
 
 },{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"37vkO":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
+var _state = require("../../state");
 class GameRoomPage extends HTMLElement {
     connectedCallback() {
         this.render();
+        const startGame = document.querySelector(".startGame");
+        startGame.addEventListener("click", ()=>{
+            _state.state.inOnline();
+        });
     }
     render() {
         const style = document.createElement("style");
@@ -62055,6 +62083,7 @@ class GameRoomPage extends HTMLElement {
         <div class="container">
          <show-name></show-name>
          <room-code></room-code>
+         <custom-button class="startGame">Jugar!</custom-button>
          <div class="currentState"></div>
         </div>
       `;
@@ -62082,7 +62111,7 @@ class GameRoomPage extends HTMLElement {
 }
 customElements.define("game-room-page", GameRoomPage);
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bDFvm":[function(require,module,exports) {
+},{"../../state":"1Yeju"}],"bDFvm":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 var _state = require("../../state");
 class PreGameRoomPage extends HTMLElement {
@@ -62093,7 +62122,7 @@ class PreGameRoomPage extends HTMLElement {
         getInGameRoom.addEventListener("click", ()=>{
             const cs = _state.state.getState();
             _state.state.setNombre(nombre.value);
-            _state.state.newPlayer(nombre.value);
+            _state.state.guestPlayer(nombre.value);
             _state.state.accesToGameRoom(cs.roomId);
             _router.Router.go("/game-room");
         });

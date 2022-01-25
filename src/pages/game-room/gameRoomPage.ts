@@ -4,6 +4,10 @@ import { state } from "../../state";
 class GameRoomPage extends HTMLElement {
   connectedCallback() {
     this.render();
+    const startGame = document.querySelector(".startGame");
+    startGame.addEventListener("click", () => {
+      state.inOnline();
+    });
   }
   render() {
     const style = document.createElement("style");
@@ -11,6 +15,7 @@ class GameRoomPage extends HTMLElement {
         <div class="container">
          <show-name></show-name>
          <room-code></room-code>
+         <custom-button class="startGame">Jugar!</custom-button>
          <div class="currentState"></div>
         </div>
       `;

@@ -8,7 +8,6 @@ class AccessRoomPage extends HTMLElement {
     const code = document.querySelector(".codeRoomId") as any;
 
     accessToRoomButton.addEventListener("click", () => {
-      console.log(code.value);
       state.accesToGameRoom(code.value);
       Router.go("pre-game-room");
     });
