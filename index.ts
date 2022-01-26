@@ -28,13 +28,13 @@ app.post("/player", (req, res) => {
   });
 });
 
-// app.post("/guest-player",(req,res)=>{
-//   const {nombre} = req.body
-
-//   playersCollection.add({nombre}).then((newGuestPlayerRef)=>{
-
-//   })
-// })
+app.post("/game-data", (req, res) => {
+  const { rtdbRoomId } = req.body;
+  const gameRoomRef = rtdb.ref("gamerooms/" + rtdbRoomId + "/currentGame");
+  gameRoomRef.update({ test: "test" }).then((response) => {
+    console.log(response);
+  });
+});
 
 app.post("/game-rooms", (req, res) => {
   const { userId } = req.body;
@@ -103,6 +103,21 @@ app.get("/game-rooms/:roomId", (req, res) => {
     .then((snap) => {
       const snapData = snap.data();
       res.json(snapData.rtdbGameRoomId);
+    });
+});
+
+app.post("/test-rtdb", (req, res) => {
+  const { rtdbRommId } = req.body;
+  const gameRoomRef = rtdb.ref(`gamerooms/${rtdbRommId}/currentGame`);
+  gameRoomRef
+    .update({
+      test: "testeando el update, mas que nada para ver si se usa asi jaja",
+      date: new Date(),
+    })
+    .then(() => {
+      gameRoomRef.get().then((snap) => {
+        res.json(snap.val());
+      });
     });
 });
 

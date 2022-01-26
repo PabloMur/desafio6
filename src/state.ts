@@ -1,9 +1,10 @@
 const API_BASE = "http://localhost:3002";
 import { rtdb } from "./rtdb";
-import * as map from "lodash/map";
+
 const state = {
   data: {
     nombre: "",
+    contrincanteNombre: "",
     userId: "",
     roomId: "",
     rtdbRoomId: "",
@@ -11,6 +12,11 @@ const state = {
     roomGuest: "",
     rtdbData: "",
     online: false,
+    history: [],
+    score: {
+      contrincante: 0,
+      tu: 0,
+    },
   },
   listeners: [],
 
@@ -122,7 +128,7 @@ const state = {
         this.setState(cs);
       });
   },
-  inOnline() {
+  isOnline() {
     const cs = this.getState();
     if (cs.online) {
       console.log("online");

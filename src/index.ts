@@ -1,12 +1,7 @@
-//Components
-import "./components/header";
-import "./components/customText";
-import "./components/button";
-import "./components/showName";
-import "./components/columnContainer";
-import "./components/roomCode";
-
 import "./router.ts";
+import "./pages.ts";
+import "./components.ts";
+
 import { state } from "./state";
 import { Router } from "@vaadin/router";
 
@@ -17,12 +12,19 @@ import { Router } from "@vaadin/router";
   } else {
     state.setState({
       nombre: "",
+      contrincanteNombre: "",
       userId: "",
       roomId: "",
       rtdbRoomId: "",
       roomCreator: "",
       roomGuest: "",
-      rtdbData: {},
+      rtdbData: "",
+      online: false,
+      history: [],
+      score: {
+        contrincante: 0,
+        tu: 0,
+      },
     });
   }
 })();

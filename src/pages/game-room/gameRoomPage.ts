@@ -1,13 +1,11 @@
 import { Router } from "@vaadin/router";
+import { start } from "repl";
 import { state } from "../../state";
 
 class GameRoomPage extends HTMLElement {
   connectedCallback() {
     this.render();
-    const startGame = document.querySelector(".startGame");
-    startGame.addEventListener("click", () => {
-      state.inOnline();
-    });
+    this.beforeClose();
   }
   render() {
     const style = document.createElement("style");
@@ -15,6 +13,7 @@ class GameRoomPage extends HTMLElement {
         <div class="container">
          <show-name></show-name>
          <room-code></room-code>
+         <custom-marcador></custom-marcador>
          <custom-button class="startGame">Jugar!</custom-button>
          <div class="currentState"></div>
         </div>
@@ -39,6 +38,18 @@ class GameRoomPage extends HTMLElement {
     }
     `;
     this.appendChild(style);
+  }
+  beforeClose() {
+    const startGame = document.querySelector(".startGame");
+    startGame.addEventListener("click", () => {
+      Router.go("/choose-room");
+    });
+
+    window.onbeforeunload = function () {
+      console.log("cerrando la pagina");
+
+      return "estas cerrando esta pagina";
+    };
   }
 }
 

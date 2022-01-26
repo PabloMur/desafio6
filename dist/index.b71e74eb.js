@@ -519,14 +519,9 @@ function hmrAcceptRun(bundle, id) {
 }
 
 },{}],"h7u1C":[function(require,module,exports) {
-//Components
-var _header = require("./components/header");
-var _customText = require("./components/customText");
-var _button = require("./components/button");
-var _showName = require("./components/showName");
-var _columnContainer = require("./components/columnContainer");
-var _roomCode = require("./components/roomCode");
 var _routerTs = require("./router.ts");
+var _pagesTs = require("./pages.ts");
+var _componentsTs = require("./components.ts");
 var _state = require("./state");
 var _router = require("@vaadin/router");
 (function() {
@@ -535,17 +530,23 @@ var _router = require("@vaadin/router");
         _router.Router.go("/game-room");
     } else _state.state.setState({
         nombre: "",
+        contrincanteNombre: "",
         userId: "",
         roomId: "",
         rtdbRoomId: "",
         roomCreator: "",
         roomGuest: "",
-        rtdbData: {
+        rtdbData: "",
+        online: false,
+        history: [],
+        score: {
+            contrincante: 0,
+            tu: 0
         }
     });
 })();
 
-},{"./state":"1Yeju","./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./router.ts":"4QFWt","./components/showName":"1S6hc","./components/columnContainer":"fVUTk","./components/roomCode":"9Cky9","@vaadin/router":"kVZrF"}],"1Yeju":[function(require,module,exports) {
+},{"./state":"1Yeju","./router.ts":"4QFWt","@vaadin/router":"kVZrF","./pages.ts":"7T3Kv","./components.ts":"563zL"}],"1Yeju":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state
@@ -555,13 +556,19 @@ const API_BASE = "http://localhost:3002";
 const state = {
     data: {
         nombre: "",
+        contrincanteNombre: "",
         userId: "",
         roomId: "",
         rtdbRoomId: "",
         roomCreator: "",
         roomGuest: "",
         rtdbData: "",
-        online: false
+        online: false,
+        history: [],
+        score: {
+            contrincante: 0,
+            tu: 0
+        }
     },
     listeners: [],
     init () {
@@ -667,7 +674,7 @@ const state = {
             this.setState(cs);
         });
     },
-    inOnline () {
+    isOnline () {
         const cs = this.getState();
         if (cs.online) console.log("online");
         else console.log("offline");
@@ -59427,121 +59434,7 @@ function registerAppCheck(firebase1) {
 registerAppCheck(firebase__default['default']);
 initializeDebugMode();
 
-},{"@firebase/app":"2IH81","@firebase/component":"cxN7E","tslib":"lRdW5","@firebase/util":"6TQ9l","@firebase/logger":"e2t6F"}],"h4YWK":[function(require,module,exports) {
-class Header extends HTMLElement {
-    connectedCallback() {
-        this.render();
-    }
-    render() {
-        const style = document.createElement("style");
-        this.innerHTML = `
-            <div class="header"></div>
-        `;
-        style.innerHTML = `
-        .header{
-            height: 10vh;
-            width: 100%;
-            background: red;
-        }
-        `;
-        this.appendChild(style);
-    }
-}
-customElements.define("custom-header", Header);
-
-},{}],"e43ts":[function(require,module,exports) {
-class CustomText extends HTMLElement {
-    connectedCallback() {
-        this.render();
-    }
-    render() {
-        const variant = this.getAttribute("variant") || "body";
-        const div = document.createElement("div");
-        const style = document.createElement("style");
-        style.innerHTML = `
-        .title{
-            font-size:80px;
-            font-weight: bold;
-            color: #009048;
-            transition: all 3s ease;
-        }
-        .body{
-            font-size: 30px;
-            max-width: 600px;
-            margin-bottom: 20px;
-        }
-      `;
-        div.className = variant;
-        div.textContent = this.textContent;
-        this.shadow.appendChild(div);
-        this.shadow.appendChild(style);
-    }
-    constructor(...args){
-        super(...args);
-        this.shadow = this.attachShadow({
-            mode: "open"
-        });
-    }
-}
-customElements.define("custom-text", CustomText);
-
-},{}],"jqdBz":[function(require,module,exports) {
-class Button extends HTMLElement {
-    connectedCallback() {
-        this.render();
-    }
-    render() {
-        const button = document.createElement("button");
-        const style = document.createElement("style");
-        button.className = "root";
-        style.innerHTML = `
-              .root{
-                  font-size: 18px;
-                  border-radius: 4px;
-                  padding: 17px 13px;
-                  background-color:#006CFC;
-                  color:#D8FCFC;
-                  width: 90vw;
-                  border: 10px solid #001997;
-                  animation: lower .4s ease ;
-              }
-              @media screen and (min-width: 960px){
-                .root{
-                  max-width: 600px;
-                  margin: 0 auto;
-                }
-              }
-              @keyframes lower{
-                0%{
-                    transform: translateY(100%);
-                }
-                75%{
-                    transform: translateY(-10%);
-                }
-                100%{
-                    transform: translateY(0%);
-                }
-            }
-            `;
-        button.textContent = this.textContent || "ups!";
-        this.shadow.appendChild(button);
-        this.shadow.appendChild(style);
-    }
-    constructor(...args){
-        super(...args);
-        this.shadow = this.attachShadow({
-            mode: "open"
-        });
-    }
-}
-customElements.define("custom-button", Button);
-
-},{}],"4QFWt":[function(require,module,exports) {
-var _homePage = require("./pages/home-page/homePage");
-var _accessPage = require("./pages/access-page/accessPage");
-var _newRoomPage = require("./pages/new-room/newRoomPage");
-var _gameRoomPage = require("./pages/game-room/gameRoomPage");
-var _preGameRoomPage = require("./pages/pre-game-room/preGameRoomPage");
+},{"@firebase/app":"2IH81","@firebase/component":"cxN7E","tslib":"lRdW5","@firebase/util":"6TQ9l","@firebase/logger":"e2t6F"}],"4QFWt":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 const router = new _router.Router(document.querySelector(".root"));
 router.setRoutes([
@@ -59564,59 +59457,12 @@ router.setRoutes([
     {
         path: "/pre-game-room",
         component: "pre-game-room-page"
+    },
+    {
+        path: "/choose-room",
+        component: "choose-room-page"
     }, 
 ]);
-
-},{"./pages/home-page/homePage":"lkl5B","@vaadin/router":"kVZrF","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm"}],"lkl5B":[function(require,module,exports) {
-var _router = require("@vaadin/router");
-class Home extends HTMLElement {
-    connectedCallback() {
-        this.render();
-        const newGameButton = document.querySelector(".newGame");
-        const accessToRoomButton = document.querySelector(".accessToRoom");
-        newGameButton.addEventListener("click", ()=>{
-            console.log("funcionando correctamente");
-            _router.Router.go("/new-room");
-        });
-        accessToRoomButton.addEventListener("click", ()=>{
-            console.log("estas queriendo acceder a una room conocida");
-            _router.Router.go("/access-room");
-        });
-    }
-    render() {
-        const style = document.createElement("style");
-        this.innerHTML = `
-        <div class="container">
-         <custom-text variant="title" class="title">Piedra Papel o Tijera</custom-text>
-         <div class="button-container">
-          <custom-button class="newGame">Nuevo Juego</custom-button>
-          <custom-button class="accessToRoom">Ingresar a Sala</custom-button>
-         </div>
-        </div>
-      `;
-        style.innerHTML = `
-      .container{
-        height: 95vh;
-        width: 100%;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        align-items: center;
-      }
-
-      .button-container{
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 30%;
-      }
-
-    `;
-        this.appendChild(style);
-    }
-}
-customElements.define("home-page", Home);
 
 },{"@vaadin/router":"kVZrF"}],"kVZrF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -61973,7 +61819,67 @@ Router.NavigationTrigger = {
     CLICK
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jEqGg":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7T3Kv":[function(require,module,exports) {
+//Pages
+var _homePage = require("./pages/home-page/homePage");
+var _accessPage = require("./pages/access-page/accessPage");
+var _newRoomPage = require("./pages/new-room/newRoomPage");
+var _gameRoomPage = require("./pages/game-room/gameRoomPage");
+var _preGameRoomPage = require("./pages/pre-game-room/preGameRoomPage");
+var _chooseRoomPage = require("./pages/choose-room/chooseRoomPage");
+
+},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","./pages/choose-room/chooseRoomPage":"hLsoi"}],"lkl5B":[function(require,module,exports) {
+var _router = require("@vaadin/router");
+class Home extends HTMLElement {
+    connectedCallback() {
+        this.render();
+        const newGameButton = document.querySelector(".newGame");
+        const accessToRoomButton = document.querySelector(".accessToRoom");
+        newGameButton.addEventListener("click", ()=>{
+            console.log("funcionando correctamente");
+            _router.Router.go("/new-room");
+        });
+        accessToRoomButton.addEventListener("click", ()=>{
+            console.log("estas queriendo acceder a una room conocida");
+            _router.Router.go("/access-room");
+        });
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+        <div class="container">
+         <custom-text variant="title" class="title">Piedra Papel o Tijera</custom-text>
+         <div class="button-container">
+          <custom-button class="newGame">Nuevo Juego</custom-button>
+          <custom-button class="accessToRoom">Ingresar a Sala</custom-button>
+         </div>
+        </div>
+      `;
+        style.innerHTML = `
+      .container{
+        height: 95vh;
+        width: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+      }
+
+      .button-container{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 30%;
+      }
+
+    `;
+        this.appendChild(style);
+    }
+}
+customElements.define("home-page", Home);
+
+},{"@vaadin/router":"kVZrF"}],"jEqGg":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 var _state = require("../../state");
 class AccessRoomPage extends HTMLElement {
@@ -62068,14 +61974,11 @@ class NewRoomPage extends HTMLElement {
 customElements.define("new-room-page", NewRoomPage);
 
 },{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"37vkO":[function(require,module,exports) {
-var _state = require("../../state");
+var _router = require("@vaadin/router");
 class GameRoomPage extends HTMLElement {
     connectedCallback() {
         this.render();
-        const startGame = document.querySelector(".startGame");
-        startGame.addEventListener("click", ()=>{
-            _state.state.inOnline();
-        });
+        this.beforeClose();
     }
     render() {
         const style = document.createElement("style");
@@ -62083,6 +61986,7 @@ class GameRoomPage extends HTMLElement {
         <div class="container">
          <show-name></show-name>
          <room-code></room-code>
+         <custom-marcador></custom-marcador>
          <custom-button class="startGame">Jugar!</custom-button>
          <div class="currentState"></div>
         </div>
@@ -62108,10 +62012,20 @@ class GameRoomPage extends HTMLElement {
     `;
         this.appendChild(style);
     }
+    beforeClose() {
+        const startGame = document.querySelector(".startGame");
+        startGame.addEventListener("click", ()=>{
+            _router.Router.go("/choose-room");
+        });
+        window.onbeforeunload = function() {
+            console.log("cerrando la pagina");
+            return "estas cerrando esta pagina";
+        };
+    }
 }
 customElements.define("game-room-page", GameRoomPage);
 
-},{"../../state":"1Yeju"}],"bDFvm":[function(require,module,exports) {
+},{"@vaadin/router":"kVZrF"}],"bDFvm":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 var _state = require("../../state");
 class PreGameRoomPage extends HTMLElement {
@@ -62162,7 +62076,139 @@ class PreGameRoomPage extends HTMLElement {
 }
 customElements.define("pre-game-room-page", PreGameRoomPage);
 
-},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"1S6hc":[function(require,module,exports) {
+},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"hLsoi":[function(require,module,exports) {
+class ChoosePage extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        this.innerHTML = `
+        <p>Choose</p>
+      `;
+    }
+}
+customElements.define("choose-room-page", ChoosePage);
+
+},{}],"563zL":[function(require,module,exports) {
+//Components
+var _header = require("./components/header");
+var _customText = require("./components/customText");
+var _button = require("./components/button");
+var _showName = require("./components/showName");
+var _columnContainer = require("./components/columnContainer");
+var _roomCode = require("./components/roomCode");
+var _marcador = require("./components/marcador");
+
+},{"./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./components/showName":"1S6hc","./components/columnContainer":"fVUTk","./components/roomCode":"9Cky9","./components/marcador":"2up0v"}],"h4YWK":[function(require,module,exports) {
+class Header extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+            <div class="header"></div>
+        `;
+        style.innerHTML = `
+        .header{
+            height: 10vh;
+            width: 100%;
+            background: red;
+        }
+        `;
+        this.appendChild(style);
+    }
+}
+customElements.define("custom-header", Header);
+
+},{}],"e43ts":[function(require,module,exports) {
+class CustomText extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        const variant = this.getAttribute("variant") || "body";
+        const div = document.createElement("div");
+        const style = document.createElement("style");
+        style.innerHTML = `
+        .title{
+            font-size:80px;
+            font-weight: bold;
+            color: #009048;
+            transition: all 3s ease;
+        }
+        .body{
+            font-size: 30px;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+      `;
+        div.className = variant;
+        div.textContent = this.textContent;
+        this.shadow.appendChild(div);
+        this.shadow.appendChild(style);
+    }
+    constructor(...args){
+        super(...args);
+        this.shadow = this.attachShadow({
+            mode: "open"
+        });
+    }
+}
+customElements.define("custom-text", CustomText);
+
+},{}],"jqdBz":[function(require,module,exports) {
+class Button extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        const button = document.createElement("button");
+        const style = document.createElement("style");
+        button.className = "root";
+        style.innerHTML = `
+              .root{
+                  font-size: 18px;
+                  border-radius: 4px;
+                  padding: 17px 13px;
+                  background-color:#006CFC;
+                  color:#D8FCFC;
+                  width: 90vw;
+                  border: 10px solid #001997;
+                  animation: lower .4s ease ;
+              }
+              @media screen and (min-width: 960px){
+                .root{
+                  max-width: 600px;
+                  margin: 0 auto;
+                }
+              }
+              @keyframes lower{
+                0%{
+                    transform: translateY(100%);
+                }
+                75%{
+                    transform: translateY(-10%);
+                }
+                100%{
+                    transform: translateY(0%);
+                }
+            }
+            `;
+        button.textContent = this.textContent || "ups!";
+        this.shadow.appendChild(button);
+        this.shadow.appendChild(style);
+    }
+    constructor(...args){
+        super(...args);
+        this.shadow = this.attachShadow({
+            mode: "open"
+        });
+    }
+}
+customElements.define("custom-button", Button);
+
+},{}],"1S6hc":[function(require,module,exports) {
 var _state = require("../state");
 class ShowName extends HTMLElement {
     connectedCallback() {
@@ -62226,6 +62272,49 @@ class RoomCode extends HTMLElement {
     }
 }
 customElements.define("room-code", RoomCode);
+
+},{"../state":"1Yeju"}],"2up0v":[function(require,module,exports) {
+var _state = require("../state");
+class Marcador extends HTMLElement {
+    connectedCallback() {
+        _state.state.subscribe(()=>{
+            this.syncWithState();
+        });
+        this.syncWithState();
+    }
+    syncWithState() {
+        const lastState = _state.state.getState();
+        this.nombre = lastState.nombre;
+        this.contrincante = lastState.score.contrincante;
+        this.tu = lastState.score.tu;
+        this.contrincanteNombre = lastState.contrincante;
+        this.render();
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+        <div class="marcador-container">
+            <div class="marcador-el" class="local">${this.nombre}:${this.tu}</div>
+            <div class="marcador-el"class="guest">${this.contrincanteNombre}:${this.contrincante}</div>
+        </div>
+        `;
+        style.innerHTML = `
+        .marcador-container{
+            display: flex;
+            flex-direction:column;
+            background: orange;
+            height: 20vh;
+            width: 20vw;
+        }
+    `;
+        this.appendChild(style);
+    }
+    constructor(...args){
+        super(...args);
+        this.contrincanteNombre = "Contrincante";
+    }
+}
+customElements.define("custom-marcador", Marcador);
 
 },{"../state":"1Yeju"}]},["8wcER","h7u1C"], "h7u1C", "parcelRequireca0a")
 
