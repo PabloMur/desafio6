@@ -28,16 +28,29 @@ app.post("/player", (req, res) => {
   });
 });
 
-app.post("/game-data", (req, res) => {
-  const { rtdbRoomId } = req.body;
-  const gameRoomRef = rtdb.ref("gamerooms/" + rtdbRoomId + "/currentGame");
-  gameRoomRef.update({ test: "test" }).then((response) => {
-    console.log(response);
+app.post("/player-guest", (req, res) => {
+  const { nombre, rtdbGameRoomId } = req.body;
+  const gameRoomRef = rtdb.ref(
+    `gamerooms/${rtdbGameRoomId}/currentGame/playerTwo`
+  );
+
+  playersCollection.add({ nombre }).then((newPlayerRef) => {
+    playersCollection.doc(newPlayerRef.id).update({
+      id: newPlayerRef.id,
+    });
+
+    gameRoomRef.update({ nombre });
+
+    res.json({
+      nombre,
+      id: newPlayerRef.id,
+      new: true,
+    });
   });
 });
 
 app.post("/game-rooms", (req, res) => {
-  const { userId } = req.body;
+  const { userId, nombre } = req.body;
   playersCollection
     .doc(userId.toString())
     .get()
@@ -50,7 +63,8 @@ app.post("/game-rooms", (req, res) => {
           currentGame: {
             playerOne: {
               id: userId,
-              choice: null,
+              nombre: nombre,
+              choice: "none",
               start: false,
               date: new Date(),
               online: false,
@@ -60,6 +74,7 @@ app.post("/game-rooms", (req, res) => {
             },
             playerTwo: {
               id: 123,
+              nombre: "contrincante",
               choice: "none",
               start: false,
               date: new Date(),
@@ -106,19 +121,40 @@ app.get("/game-rooms/:roomId", (req, res) => {
     });
 });
 
-app.post("/test-rtdb", (req, res) => {
-  const { rtdbRommId } = req.body;
-  const gameRoomRef = rtdb.ref(`gamerooms/${rtdbRommId}/currentGame`);
-  gameRoomRef
-    .update({
-      test: "testeando el update, mas que nada para ver si se usa asi jaja",
-      date: new Date(),
-    })
-    .then(() => {
-      gameRoomRef.get().then((snap) => {
-        res.json(snap.val());
+app.post("/current-game", (req, res) => {
+  const { rtdbRommId, nombre, isLocal } = req.body;
+
+  if (isLocal) {
+    const gameRoomRef = rtdb.ref(
+      `gamerooms/${rtdbRommId}/currentGame/playerOne`
+    );
+    gameRoomRef
+      .update({
+        nombre: nombre,
+      })
+      .then(() => {
+        gameRoomRef.get().then((snap) => {
+          res.json(snap.val());
+        });
       });
+  } else if (!isLocal) {
+    const gameRoomRef = rtdb.ref(
+      `gamerooms/${rtdbRommId}/currentGame/playerTwo`
+    );
+    gameRoomRef
+      .update({
+        nombre: nombre,
+      })
+      .then(() => {
+        gameRoomRef.get().then((snap) => {
+          res.json(snap.val());
+        });
+      });
+  } else {
+    res.json({
+      message: "not ok",
     });
+  }
 });
 
 //Sirve la carpeta dist creada por parcel

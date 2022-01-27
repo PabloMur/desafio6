@@ -12,10 +12,10 @@ class Marcador extends HTMLElement {
   }
   syncWithState() {
     const lastState = state.getState();
-    this.nombre = lastState.nombre;
+    this.nombre = lastState.rtdbData.playerOne.nombre;
     this.contrincante = lastState.score.contrincante;
     this.tu = lastState.score.tu;
-    this.contrincanteNombre = lastState.contrincante;
+    this.contrincanteNombre = lastState.rtdbData.playerTwo.nombre;
     this.render();
   }
   render() {

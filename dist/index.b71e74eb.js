@@ -520,8 +520,8 @@ function hmrAcceptRun(bundle, id) {
 
 },{}],"h7u1C":[function(require,module,exports) {
 var _routerTs = require("./router.ts");
-var _pagesTs = require("./pages.ts");
-var _componentsTs = require("./components.ts");
+var _pagesInit = require("./pagesInit");
+var _componentsInit = require("./componentsInit");
 var _state = require("./state");
 var _router = require("@vaadin/router");
 (function() {
@@ -530,7 +530,7 @@ var _router = require("@vaadin/router");
         _router.Router.go("/game-room");
     } else _state.state.setState({
         nombre: "",
-        contrincanteNombre: "",
+        contrincanteNombre: "Contrincante",
         userId: "",
         roomId: "",
         rtdbRoomId: "",
@@ -546,17 +546,18 @@ var _router = require("@vaadin/router");
     });
 })();
 
-},{"./state":"1Yeju","./router.ts":"4QFWt","@vaadin/router":"kVZrF","./pages.ts":"7T3Kv","./components.ts":"563zL"}],"1Yeju":[function(require,module,exports) {
+},{"./state":"1Yeju","./router.ts":"4QFWt","./pagesInit":"7UnQZ","./componentsInit":"1pzdx","@vaadin/router":"kVZrF"}],"1Yeju":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state
 );
 var _rtdb = require("./rtdb");
+// const API_BASE = "https://desafio6pm.herokuapp.com";
 const API_BASE = "http://localhost:3002";
 const state = {
     data: {
         nombre: "",
-        contrincanteNombre: "",
+        contrincanteNombre: "Contrincante",
         userId: "",
         roomId: "",
         rtdbRoomId: "",
@@ -582,7 +583,6 @@ const state = {
             const cs = this.getState();
             const data = snapshot.val();
             cs.rtdbData = data.currentGame;
-            console.log(data);
             this.setState(cs);
         });
     },
@@ -615,15 +615,16 @@ const state = {
             this.setState(cs);
         });
     },
-    guestPlayer (nombre) {
+    guestPlayer (nombre, rtdbRoomId) {
         const cs = this.getState();
-        fetch(API_BASE + "/player", {
+        fetch(API_BASE + "/player-guest", {
             method: "post",
             headers: {
                 "content-type": "application/json"
             },
             body: JSON.stringify({
-                nombre: nombre
+                nombre: nombre,
+                rtdbGameRoomId: cs.rtdbRoomId
             })
         }).then((r)=>{
             return r.json();
@@ -643,7 +644,8 @@ const state = {
                 "content-type": "application/json"
             },
             body: JSON.stringify({
-                userId: cs.userId
+                userId: cs.userId,
+                nombre: cs.nombre
             })
         }).then((r)=>{
             return r.json();
@@ -59461,6 +59463,10 @@ router.setRoutes([
     {
         path: "/choose-room",
         component: "choose-room-page"
+    },
+    {
+        path: "/instructions",
+        component: "instructions-page"
     }, 
 ]);
 
@@ -61819,7 +61825,7 @@ Router.NavigationTrigger = {
     CLICK
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7T3Kv":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7UnQZ":[function(require,module,exports) {
 //Pages
 var _homePage = require("./pages/home-page/homePage");
 var _accessPage = require("./pages/access-page/accessPage");
@@ -61827,8 +61833,9 @@ var _newRoomPage = require("./pages/new-room/newRoomPage");
 var _gameRoomPage = require("./pages/game-room/gameRoomPage");
 var _preGameRoomPage = require("./pages/pre-game-room/preGameRoomPage");
 var _chooseRoomPage = require("./pages/choose-room/chooseRoomPage");
+var _instructionsPage = require("./pages/instructions-page/instructionsPage");
 
-},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","./pages/choose-room/chooseRoomPage":"hLsoi"}],"lkl5B":[function(require,module,exports) {
+},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","./pages/choose-room/chooseRoomPage":"hLsoi","./pages/instructions-page/instructionsPage":"jnTvn"}],"lkl5B":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 class Home extends HTMLElement {
     connectedCallback() {
@@ -62015,7 +62022,7 @@ class GameRoomPage extends HTMLElement {
     beforeClose() {
         const startGame = document.querySelector(".startGame");
         startGame.addEventListener("click", ()=>{
-            _router.Router.go("/choose-room");
+            _router.Router.go("/instructions");
         });
         window.onbeforeunload = function() {
             console.log("cerrando la pagina");
@@ -62076,7 +62083,7 @@ class PreGameRoomPage extends HTMLElement {
 }
 customElements.define("pre-game-room-page", PreGameRoomPage);
 
-},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"hLsoi":[function(require,module,exports) {
+},{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"hLsoi":[function(require,module,exports) {
 class ChoosePage extends HTMLElement {
     connectedCallback() {
         this.render();
@@ -62089,7 +62096,55 @@ class ChoosePage extends HTMLElement {
 }
 customElements.define("choose-room-page", ChoosePage);
 
-},{}],"563zL":[function(require,module,exports) {
+},{}],"jnTvn":[function(require,module,exports) {
+var _router = require("@vaadin/router");
+class instructions extends HTMLElement {
+    connectedCallback() {
+        this.render();
+        const playButton = document.querySelector(".play-button");
+        playButton.addEventListener("click", ()=>{
+            _router.Router.go("/choose-room");
+        });
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+            <p class="instructions">
+                Presioná jugar y elegí: piedra, papel o tijera antes de que pasen los 3 segundos.
+            </p>
+            <custom-button class="play-button">¡Jugar!</custom-button>
+        `;
+        this.className = "contenedor";
+        style.innerHTML = `
+    .contenedor{
+      height: 60vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+
+    }
+    .instructions{
+      font-size: 45px;
+      display: block;
+      height: auto;
+      max-width: 600px;
+      text-align: center;
+      animation: fade .7s ease;
+    }
+    @keyframes fade{
+      0%{
+        opacity: 0;
+      }
+      100%{
+        opacity: 1;
+      }
+    }`;
+        this.appendChild(style);
+    }
+}
+customElements.define("instructions-page", instructions);
+
+},{"@vaadin/router":"kVZrF"}],"1pzdx":[function(require,module,exports) {
 //Components
 var _header = require("./components/header");
 var _customText = require("./components/customText");
@@ -62284,10 +62339,10 @@ class Marcador extends HTMLElement {
     }
     syncWithState() {
         const lastState = _state.state.getState();
-        this.nombre = lastState.nombre;
+        this.nombre = lastState.rtdbData.playerOne.nombre;
         this.contrincante = lastState.score.contrincante;
         this.tu = lastState.score.tu;
-        this.contrincanteNombre = lastState.contrincante;
+        this.contrincanteNombre = lastState.rtdbData.playerTwo.nombre;
         this.render();
     }
     render() {

@@ -1,6 +1,6 @@
 import "./router.ts";
-import "./pages.ts";
-import "./components.ts";
+import "./pagesInit";
+import "./componentsInit";
 
 import { state } from "./state";
 import { Router } from "@vaadin/router";
@@ -12,7 +12,7 @@ import { Router } from "@vaadin/router";
   } else {
     state.setState({
       nombre: "",
-      contrincanteNombre: "",
+      contrincanteNombre: "Contrincante",
       userId: "",
       roomId: "",
       rtdbRoomId: "",

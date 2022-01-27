@@ -8,4 +8,5 @@ router.setRoutes([
   { path: "/game-room", component: "game-room-page" },
   { path: "/pre-game-room", component: "pre-game-room-page" },
   { path: "/choose-room", component: "choose-room-page" },
+  { path: "/instructions", component: "instructions-page" },
 ]);

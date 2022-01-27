@@ -1,10 +1,11 @@
+// const API_BASE = "https://desafio6pm.herokuapp.com";
 const API_BASE = "http://localhost:3002";
 import { rtdb } from "./rtdb";
 
 const state = {
   data: {
     nombre: "",
-    contrincanteNombre: "",
+    contrincanteNombre: "Contrincante",
     userId: "",
     roomId: "",
     rtdbRoomId: "",
@@ -31,7 +32,6 @@ const state = {
       const cs = this.getState();
       const data = snapshot.val();
       cs.rtdbData = data.currentGame;
-      console.log(data);
       this.setState(cs);
     });
   },
@@ -66,14 +66,14 @@ const state = {
       });
   },
 
-  guestPlayer(nombre: string) {
+  guestPlayer(nombre: string, rtdbRoomId: string) {
     const cs = this.getState();
-    fetch(API_BASE + "/player", {
+    fetch(API_BASE + "/player-guest", {
       method: "post",
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ nombre: nombre }),
+      body: JSON.stringify({ nombre: nombre, rtdbGameRoomId: cs.rtdbRoomId }),
     })
       .then((r) => {
         return r.json();
@@ -94,7 +94,7 @@ const state = {
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ userId: cs.userId }),
+      body: JSON.stringify({ userId: cs.userId, nombre: cs.nombre }),
     })
       .then((r) => {
         return r.json();

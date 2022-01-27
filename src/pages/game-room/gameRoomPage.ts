@@ -42,7 +42,7 @@ class GameRoomPage extends HTMLElement {
   beforeClose() {
     const startGame = document.querySelector(".startGame");
     startGame.addEventListener("click", () => {
-      Router.go("/choose-room");
+      Router.go("/instructions");
     });
 
     window.onbeforeunload = function () {
