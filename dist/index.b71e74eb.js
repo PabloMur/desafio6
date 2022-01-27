@@ -61991,10 +61991,14 @@ class GameRoomPage extends HTMLElement {
         const style = document.createElement("style");
         this.innerHTML = `
         <div class="container">
-         <show-name></show-name>
-         <room-code></room-code>
+         <div class="container-room-score">
          <custom-marcador></custom-marcador>
-         <custom-button class="startGame">Jugar!</custom-button>
+         <room-code></room-code>
+         </div>
+         <div class="share-message">
+          <custom-share-code-message></custom-share-code-message>
+         </div>
+         <custom-button class="startGame escondido">Jugar!</custom-button>
          <div class="currentState"></div>
         </div>
       `;
@@ -62008,13 +62012,15 @@ class GameRoomPage extends HTMLElement {
       justify-content: space-around;
       align-items: center;
     }
-    .playerName{
-      width: 57%;
-      height: 10vh;
-      border: 5px solid blue;
-      border-radius: 5px;
-      padding: 7px;
-      text-align: center;
+    .container-room-score{
+      width: 90%;
+      margin: 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .escondido{
+      display:none;
     }
     `;
         this.appendChild(style);
@@ -62153,8 +62159,9 @@ var _showName = require("./components/showName");
 var _columnContainer = require("./components/columnContainer");
 var _roomCode = require("./components/roomCode");
 var _marcador = require("./components/marcador");
+var _shareCodeMessage = require("./components/shareCodeMessage");
 
-},{"./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./components/showName":"1S6hc","./components/columnContainer":"fVUTk","./components/roomCode":"9Cky9","./components/marcador":"2up0v"}],"h4YWK":[function(require,module,exports) {
+},{"./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./components/showName":"1S6hc","./components/columnContainer":"fVUTk","./components/roomCode":"9Cky9","./components/marcador":"2up0v","./components/shareCodeMessage":"2o8hN"}],"h4YWK":[function(require,module,exports) {
 class Header extends HTMLElement {
     connectedCallback() {
         this.render();
@@ -62349,17 +62356,21 @@ class Marcador extends HTMLElement {
         const style = document.createElement("style");
         this.innerHTML = `
         <div class="marcador-container">
-            <div class="marcador-el" class="local">${this.nombre}:${this.tu}</div>
-            <div class="marcador-el"class="guest">${this.contrincanteNombre}:${this.contrincante}</div>
+            <div class="marcador-el local">${this.nombre}:${this.tu}</div>
+            <div class="marcador-el guest">${this.contrincanteNombre}:${this.contrincante}</div>
         </div>
         `;
         style.innerHTML = `
         .marcador-container{
             display: flex;
+            align-items: flex-end;
+            justify-content: center;
             flex-direction:column;
-            background: orange;
-            height: 20vh;
+            height: 10vh;
             width: 20vw;
+        }
+        .guest{
+          color: red;
         }
     `;
         this.appendChild(style);
@@ -62370,6 +62381,31 @@ class Marcador extends HTMLElement {
     }
 }
 customElements.define("custom-marcador", Marcador);
+
+},{"../state":"1Yeju"}],"2o8hN":[function(require,module,exports) {
+var _state = require("../state");
+class ShareCodeMessage extends HTMLElement {
+    connectedCallback() {
+        _state.state.subscribe(()=>{
+            this.syncWhithState();
+        });
+        this.syncWhithState();
+    }
+    syncWhithState() {
+        const cs = _state.state.getState();
+        this.roomId = cs.roomId;
+        this.render();
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+        <div class="messageContainer">
+        <p>Comparte este codigo</p> <h3>${this.roomId}</h3> <p>con tu contrincante</p>
+        </div>
+      `;
+    }
+}
+customElements.define("custom-share-code-message", ShareCodeMessage);
 
 },{"../state":"1Yeju"}]},["8wcER","h7u1C"], "h7u1C", "parcelRequireca0a")
 

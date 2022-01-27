@@ -22,17 +22,21 @@ class Marcador extends HTMLElement {
     const style = document.createElement("style");
     this.innerHTML = `
         <div class="marcador-container">
-            <div class="marcador-el" class="local">${this.nombre}:${this.tu}</div>
-            <div class="marcador-el"class="guest">${this.contrincanteNombre}:${this.contrincante}</div>
+            <div class="marcador-el local">${this.nombre}:${this.tu}</div>
+            <div class="marcador-el guest">${this.contrincanteNombre}:${this.contrincante}</div>
         </div>
         `;
     style.innerHTML = `
         .marcador-container{
             display: flex;
+            align-items: flex-end;
+            justify-content: center;
             flex-direction:column;
-            background: orange;
-            height: 20vh;
+            height: 10vh;
             width: 20vw;
+        }
+        .guest{
+          color: red;
         }
     `;
     this.appendChild(style);

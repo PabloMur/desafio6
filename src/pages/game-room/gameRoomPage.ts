@@ -1,5 +1,4 @@
 import { Router } from "@vaadin/router";
-import { start } from "repl";
 import { state } from "../../state";
 
 class GameRoomPage extends HTMLElement {
@@ -11,10 +10,14 @@ class GameRoomPage extends HTMLElement {
     const style = document.createElement("style");
     this.innerHTML = `
         <div class="container">
-         <show-name></show-name>
-         <room-code></room-code>
+         <div class="container-room-score">
          <custom-marcador></custom-marcador>
-         <custom-button class="startGame">Jugar!</custom-button>
+         <room-code></room-code>
+         </div>
+         <div class="share-message">
+          <custom-share-code-message></custom-share-code-message>
+         </div>
+         <custom-button class="startGame escondido">Jugar!</custom-button>
          <div class="currentState"></div>
         </div>
       `;
@@ -28,13 +31,15 @@ class GameRoomPage extends HTMLElement {
       justify-content: space-around;
       align-items: center;
     }
-    .playerName{
-      width: 57%;
-      height: 10vh;
-      border: 5px solid blue;
-      border-radius: 5px;
-      padding: 7px;
-      text-align: center;
+    .container-room-score{
+      width: 90%;
+      margin: 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .escondido{
+      display:none;
     }
     `;
     this.appendChild(style);
