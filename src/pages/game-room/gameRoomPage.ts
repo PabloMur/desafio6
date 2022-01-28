@@ -2,8 +2,11 @@ import { Router } from "@vaadin/router";
 import { state } from "../../state";
 
 class GameRoomPage extends HTMLElement {
+  online: boolean;
   connectedCallback() {
-    this.render();
+    state.subscribe(() => {
+      this.beforeClose();
+    });
     this.beforeClose();
   }
   render() {
@@ -17,10 +20,12 @@ class GameRoomPage extends HTMLElement {
          <div class="share-message">
           <custom-share-code-message></custom-share-code-message>
          </div>
-         <custom-button class="startGame escondido">Jugar!</custom-button>
-         <div class="currentState"></div>
+         <custom-text class="cuandoEstesListo escondido">Ya tienes un contricante! Preciona Comenzar cuando estés listo.</custom-text>
+         <custom-button class="startGame escondido">Comenzar!</custom-button>
+         
         </div>
       `;
+
     style.innerHTML = `
     .container{
       height: 95vh;
@@ -41,20 +46,33 @@ class GameRoomPage extends HTMLElement {
     .escondido{
       display:none;
     }
+    .mostrado{
+      display:inherit;
+    }
     `;
     this.appendChild(style);
   }
   beforeClose() {
-    const startGame = document.querySelector(".startGame");
-    startGame.addEventListener("click", () => {
+    const cs = state.getState();
+    state.playerIsOnline("local", cs.rtdbRoomId);
+    this.online = true;
+    this.render();
+
+    const button = document.querySelector(".startGame");
+    const shareMessage = document.querySelector(".share-message");
+    const bothReady = document.querySelector(".cuandoEstesListo");
+
+    if (this.online && cs.rtdbData.playerTwo.online == true) {
+      shareMessage.classList.add("escondido");
+      bothReady.classList.remove("escondido");
+      bothReady.classList.add("mostrado");
+      button.classList.remove("escondido");
+      button.classList.add("mostrado");
+    }
+
+    button.addEventListener("click", () => {
       Router.go("/instructions");
     });
-
-    window.onbeforeunload = function () {
-      console.log("cerrando la pagina");
-
-      return "estas cerrando esta pagina";
-    };
   }
 }
 

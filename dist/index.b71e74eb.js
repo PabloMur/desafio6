@@ -552,7 +552,6 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state
 );
 var _rtdb = require("./rtdb");
-// const API_BASE = "https://desafio6pm.herokuapp.com";
 const API_BASE = "http://localhost:3002";
 const state = {
     data: {
@@ -676,10 +675,31 @@ const state = {
             this.setState(cs);
         });
     },
-    isOnline () {
+    playerIsOnline (localOrGuest, rtdbRoomId) {
         const cs = this.getState();
-        if (cs.online) console.log("online");
-        else console.log("offline");
+        fetch(API_BASE + "/online", {
+            method: "post",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                player: localOrGuest,
+                rtdbRoomId: rtdbRoomId
+            })
+        });
+    },
+    playerIsReady (localOrGuest, rtdbRoomId) {
+        const cs = this.getState();
+        fetch(API_BASE + "/online", {
+            method: "post",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                player: localOrGuest,
+                rtdbRoomId: rtdbRoomId
+            })
+        });
     },
     setState (newState) {
         this.data = newState;
@@ -689,6 +709,57 @@ const state = {
     },
     subscribe (callback) {
         this.listeners.push(callback);
+    },
+    whoWins (miJugada, PCjuagada) {
+        const ganeConTijeras = miJugada == "tijera" && PCjuagada == "papel";
+        const ganeConPiedra = miJugada == "piedra" && PCjuagada == "tijera";
+        const ganeConPapel = miJugada == "papel" && PCjuagada == "piedra";
+        const perdiConTijeras = miJugada == "tijera" && PCjuagada == "piedra";
+        const perdiConPapel = miJugada == "papel" && PCjuagada == "tijera";
+        const perdiConPiedra = miJugada == "piedra" && PCjuagada == "papel";
+        const gane = [
+            ganeConPapel,
+            ganeConPiedra,
+            ganeConTijeras
+        ].includes(true);
+        const perdi = [
+            perdiConPapel,
+            perdiConPiedra,
+            perdiConTijeras
+        ].includes(true);
+        const empate = gane == perdi;
+        if (gane) {
+            const lastState = this.getState();
+            this.setState({
+                ...lastState,
+                score: {
+                    tu: lastState.score.tu + 1,
+                    maquina: lastState.score.maquina
+                },
+                result: "gane"
+            });
+            return "gane";
+        }
+        if (perdi) {
+            const lastState = this.getState();
+            this.setState({
+                ...lastState,
+                score: {
+                    tu: lastState.score.tu,
+                    maquina: lastState.score.maquina + 1
+                },
+                result: "perdi"
+            });
+            return "perdi";
+        }
+        if (empate) {
+            const lastState = this.getState();
+            this.setState({
+                ...lastState,
+                result: "empate"
+            });
+            return "empate";
+        }
     }
 };
 
@@ -61982,9 +62053,12 @@ customElements.define("new-room-page", NewRoomPage);
 
 },{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"37vkO":[function(require,module,exports) {
 var _router = require("@vaadin/router");
+var _state = require("../../state");
 class GameRoomPage extends HTMLElement {
     connectedCallback() {
-        this.render();
+        _state.state.subscribe(()=>{
+            this.beforeClose();
+        });
         this.beforeClose();
     }
     render() {
@@ -61998,8 +62072,9 @@ class GameRoomPage extends HTMLElement {
          <div class="share-message">
           <custom-share-code-message></custom-share-code-message>
          </div>
-         <custom-button class="startGame escondido">Jugar!</custom-button>
-         <div class="currentState"></div>
+         <custom-text class="cuandoEstesListo escondido">Ya tienes un contricante! Preciona Comenzar cuando estés listo.</custom-text>
+         <custom-button class="startGame escondido">Comenzar!</custom-button>
+         
         </div>
       `;
         style.innerHTML = `
@@ -62022,23 +62097,35 @@ class GameRoomPage extends HTMLElement {
     .escondido{
       display:none;
     }
+    .mostrado{
+      display:inherit;
+    }
     `;
         this.appendChild(style);
     }
     beforeClose() {
-        const startGame = document.querySelector(".startGame");
-        startGame.addEventListener("click", ()=>{
+        const cs = _state.state.getState();
+        _state.state.playerIsOnline("local", cs.rtdbRoomId);
+        this.online = true;
+        this.render();
+        const button = document.querySelector(".startGame");
+        const shareMessage = document.querySelector(".share-message");
+        const bothReady = document.querySelector(".cuandoEstesListo");
+        if (this.online && cs.rtdbData.playerTwo.online == true) {
+            shareMessage.classList.add("escondido");
+            bothReady.classList.remove("escondido");
+            bothReady.classList.add("mostrado");
+            button.classList.remove("escondido");
+            button.classList.add("mostrado");
+        }
+        button.addEventListener("click", ()=>{
             _router.Router.go("/instructions");
         });
-        window.onbeforeunload = function() {
-            console.log("cerrando la pagina");
-            return "estas cerrando esta pagina";
-        };
     }
 }
 customElements.define("game-room-page", GameRoomPage);
 
-},{"@vaadin/router":"kVZrF"}],"bDFvm":[function(require,module,exports) {
+},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"bDFvm":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 var _state = require("../../state");
 class PreGameRoomPage extends HTMLElement {
@@ -62049,7 +62136,8 @@ class PreGameRoomPage extends HTMLElement {
         getInGameRoom.addEventListener("click", ()=>{
             const cs = _state.state.getState();
             _state.state.setNombre(nombre.value);
-            _state.state.guestPlayer(nombre.value);
+            _state.state.guestPlayer(nombre.value, cs.rtdbRommId);
+            _state.state.playerIsOnline("guest", cs.rtdbRoomId);
             _state.state.accesToGameRoom(cs.roomId);
             _router.Router.go("/game-room");
         });
@@ -62090,6 +62178,8 @@ class PreGameRoomPage extends HTMLElement {
 customElements.define("pre-game-room-page", PreGameRoomPage);
 
 },{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"hLsoi":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
 class ChoosePage extends HTMLElement {
     connectedCallback() {
         this.render();
@@ -62102,14 +62192,22 @@ class ChoosePage extends HTMLElement {
 }
 customElements.define("choose-room-page", ChoosePage);
 
-},{}],"jnTvn":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jnTvn":[function(require,module,exports) {
 var _router = require("@vaadin/router");
+var _state = require("../../state");
 class instructions extends HTMLElement {
     connectedCallback() {
         this.render();
+        const cs = _state.state.getState();
         const playButton = document.querySelector(".play-button");
         playButton.addEventListener("click", ()=>{
-            _router.Router.go("/choose-room");
+            if (cs.rtdbData.playerOne.creator) {
+                _state.state.playerIsReady("local", cs.rtdbRoomId);
+                _router.Router.go("/choose-room");
+            } else {
+                _state.state.playerIsReady("guest", cs.rtdbRoomId);
+                _router.Router.go("choose-room");
+            }
         });
     }
     render() {
@@ -62117,8 +62215,9 @@ class instructions extends HTMLElement {
         this.innerHTML = `
             <p class="instructions">
                 Presioná jugar y elegí: piedra, papel o tijera antes de que pasen los 3 segundos.
+                Suerte!
             </p>
-            <custom-button class="play-button">¡Jugar!</custom-button>
+            <custom-button class="play-button">Jugar!</custom-button>
         `;
         this.className = "contenedor";
         style.innerHTML = `
@@ -62150,7 +62249,7 @@ class instructions extends HTMLElement {
 }
 customElements.define("instructions-page", instructions);
 
-},{"@vaadin/router":"kVZrF"}],"1pzdx":[function(require,module,exports) {
+},{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"1pzdx":[function(require,module,exports) {
 //Components
 var _header = require("./components/header");
 var _customText = require("./components/customText");

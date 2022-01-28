@@ -67,7 +67,7 @@ app.post("/game-rooms", (req, res) => {
               choice: "none",
               start: false,
               date: new Date(),
-              online: false,
+              online: true,
               creator: true,
               local: true,
               guest: false,
@@ -154,6 +154,60 @@ app.post("/current-game", (req, res) => {
     res.json({
       message: "not ok",
     });
+  }
+});
+
+app.post("/online", (req, res) => {
+  const { player, rtdbRoomId } = req.body;
+  if (player == "local") {
+    const gameRoomRef = rtdb.ref(
+      `gamerooms/${rtdbRoomId}/currentGame/playerOne`
+    );
+    gameRoomRef
+      .update({
+        online: true,
+      })
+      .then(() => {
+        res.json({ message: "player One is online" });
+      });
+  } else if (player == "guest") {
+    const gameRoomRef = rtdb.ref(
+      `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
+    );
+    gameRoomRef
+      .update({
+        online: true,
+      })
+      .then(() => {
+        res.json({ message: "player Two is online" });
+      });
+  }
+});
+
+app.post("/start", (req, res) => {
+  const { player, rtdbRoomId } = req.body;
+  if (player == "local") {
+    const gameRoomRef = rtdb.ref(
+      `gamerooms/${rtdbRoomId}/currentGame/playerOne`
+    );
+    gameRoomRef
+      .update({
+        start: true,
+      })
+      .then(() => {
+        res.json({ message: "player One is ready" });
+      });
+  } else if (player == "guest") {
+    const gameRoomRef = rtdb.ref(
+      `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
+    );
+    gameRoomRef
+      .update({
+        start: true,
+      })
+      .then(() => {
+        res.json({ message: "player Two is ready" });
+      });
   }
 });
 

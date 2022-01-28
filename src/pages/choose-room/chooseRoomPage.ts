@@ -1,3 +1,5 @@
+import { state } from "../../state";
+
 class ChoosePage extends HTMLElement {
   connectedCallback() {
     this.render();

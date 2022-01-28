@@ -1,4 +1,6 @@
 // const API_BASE = "https://desafio6pm.herokuapp.com";
+type play = "piedra" | "papel" | "tijera";
+
 const API_BASE = "http://localhost:3002";
 import { rtdb } from "./rtdb";
 
@@ -128,15 +130,32 @@ const state = {
         this.setState(cs);
       });
   },
-  isOnline() {
+  playerIsOnline(localOrGuest, rtdbRoomId) {
     const cs = this.getState();
-    if (cs.online) {
-      console.log("online");
-    } else {
-      console.log("offline");
-    }
+    fetch(API_BASE + "/online", {
+      method: "post",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        player: localOrGuest,
+        rtdbRoomId: rtdbRoomId,
+      }),
+    });
   },
-
+  playerIsReady(localOrGuest, rtdbRoomId) {
+    const cs = this.getState();
+    fetch(API_BASE + "/online", {
+      method: "post",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        player: localOrGuest,
+        rtdbRoomId: rtdbRoomId,
+      }),
+    });
+  },
   setState(newState) {
     this.data = newState;
     for (const cb of this.listeners) {
@@ -147,6 +166,48 @@ const state = {
   },
   subscribe(callback: (any) => any) {
     this.listeners.push(callback);
+  },
+  whoWins(miJugada: play, PCjuagada: any) {
+    const ganeConTijeras = miJugada == "tijera" && PCjuagada == "papel";
+    const ganeConPiedra = miJugada == "piedra" && PCjuagada == "tijera";
+    const ganeConPapel = miJugada == "papel" && PCjuagada == "piedra";
+
+    const perdiConTijeras = miJugada == "tijera" && PCjuagada == "piedra";
+    const perdiConPapel = miJugada == "papel" && PCjuagada == "tijera";
+    const perdiConPiedra = miJugada == "piedra" && PCjuagada == "papel";
+
+    const gane = [ganeConPapel, ganeConPiedra, ganeConTijeras].includes(true);
+    const perdi = [perdiConPapel, perdiConPiedra, perdiConTijeras].includes(
+      true
+    );
+    const empate = gane == perdi;
+
+    if (gane) {
+      const lastState = this.getState();
+      this.setState({
+        ...lastState,
+        score: { tu: lastState.score.tu + 1, maquina: lastState.score.maquina },
+        result: "gane",
+      });
+      return "gane";
+    }
+    if (perdi) {
+      const lastState = this.getState();
+      this.setState({
+        ...lastState,
+        score: { tu: lastState.score.tu, maquina: lastState.score.maquina + 1 },
+        result: "perdi",
+      });
+      return "perdi";
+    }
+    if (empate) {
+      const lastState = this.getState();
+      this.setState({
+        ...lastState,
+        result: "empate",
+      });
+      return "empate";
+    }
   },
 };
 

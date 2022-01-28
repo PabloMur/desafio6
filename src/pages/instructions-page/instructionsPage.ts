@@ -1,11 +1,19 @@
 import { Router } from "@vaadin/router";
+import { state } from "../../state";
 
 class instructions extends HTMLElement {
   connectedCallback() {
     this.render();
+    const cs = state.getState();
     const playButton = document.querySelector(".play-button");
     playButton.addEventListener("click", () => {
-      Router.go("/choose-room");
+      if (cs.rtdbData.playerOne.creator) {
+        state.playerIsReady("local", cs.rtdbRoomId);
+        Router.go("/choose-room");
+      } else {
+        state.playerIsReady("guest", cs.rtdbRoomId);
+        Router.go("choose-room");
+      }
     });
   }
   render() {
@@ -13,8 +21,9 @@ class instructions extends HTMLElement {
     this.innerHTML = `
             <p class="instructions">
                 Presioná jugar y elegí: piedra, papel o tijera antes de que pasen los 3 segundos.
+                Suerte!
             </p>
-            <custom-button class="play-button">¡Jugar!</custom-button>
+            <custom-button class="play-button">Jugar!</custom-button>
         `;
     this.className = "contenedor";
     style.innerHTML = `
