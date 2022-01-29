@@ -2,7 +2,6 @@ import { Router } from "@vaadin/router";
 import { state } from "../../state";
 
 class GameRoomPage extends HTMLElement {
-  online: boolean;
   connectedCallback() {
     state.subscribe(() => {
       this.beforeClose();
@@ -53,16 +52,14 @@ class GameRoomPage extends HTMLElement {
     this.appendChild(style);
   }
   beforeClose() {
+    this.render();
     const cs = state.getState();
     state.playerIsOnline("local", cs.rtdbRoomId);
-    this.online = true;
-    this.render();
 
     const button = document.querySelector(".startGame");
     const shareMessage = document.querySelector(".share-message");
     const bothReady = document.querySelector(".cuandoEstesListo");
-
-    if (this.online && cs.rtdbData.playerTwo.online == true) {
+    if (cs.rtdbData.playerTwo.online == true) {
       shareMessage.classList.add("escondido");
       bothReady.classList.remove("escondido");
       bothReady.classList.add("mostrado");

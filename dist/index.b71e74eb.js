@@ -689,8 +689,7 @@ const state = {
         });
     },
     playerIsReady (localOrGuest, rtdbRoomId) {
-        const cs = this.getState();
-        fetch(API_BASE + "/online", {
+        fetch(API_BASE + "/start", {
             method: "post",
             headers: {
                 "content-type": "application/json"
@@ -62104,14 +62103,13 @@ class GameRoomPage extends HTMLElement {
         this.appendChild(style);
     }
     beforeClose() {
+        this.render();
         const cs = _state.state.getState();
         _state.state.playerIsOnline("local", cs.rtdbRoomId);
-        this.online = true;
-        this.render();
         const button = document.querySelector(".startGame");
         const shareMessage = document.querySelector(".share-message");
         const bothReady = document.querySelector(".cuandoEstesListo");
-        if (this.online && cs.rtdbData.playerTwo.online == true) {
+        if (cs.rtdbData.playerTwo.online == true) {
             shareMessage.classList.add("escondido");
             bothReady.classList.remove("escondido");
             bothReady.classList.add("mostrado");
@@ -62125,7 +62123,7 @@ class GameRoomPage extends HTMLElement {
 }
 customElements.define("game-room-page", GameRoomPage);
 
-},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"bDFvm":[function(require,module,exports) {
+},{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"bDFvm":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 var _state = require("../../state");
 class PreGameRoomPage extends HTMLElement {
@@ -62201,13 +62199,8 @@ class instructions extends HTMLElement {
         const cs = _state.state.getState();
         const playButton = document.querySelector(".play-button");
         playButton.addEventListener("click", ()=>{
-            if (cs.rtdbData.playerOne.creator) {
-                _state.state.playerIsReady("local", cs.rtdbRoomId);
-                _router.Router.go("/choose-room");
-            } else {
-                _state.state.playerIsReady("guest", cs.rtdbRoomId);
-                _router.Router.go("choose-room");
-            }
+            _state.state.playerIsReady("local", cs.rtdbRoomId);
+            _router.Router.go("/choose-room");
         });
     }
     render() {

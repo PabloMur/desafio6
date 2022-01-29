@@ -7,13 +7,8 @@ class instructions extends HTMLElement {
     const cs = state.getState();
     const playButton = document.querySelector(".play-button");
     playButton.addEventListener("click", () => {
-      if (cs.rtdbData.playerOne.creator) {
-        state.playerIsReady("local", cs.rtdbRoomId);
-        Router.go("/choose-room");
-      } else {
-        state.playerIsReady("guest", cs.rtdbRoomId);
-        Router.go("choose-room");
-      }
+      state.playerIsReady("local", cs.rtdbRoomId);
+      Router.go("/choose-room");
     });
   }
   render() {

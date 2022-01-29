@@ -144,8 +144,7 @@ const state = {
     });
   },
   playerIsReady(localOrGuest, rtdbRoomId) {
-    const cs = this.getState();
-    fetch(API_BASE + "/online", {
+    fetch(API_BASE + "/start", {
       method: "post",
       headers: {
         "content-type": "application/json",
