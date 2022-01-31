@@ -59,6 +59,7 @@ class GameRoomPage extends HTMLElement {
     const button = document.querySelector(".startGame");
     const shareMessage = document.querySelector(".share-message");
     const bothReady = document.querySelector(".cuandoEstesListo");
+
     if (cs.rtdbData.playerTwo.online == true) {
       shareMessage.classList.add("escondido");
       bothReady.classList.remove("escondido");

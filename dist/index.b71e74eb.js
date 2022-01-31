@@ -538,6 +538,7 @@ var _router = require("@vaadin/router");
         roomGuest: "",
         rtdbData: "",
         online: false,
+        choice: "none",
         history: [],
         score: {
             contrincante: 0,
@@ -552,7 +553,7 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state
 );
 var _rtdb = require("./rtdb");
-const API_BASE = "http://localhost:3002";
+const API_BASE = "http://localhost:3003";
 const state = {
     data: {
         nombre: "",
@@ -564,6 +565,7 @@ const state = {
         roomGuest: "",
         rtdbData: "",
         online: false,
+        choice: "none",
         history: [],
         score: {
             contrincante: 0,
@@ -688,7 +690,8 @@ const state = {
             })
         });
     },
-    playerIsReady (localOrGuest, rtdbRoomId) {
+    playerIsReady (localOrGuest) {
+        const cs = this.getState();
         fetch(API_BASE + "/start", {
             method: "post",
             headers: {
@@ -696,8 +699,42 @@ const state = {
             },
             body: JSON.stringify({
                 player: localOrGuest,
-                rtdbRoomId: rtdbRoomId
+                rtdbRoomId: cs.rtdbRoomId
             })
+        });
+    },
+    playersChoice (localOrGuest, choice) {
+        const cs = state.getState();
+        fetch(API_BASE + "/choice", {
+            method: "post",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                localOrGuest: localOrGuest,
+                rtdbRoomId: cs.rtdbRoomId,
+                choice: choice
+            })
+        });
+    },
+    whatThePlayerChoosed (localOrGuest, cb) {
+        const cs = this.getState();
+        fetch(API_BASE + "/choice", {
+            method: "get",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({
+                localOrGuest: localOrGuest,
+                rtdbRoomId: cs.rtdbRoomId
+            })
+        }).then((resp)=>{
+            return resp.json();
+        }).then((resp)=>{
+            cs.choice = resp.choice;
+            this.listenRTDBData();
+            this.setState(cs);
+            if (cb) cb();
         });
     },
     setState (newState) {
@@ -59537,6 +59574,14 @@ router.setRoutes([
     {
         path: "/instructions",
         component: "instructions-page"
+    },
+    {
+        path: "/comparition",
+        component: "comparition-page"
+    },
+    {
+        path: "/before-comparition",
+        component: "before-comparition"
     }, 
 ]);
 
@@ -61904,8 +61949,10 @@ var _gameRoomPage = require("./pages/game-room/gameRoomPage");
 var _preGameRoomPage = require("./pages/pre-game-room/preGameRoomPage");
 var _chooseRoomPage = require("./pages/choose-room/chooseRoomPage");
 var _instructionsPage = require("./pages/instructions-page/instructionsPage");
+var _beforeComparition = require("./pages/before-comparition/beforeComparition");
+var _comparitionPage = require("./pages/comparition-page/comparitionPage");
 
-},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","./pages/choose-room/chooseRoomPage":"hLsoi","./pages/instructions-page/instructionsPage":"jnTvn"}],"lkl5B":[function(require,module,exports) {
+},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","./pages/choose-room/chooseRoomPage":"hLsoi","./pages/instructions-page/instructionsPage":"jnTvn","./pages/comparition-page/comparitionPage":"gCVRJ","./pages/before-comparition/beforeComparition":"9ZbQd"}],"lkl5B":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 class Home extends HTMLElement {
     connectedCallback() {
@@ -62176,32 +62223,82 @@ class PreGameRoomPage extends HTMLElement {
 customElements.define("pre-game-room-page", PreGameRoomPage);
 
 },{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"hLsoi":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
+var _state = require("../../state");
+var _router = require("@vaadin/router");
 class ChoosePage extends HTMLElement {
     connectedCallback() {
-        this.render();
+        this.setingChoice();
     }
     render() {
+        const style = document.createElement("style");
         this.innerHTML = `
-        <p>Choose</p>
+        <div class="container">
+          <div class="contenedorDeManos">
+            <game-option variant="tijera" class="tijera"></game-option>
+            <game-option variant="papel" class="papel"></game-option>
+            <game-option variant="piedra" class="piedra"></game-option>
+          </div>
+        </div>
       `;
+        style.innerHTML = `
+    .container{
+      height: 90vh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .contenedorDeManos {
+      display: flex;
+    }
+
+    `;
+        this.appendChild(style);
+    }
+    setingChoice() {
+        this.render();
+        const cs = _state.state.getState();
+        const tijera = document.querySelector(".tijera");
+        const papel = document.querySelector(".papel");
+        const piedra = document.querySelector(".piedra");
+        tijera.addEventListener("click", ()=>{
+            if (cs.roomCreator == true) {
+                _state.state.playersChoice("local", "tijera");
+                _router.Router.go("/before-comparition");
+            } else if (cs.roomCreator == false) {
+                _state.state.playersChoice("guest", "tijera");
+                _router.Router.go("/before-comparition");
+            }
+        });
+        papel.addEventListener("click", ()=>{
+            if (cs.roomCreator == true) {
+                _state.state.playersChoice("local", "papel");
+                _router.Router.go("/before-comparition");
+            } else if (cs.roomCreator == false) {
+                _state.state.playersChoice("guest", "papel");
+                _router.Router.go("/before-comparition");
+            }
+        });
+        piedra.addEventListener("click", ()=>{
+            if (cs.roomCreator == true) {
+                _state.state.playersChoice("local", "piedra");
+                _router.Router.go("/before-comparition");
+            } else if (cs.roomCreator == false) {
+                _state.state.playersChoice("guest", "piedra");
+                _router.Router.go("/before-comparition");
+            }
+        });
     }
 }
 customElements.define("choose-room-page", ChoosePage);
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jnTvn":[function(require,module,exports) {
+},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"jnTvn":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 var _state = require("../../state");
 class instructions extends HTMLElement {
     connectedCallback() {
-        this.render();
-        const cs = _state.state.getState();
-        const playButton = document.querySelector(".play-button");
-        playButton.addEventListener("click", ()=>{
-            _state.state.playerIsReady("local", cs.rtdbRoomId);
-            _router.Router.go("/choose-room");
-        });
+        this.userIsReady();
     }
     render() {
         const style = document.createElement("style");
@@ -62239,8 +62336,63 @@ class instructions extends HTMLElement {
     }`;
         this.appendChild(style);
     }
+    userIsReady() {
+        this.render();
+        const cs = _state.state.getState();
+        const playButton = document.querySelector(".play-button");
+        playButton.addEventListener("click", ()=>{
+            if (cs.roomCreator == true) {
+                _state.state.playerIsReady("local");
+                _router.Router.go("/choose-room");
+            } else if (cs.roomGuest == true) {
+                _state.state.playerIsReady("guest");
+                _router.Router.go("/choose-room");
+            }
+        });
+    }
 }
 customElements.define("instructions-page", instructions);
+
+},{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"gCVRJ":[function(require,module,exports) {
+var _state = require("../../state");
+class ComparitionPage extends HTMLElement {
+    connectedCallback() {
+        _state.state.subscribe(()=>{
+            this.render();
+        });
+        this.render();
+    }
+    render() {
+        this.innerHTML = `
+    <p>Comparition</p>
+    <muestra-jugada></muestra-jugada>
+    `;
+    }
+    sync() {
+        this.render();
+    }
+}
+customElements.define("comparition-page", ComparitionPage);
+
+},{"../../state":"1Yeju"}],"9ZbQd":[function(require,module,exports) {
+var _router = require("@vaadin/router");
+var _state = require("../../state");
+class BeforeComparition extends HTMLElement {
+    connectedCallback() {
+        _state.state.listenRTDBData();
+        this.render();
+        const button = document.querySelector(".comparar");
+        button.addEventListener("click", ()=>{
+            _router.Router.go("/comparition");
+        });
+    }
+    render() {
+        this.innerHTML = `
+            <custom-button class="comparar">Comparar</custom-button>
+        `;
+    }
+}
+customElements.define("before-comparition", BeforeComparition);
 
 },{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"1pzdx":[function(require,module,exports) {
 //Components
@@ -62252,8 +62404,11 @@ var _columnContainer = require("./components/columnContainer");
 var _roomCode = require("./components/roomCode");
 var _marcador = require("./components/marcador");
 var _shareCodeMessage = require("./components/shareCodeMessage");
+var _gameOption = require("./components/game-option");
+var _contador = require("./components/contador");
+var _muestraJugada = require("./components/muestraJugada");
 
-},{"./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./components/showName":"1S6hc","./components/columnContainer":"fVUTk","./components/roomCode":"9Cky9","./components/marcador":"2up0v","./components/shareCodeMessage":"2o8hN"}],"h4YWK":[function(require,module,exports) {
+},{"./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./components/showName":"1S6hc","./components/columnContainer":"fVUTk","./components/roomCode":"9Cky9","./components/marcador":"2up0v","./components/shareCodeMessage":"2o8hN","./components/game-option":"6BPxk","./components/contador":"fR4S6","./components/muestraJugada":"fPgGq"}],"h4YWK":[function(require,module,exports) {
 class Header extends HTMLElement {
     connectedCallback() {
         this.render();
@@ -62498,6 +62653,171 @@ class ShareCodeMessage extends HTMLElement {
     }
 }
 customElements.define("custom-share-code-message", ShareCodeMessage);
+
+},{"../state":"1Yeju"}],"6BPxk":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+class GameOption extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        const imgTijera = require("../img/tijera.svg");
+        const imgPapel = require("../img/papel.svg");
+        const imgPiedra = require("../img/piedra.svg");
+        const variant = this.getAttribute("variant");
+        const style = document.createElement("style");
+        if (variant == "tijera") this.imgURL = imgTijera;
+        if (variant == "piedra") this.imgURL = imgPiedra;
+        if (variant == "papel") this.imgURL = imgPapel;
+        this.innerHTML = `
+        <div class="gameObject">
+        <img class="image" src="${this.imgURL}">
+        </div>
+      `;
+        style.innerHTML = `
+    .gameObject {
+        width: auto;
+        min-height: 200px;
+        margin: 0 10px;
+        transition: all .2s ease-in;
+      }
+      .gameObject:hover{
+        transform: scale(1.3);
+      }
+      .image{
+        height: 30vh;
+        width: auto;
+      }
+    
+    `;
+        this.appendChild(style);
+    }
+}
+customElements.define("game-option", GameOption);
+
+},{"../img/tijera.svg":"bfvuD","../img/papel.svg":"ei254","../img/piedra.svg":"k6Z6Q","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bfvuD":[function(require,module,exports) {
+module.exports = require('./helpers/bundle-url').getBundleURL('7UhFu') + "tijera.5e9b61fa.svg" + "?" + Date.now();
+
+},{"./helpers/bundle-url":"lgJ39"}],"lgJ39":[function(require,module,exports) {
+"use strict";
+var bundleURL = {
+};
+function getBundleURLCached(id) {
+    var value = bundleURL[id];
+    if (!value) {
+        value = getBundleURL();
+        bundleURL[id] = value;
+    }
+    return value;
+}
+function getBundleURL() {
+    try {
+        throw new Error();
+    } catch (err) {
+        var matches = ('' + err.stack).match(/(https?|file|ftp):\/\/[^)\n]+/g);
+        if (matches) // The first two stack frames will be this function and getBundleURLCached.
+        // Use the 3rd one, which will be a runtime in the original bundle.
+        return getBaseURL(matches[2]);
+    }
+    return '/';
+}
+function getBaseURL(url) {
+    return ('' + url).replace(/^((?:https?|file|ftp):\/\/.+)\/[^/]+$/, '$1') + '/';
+} // TODO: Replace uses with `new URL(url).origin` when ie11 is no longer supported.
+function getOrigin(url) {
+    var matches = ('' + url).match(/(https?|file|ftp):\/\/[^/]+/);
+    if (!matches) throw new Error('Origin not found');
+    return matches[0];
+}
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+exports.getOrigin = getOrigin;
+
+},{}],"ei254":[function(require,module,exports) {
+module.exports = require('./helpers/bundle-url').getBundleURL('7UhFu') + "papel.8ac23159.svg" + "?" + Date.now();
+
+},{"./helpers/bundle-url":"lgJ39"}],"k6Z6Q":[function(require,module,exports) {
+module.exports = require('./helpers/bundle-url').getBundleURL('7UhFu') + "piedra.ffe25f36.svg" + "?" + Date.now();
+
+},{"./helpers/bundle-url":"lgJ39"}],"fR4S6":[function(require,module,exports) {
+var _router = require("@vaadin/router");
+class Contador extends HTMLElement {
+    connectedCallback() {
+        this.cuentaAtras();
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+    <div class="contador"></div>`;
+        style.innerHTML = `
+    .contador{
+        height: 300px;
+        width: 300px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: black;
+        font-size: 100px;
+        animation: fade .5s linear;
+      }
+      @keyframes fade{
+        0%{
+          transform: translateY(-100%)
+        }
+        100%{
+          transform: translateY(0%)
+        }
+      }
+      `;
+        this.appendChild(style);
+    }
+    cuentaAtras() {
+        this.render();
+        const contador = document.querySelector(".contador");
+        let setIN = setInterval(()=>{
+            if (this.cuentaRegresiva == 0 && this.jugada == false) {
+                clearInterval(setIN);
+                _router.Router.go("/instructions");
+            } else if (this.jugada == true) {
+                clearInterval(setIN);
+                _router.Router.go("/comparition");
+            }
+            contador.innerHTML = this.cuentaRegresiva.toString();
+            this.cuentaRegresiva--;
+        }, 1000);
+    }
+    constructor(...args){
+        super(...args);
+        this.jugada = false;
+        this.cuentaRegresiva = 3;
+    }
+}
+customElements.define("cuenta-regresiva", Contador);
+
+},{"@vaadin/router":"kVZrF"}],"fPgGq":[function(require,module,exports) {
+var _state = require("../state");
+class MuestraJugada extends HTMLElement {
+    connectedCallback() {
+        _state.state.subscribe(()=>{
+            this.render();
+        });
+        this.render();
+    }
+    render() {
+        const cs = _state.state.getState();
+        this.innerHTML = `
+    <p>jugada player One ${cs.rtdbData.playerOne.choice}</p>
+    <p>jugada player Two ${cs.rtdbData.playerTwo.choice}</p>
+    `;
+    }
+    constructor(...args){
+        super(...args);
+        this.jugada = "none";
+    }
+}
+customElements.define("muestra-jugada", MuestraJugada);
 
 },{"../state":"1Yeju"}]},["8wcER","h7u1C"], "h7u1C", "parcelRequireca0a")
 

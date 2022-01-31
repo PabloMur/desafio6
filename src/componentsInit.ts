@@ -7,3 +7,6 @@ import "./components/columnContainer";
 import "./components/roomCode";
 import "./components/marcador";
 import "./components/shareCodeMessage";
+import "./components/game-option";
+import "./components/contador";
+import "./components/muestraJugada";

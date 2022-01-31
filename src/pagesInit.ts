@@ -6,3 +6,5 @@ import "./pages/game-room/gameRoomPage";
 import "./pages/pre-game-room/preGameRoomPage";
 import "./pages/choose-room/chooseRoomPage";
 import "./pages/instructions-page/instructionsPage";
+import "./pages/before-comparition/beforeComparition";
+import "./pages/comparition-page/comparitionPage";

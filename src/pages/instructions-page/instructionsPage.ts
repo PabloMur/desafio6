@@ -3,13 +3,7 @@ import { state } from "../../state";
 
 class instructions extends HTMLElement {
   connectedCallback() {
-    this.render();
-    const cs = state.getState();
-    const playButton = document.querySelector(".play-button");
-    playButton.addEventListener("click", () => {
-      state.playerIsReady("local", cs.rtdbRoomId);
-      Router.go("/choose-room");
-    });
+    this.userIsReady();
   }
   render() {
     const style = document.createElement("style");
@@ -46,6 +40,21 @@ class instructions extends HTMLElement {
       }
     }`;
     this.appendChild(style);
+  }
+  userIsReady() {
+    this.render();
+    const cs = state.getState();
+    const playButton = document.querySelector(".play-button");
+
+    playButton.addEventListener("click", () => {
+      if (cs.roomCreator == true) {
+        state.playerIsReady("local");
+        Router.go("/choose-room");
+      } else if (cs.roomGuest == true) {
+        state.playerIsReady("guest");
+        Router.go("/choose-room");
+      }
+    });
   }
 }
 customElements.define("instructions-page", instructions);

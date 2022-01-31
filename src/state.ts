@@ -1,7 +1,7 @@
 // const API_BASE = "https://desafio6pm.herokuapp.com";
 type play = "piedra" | "papel" | "tijera";
 
-const API_BASE = "http://localhost:3002";
+const API_BASE = "http://localhost:3003";
 import { rtdb } from "./rtdb";
 
 const state = {
@@ -15,6 +15,7 @@ const state = {
     roomGuest: "",
     rtdbData: "",
     online: false,
+    choice: "none",
     history: [],
     score: {
       contrincante: 0,
@@ -67,7 +68,6 @@ const state = {
         this.setState(cs);
       });
   },
-
   guestPlayer(nombre: string, rtdbRoomId: string) {
     const cs = this.getState();
     fetch(API_BASE + "/player-guest", {
@@ -143,7 +143,8 @@ const state = {
       }),
     });
   },
-  playerIsReady(localOrGuest, rtdbRoomId) {
+  playerIsReady(localOrGuest) {
+    const cs = this.getState();
     fetch(API_BASE + "/start", {
       method: "post",
       headers: {
@@ -151,9 +152,47 @@ const state = {
       },
       body: JSON.stringify({
         player: localOrGuest,
-        rtdbRoomId: rtdbRoomId,
+        rtdbRoomId: cs.rtdbRoomId,
       }),
     });
+  },
+  playersChoice(localOrGuest, choice) {
+    const cs = state.getState();
+    fetch(API_BASE + "/choice", {
+      method: "post",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        localOrGuest: localOrGuest,
+        rtdbRoomId: cs.rtdbRoomId,
+        choice: choice,
+      }),
+    });
+  },
+  whatThePlayerChoosed(localOrGuest, cb?) {
+    const cs = this.getState();
+    fetch(API_BASE + "/choice", {
+      method: "get",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        localOrGuest: localOrGuest,
+        rtdbRoomId: cs.rtdbRoomId,
+      }),
+    })
+      .then((resp) => {
+        return resp.json();
+      })
+      .then((resp) => {
+        cs.choice = resp.choice;
+        this.listenRTDBData();
+        this.setState(cs);
+        if (cb) {
+          cb();
+        }
+      });
   },
   setState(newState) {
     this.data = newState;

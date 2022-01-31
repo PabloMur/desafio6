@@ -3,7 +3,7 @@ import * as cors from "cors";
 import { rtdb, firestore } from "./firestore";
 import { nanoid } from "nanoid";
 
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 3003;
 const playersCollection = firestore.collection("players");
 const gameRoomsCollection = firestore.collection("gamerooms");
 
@@ -121,41 +121,41 @@ app.get("/game-rooms/:roomId", (req, res) => {
     });
 });
 
-app.post("/current-game", (req, res) => {
-  const { rtdbRommId, nombre, isLocal } = req.body;
+// app.post("/current-game", (req, res) => {
+//   const { rtdbRommId, nombre, isLocal } = req.body;
 
-  if (isLocal) {
-    const gameRoomRef = rtdb.ref(
-      `gamerooms/${rtdbRommId}/currentGame/playerOne`
-    );
-    gameRoomRef
-      .update({
-        nombre: nombre,
-      })
-      .then(() => {
-        gameRoomRef.get().then((snap) => {
-          res.json(snap.val());
-        });
-      });
-  } else if (!isLocal) {
-    const gameRoomRef = rtdb.ref(
-      `gamerooms/${rtdbRommId}/currentGame/playerTwo`
-    );
-    gameRoomRef
-      .update({
-        nombre: nombre,
-      })
-      .then(() => {
-        gameRoomRef.get().then((snap) => {
-          res.json(snap.val());
-        });
-      });
-  } else {
-    res.json({
-      message: "not ok",
-    });
-  }
-});
+//   if (isLocal) {
+//     const gameRoomRef = rtdb.ref(
+//       `gamerooms/${rtdbRommId}/currentGame/playerOne`
+//     );
+//     gameRoomRef
+//       .update({
+//         nombre: nombre,
+//       })
+//       .then(() => {
+//         gameRoomRef.get().then((snap) => {
+//           res.json(snap.val());
+//         });
+//       });
+//   } else if (!isLocal) {
+//     const gameRoomRef = rtdb.ref(
+//       `gamerooms/${rtdbRommId}/currentGame/playerTwo`
+//     );
+//     gameRoomRef
+//       .update({
+//         nombre: nombre,
+//       })
+//       .then(() => {
+//         gameRoomRef.get().then((snap) => {
+//           res.json(snap.val());
+//         });
+//       });
+//   } else {
+//     res.json({
+//       message: "not ok",
+//     });
+//   }
+// });
 
 app.post("/online", (req, res) => {
   const { player, rtdbRoomId } = req.body;
@@ -208,6 +208,54 @@ app.post("/start", (req, res) => {
       .then(() => {
         res.json({ message: "player Two is ready" });
       });
+  }
+});
+
+app.post("/choice", (req, res) => {
+  const { localOrGuest, rtdbRoomId, choice } = req.body;
+  if (localOrGuest == "local") {
+    const gameRoomRef = rtdb.ref(
+      `gamerooms/${rtdbRoomId}/currentGame/playerOne`
+    );
+    gameRoomRef
+      .update({
+        choice: choice,
+      })
+      .then(() => {
+        res.json({ message: "player One eligió " + choice });
+      });
+  } else if (localOrGuest == "guest") {
+    const gameRoomRef = rtdb.ref(
+      `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
+    );
+    gameRoomRef
+      .update({
+        choice: choice,
+      })
+      .then(() => {
+        res.json({ message: "player Two eligió " + choice });
+      });
+  }
+});
+
+app.get("/choice", (req, res) => {
+  let { localOrGuest, rtdbRoomId } = req.body;
+  if (localOrGuest == "local") {
+    const playerChoiceRef = rtdb.ref(
+      `gamerooms/${rtdbRoomId}/currentGame/playerOne`
+    );
+    playerChoiceRef.get().then((data) => {
+      const response = data.val();
+      res.json(response.choice);
+    });
+  } else if ((localOrGuest = "guest")) {
+    const playerChoiceRef = rtdb.ref(
+      `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
+    );
+    playerChoiceRef.get().then((data) => {
+      const response = data.val();
+      res.json(response.choice);
+    });
   }
 });
 

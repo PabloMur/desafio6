@@ -20,6 +20,7 @@ import { Router } from "@vaadin/router";
       roomGuest: "",
       rtdbData: "",
       online: false,
+      choice: "none",
       history: [],
       score: {
         contrincante: 0,

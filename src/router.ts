@@ -9,4 +9,6 @@ router.setRoutes([
   { path: "/pre-game-room", component: "pre-game-room-page" },
   { path: "/choose-room", component: "choose-room-page" },
   { path: "/instructions", component: "instructions-page" },
+  { path: "/comparition", component: "comparition-page" },
+  { path: "/before-comparition", component: "before-comparition" },
 ]);
