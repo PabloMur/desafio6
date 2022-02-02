@@ -1,9 +1,9 @@
 import { state } from "../state";
 class Marcador extends HTMLElement {
   nombre: string;
+  contrincanteNombre: string = "Contrincante";
   tu: number;
   contrincante: number;
-  contrincanteNombre: string = "Contrincante";
   connectedCallback() {
     state.subscribe(() => {
       this.syncWithState();
@@ -13,8 +13,8 @@ class Marcador extends HTMLElement {
   syncWithState() {
     const lastState = state.getState();
     this.nombre = lastState.rtdbData.playerOne.nombre;
-    this.contrincante = lastState.score.contrincante;
-    this.tu = lastState.score.tu;
+    this.contrincante = lastState.score.guest;
+    this.tu = lastState.score.local;
     this.contrincanteNombre = lastState.rtdbData.playerTwo.nombre;
     this.render();
   }

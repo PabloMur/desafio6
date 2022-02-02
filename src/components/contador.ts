@@ -38,12 +38,13 @@ class Contador extends HTMLElement {
     this.render();
     const contador = document.querySelector(".contador");
     let setIN = setInterval(() => {
-      if (this.cuentaRegresiva == 0 && this.jugada == false) {
+      const cs = state.getState();
+      if (this.cuentaRegresiva == 0 && cs.choice == "none") {
         clearInterval(setIN);
         Router.go("/instructions");
-      } else if (this.jugada == true) {
+      } else if (cs.choice != "none") {
         clearInterval(setIN);
-        Router.go("/comparition");
+        Router.go("/before-comparition");
       }
       contador.innerHTML = this.cuentaRegresiva.toString();
       this.cuentaRegresiva--;

@@ -13,8 +13,8 @@ class GameRoomPage extends HTMLElement {
     this.innerHTML = `
         <div class="container">
          <div class="container-room-score">
-         <custom-marcador></custom-marcador>
-         <room-code></room-code>
+          <custom-marcador></custom-marcador>
+          <room-code></room-code>
          </div>
          <div class="share-message">
           <custom-share-code-message></custom-share-code-message>

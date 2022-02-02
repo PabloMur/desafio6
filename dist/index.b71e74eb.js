@@ -530,19 +530,17 @@ var _router = require("@vaadin/router");
         _router.Router.go("/game-room");
     } else _state.state.setState({
         nombre: "",
-        contrincanteNombre: "Contrincante",
         userId: "",
         roomId: "",
         rtdbRoomId: "",
         roomCreator: "",
-        roomGuest: "",
         rtdbData: "",
         online: false,
         choice: "none",
         history: [],
         score: {
-            contrincante: 0,
-            tu: 0
+            local: 0,
+            guest: 0
         }
     });
 })();
@@ -557,19 +555,17 @@ const API_BASE = "http://localhost:3003";
 const state = {
     data: {
         nombre: "",
-        contrincanteNombre: "Contrincante",
         userId: "",
         roomId: "",
         rtdbRoomId: "",
         roomCreator: "",
-        roomGuest: "",
         rtdbData: "",
         online: false,
         choice: "none",
         history: [],
         score: {
-            contrincante: 0,
-            tu: 0
+            local: 0,
+            guest: 0
         }
     },
     listeners: [],
@@ -654,7 +650,6 @@ const state = {
             cs.roomId = data.friendlyId;
             cs.rtdbRoomId = data.longGameRoomId;
             cs.roomCreator = true;
-            cs.roomGuest = false;
             this.listenRTDBData();
             this.setState(cs);
         });
@@ -669,7 +664,6 @@ const state = {
         }).then((r)=>{
             return r.json();
         }).then((data)=>{
-            cs.roomGuest = true;
             cs.roomCreator = false;
             cs.rtdbRoomId = data;
             cs.roomId = roomId;
@@ -688,6 +682,10 @@ const state = {
                 player: localOrGuest,
                 rtdbRoomId: rtdbRoomId
             })
+        }).then((resp)=>{
+            return resp.json();
+        }).then((r)=>{
+            console.log(r);
         });
     },
     playerIsReady (localOrGuest) {
@@ -703,7 +701,7 @@ const state = {
             })
         });
     },
-    playersChoice (localOrGuest, choice) {
+    playersChoice (localOrGuest, choice, cb) {
         const cs = state.getState();
         fetch(API_BASE + "/choice", {
             method: "post",
@@ -715,6 +713,10 @@ const state = {
                 rtdbRoomId: cs.rtdbRoomId,
                 choice: choice
             })
+        }).then((response)=>{
+            return response.json();
+        }).then(()=>{
+            if (cb) cb();
         });
     },
     whatThePlayerChoosed (localOrGuest, cb) {
@@ -732,7 +734,6 @@ const state = {
             return resp.json();
         }).then((resp)=>{
             cs.choice = resp.choice;
-            this.listenRTDBData();
             this.setState(cs);
             if (cb) cb();
         });
@@ -746,13 +747,13 @@ const state = {
     subscribe (callback) {
         this.listeners.push(callback);
     },
-    whoWins (miJugada, PCjuagada) {
-        const ganeConTijeras = miJugada == "tijera" && PCjuagada == "papel";
-        const ganeConPiedra = miJugada == "piedra" && PCjuagada == "tijera";
-        const ganeConPapel = miJugada == "papel" && PCjuagada == "piedra";
-        const perdiConTijeras = miJugada == "tijera" && PCjuagada == "piedra";
-        const perdiConPapel = miJugada == "papel" && PCjuagada == "tijera";
-        const perdiConPiedra = miJugada == "piedra" && PCjuagada == "papel";
+    whoWins (localMove, guestMove) {
+        const ganeConTijeras = localMove == "tijera" && guestMove == "papel";
+        const ganeConPiedra = localMove == "piedra" && guestMove == "tijera";
+        const ganeConPapel = localMove == "papel" && guestMove == "piedra";
+        const perdiConTijeras = localMove == "tijera" && guestMove == "piedra";
+        const perdiConPapel = localMove == "papel" && guestMove == "tijera";
+        const perdiConPiedra = localMove == "piedra" && guestMove == "papel";
         const gane = [
             ganeConPapel,
             ganeConPiedra,
@@ -61952,7 +61953,7 @@ var _instructionsPage = require("./pages/instructions-page/instructionsPage");
 var _beforeComparition = require("./pages/before-comparition/beforeComparition");
 var _comparitionPage = require("./pages/comparition-page/comparitionPage");
 
-},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","./pages/choose-room/chooseRoomPage":"hLsoi","./pages/instructions-page/instructionsPage":"jnTvn","./pages/comparition-page/comparitionPage":"gCVRJ","./pages/before-comparition/beforeComparition":"9ZbQd"}],"lkl5B":[function(require,module,exports) {
+},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","./pages/choose-room/chooseRoomPage":"hLsoi","./pages/instructions-page/instructionsPage":"jnTvn","./pages/before-comparition/beforeComparition":"9ZbQd","./pages/comparition-page/comparitionPage":"gCVRJ"}],"lkl5B":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 class Home extends HTMLElement {
     connectedCallback() {
@@ -62112,8 +62113,8 @@ class GameRoomPage extends HTMLElement {
         this.innerHTML = `
         <div class="container">
          <div class="container-room-score">
-         <custom-marcador></custom-marcador>
-         <room-code></room-code>
+          <custom-marcador></custom-marcador>
+          <room-code></room-code>
          </div>
          <div class="share-message">
           <custom-share-code-message></custom-share-code-message>
@@ -62257,6 +62258,7 @@ class ChoosePage extends HTMLElement {
         this.appendChild(style);
     }
     setingChoice() {
+        _state.state.listenRTDBData();
         this.render();
         const cs = _state.state.getState();
         const tijera = document.querySelector(".tijera");
@@ -62264,28 +62266,46 @@ class ChoosePage extends HTMLElement {
         const piedra = document.querySelector(".piedra");
         tijera.addEventListener("click", ()=>{
             if (cs.roomCreator == true) {
-                _state.state.playersChoice("local", "tijera");
+                _state.state.playersChoice("local", "tijera", ()=>{
+                    cs.choice = "tijera";
+                    _state.state.setState(cs);
+                });
                 _router.Router.go("/before-comparition");
             } else if (cs.roomCreator == false) {
-                _state.state.playersChoice("guest", "tijera");
+                _state.state.playersChoice("guest", "tijera", ()=>{
+                    cs.choice = "tijera";
+                    _state.state.setState(cs);
+                });
                 _router.Router.go("/before-comparition");
             }
         });
         papel.addEventListener("click", ()=>{
             if (cs.roomCreator == true) {
-                _state.state.playersChoice("local", "papel");
+                _state.state.playersChoice("local", "papel", ()=>{
+                    cs.choice = "papel";
+                    _state.state.setState(cs);
+                });
                 _router.Router.go("/before-comparition");
             } else if (cs.roomCreator == false) {
-                _state.state.playersChoice("guest", "papel");
+                _state.state.playersChoice("guest", "papel", ()=>{
+                    cs.choice = "papel";
+                    _state.state.setState(cs);
+                });
                 _router.Router.go("/before-comparition");
             }
         });
         piedra.addEventListener("click", ()=>{
             if (cs.roomCreator == true) {
-                _state.state.playersChoice("local", "piedra");
+                _state.state.playersChoice("local", "piedra", ()=>{
+                    cs.choice = "piedra";
+                    _state.state.setState(cs);
+                });
                 _router.Router.go("/before-comparition");
             } else if (cs.roomCreator == false) {
-                _state.state.playersChoice("guest", "piedra");
+                _state.state.playersChoice("local", "tijera", ()=>{
+                    cs.choice = "tijera";
+                    _state.state.setState(cs);
+                });
                 _router.Router.go("/before-comparition");
             }
         });
@@ -62353,6 +62373,49 @@ class instructions extends HTMLElement {
 }
 customElements.define("instructions-page", instructions);
 
+},{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"9ZbQd":[function(require,module,exports) {
+var _router = require("@vaadin/router");
+var _state = require("../../state");
+class BeforeComparition extends HTMLElement {
+    connectedCallback() {
+        _state.state.subscribe(()=>{
+            //state.listenRTDBData();
+            this.sync();
+        });
+        this.sync();
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+            <p class="waitingMessage">Esperando que tu oponente elija una opcion!</p>
+            <custom-button class="comparar">Comparar</custom-button>
+        `;
+        style.innerHTML = `
+      .escondido{
+        display:none;
+      }
+      .mostrado{
+        display: block;
+      }
+    `;
+        this.appendChild(style);
+    }
+    sync() {
+        const cs = _state.state.getState();
+        const localMove = cs.rtdbData.playerOne.choice;
+        const guestMove = cs.rtdbData.playerTwo.choice;
+        this.render();
+        const waitingMessage = document.querySelector(".waitingMessage");
+        const button = document.querySelector(".comparar");
+        console.log(`local => ${localMove}`);
+        console.log(`guest => ${guestMove}`);
+        button.addEventListener("click", ()=>{
+            _router.Router.go("/comparition");
+        });
+    }
+}
+customElements.define("before-comparition", BeforeComparition);
+
 },{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"gCVRJ":[function(require,module,exports) {
 var _state = require("../../state");
 class ComparitionPage extends HTMLElement {
@@ -62374,27 +62437,7 @@ class ComparitionPage extends HTMLElement {
 }
 customElements.define("comparition-page", ComparitionPage);
 
-},{"../../state":"1Yeju"}],"9ZbQd":[function(require,module,exports) {
-var _router = require("@vaadin/router");
-var _state = require("../../state");
-class BeforeComparition extends HTMLElement {
-    connectedCallback() {
-        _state.state.listenRTDBData();
-        this.render();
-        const button = document.querySelector(".comparar");
-        button.addEventListener("click", ()=>{
-            _router.Router.go("/comparition");
-        });
-    }
-    render() {
-        this.innerHTML = `
-            <custom-button class="comparar">Comparar</custom-button>
-        `;
-    }
-}
-customElements.define("before-comparition", BeforeComparition);
-
-},{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"1pzdx":[function(require,module,exports) {
+},{"../../state":"1Yeju"}],"1pzdx":[function(require,module,exports) {
 //Components
 var _header = require("./components/header");
 var _customText = require("./components/customText");
@@ -62594,8 +62637,8 @@ class Marcador extends HTMLElement {
     syncWithState() {
         const lastState = _state.state.getState();
         this.nombre = lastState.rtdbData.playerOne.nombre;
-        this.contrincante = lastState.score.contrincante;
-        this.tu = lastState.score.tu;
+        this.contrincante = lastState.score.guest;
+        this.tu = lastState.score.local;
         this.contrincanteNombre = lastState.rtdbData.playerTwo.nombre;
         this.render();
     }
@@ -62742,6 +62785,7 @@ module.exports = require('./helpers/bundle-url').getBundleURL('7UhFu') + "piedra
 
 },{"./helpers/bundle-url":"lgJ39"}],"fR4S6":[function(require,module,exports) {
 var _router = require("@vaadin/router");
+var _state = require("../state");
 class Contador extends HTMLElement {
     connectedCallback() {
         this.cuentaAtras();
@@ -62777,12 +62821,13 @@ class Contador extends HTMLElement {
         this.render();
         const contador = document.querySelector(".contador");
         let setIN = setInterval(()=>{
-            if (this.cuentaRegresiva == 0 && this.jugada == false) {
+            const cs = _state.state.getState();
+            if (this.cuentaRegresiva == 0 && cs.choice == "none") {
                 clearInterval(setIN);
                 _router.Router.go("/instructions");
-            } else if (this.jugada == true) {
+            } else if (cs.choice != "none") {
                 clearInterval(setIN);
-                _router.Router.go("/comparition");
+                _router.Router.go("/before-comparition");
             }
             contador.innerHTML = this.cuentaRegresiva.toString();
             this.cuentaRegresiva--;
@@ -62796,7 +62841,7 @@ class Contador extends HTMLElement {
 }
 customElements.define("cuenta-regresiva", Contador);
 
-},{"@vaadin/router":"kVZrF"}],"fPgGq":[function(require,module,exports) {
+},{"@vaadin/router":"kVZrF","../state":"1Yeju"}],"fPgGq":[function(require,module,exports) {
 var _state = require("../state");
 class MuestraJugada extends HTMLElement {
     connectedCallback() {

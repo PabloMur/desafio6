@@ -34,6 +34,7 @@ class ChoosePage extends HTMLElement {
     this.appendChild(style);
   }
   setingChoice() {
+    state.listenRTDBData();
     this.render();
     const cs = state.getState();
 
@@ -43,28 +44,46 @@ class ChoosePage extends HTMLElement {
 
     tijera.addEventListener("click", () => {
       if (cs.roomCreator == true) {
-        state.playersChoice("local", "tijera");
+        state.playersChoice("local", "tijera", () => {
+          cs.choice = "tijera";
+          state.setState(cs);
+        });
         Router.go("/before-comparition");
       } else if (cs.roomCreator == false) {
-        state.playersChoice("guest", "tijera");
+        state.playersChoice("guest", "tijera", () => {
+          cs.choice = "tijera";
+          state.setState(cs);
+        });
         Router.go("/before-comparition");
       }
     });
     papel.addEventListener("click", () => {
       if (cs.roomCreator == true) {
-        state.playersChoice("local", "papel");
+        state.playersChoice("local", "papel", () => {
+          cs.choice = "papel";
+          state.setState(cs);
+        });
         Router.go("/before-comparition");
       } else if (cs.roomCreator == false) {
-        state.playersChoice("guest", "papel");
+        state.playersChoice("guest", "papel", () => {
+          cs.choice = "papel";
+          state.setState(cs);
+        });
         Router.go("/before-comparition");
       }
     });
     piedra.addEventListener("click", () => {
       if (cs.roomCreator == true) {
-        state.playersChoice("local", "piedra");
+        state.playersChoice("local", "piedra", () => {
+          cs.choice = "piedra";
+          state.setState(cs);
+        });
         Router.go("/before-comparition");
       } else if (cs.roomCreator == false) {
-        state.playersChoice("guest", "piedra");
+        state.playersChoice("local", "tijera", () => {
+          cs.choice = "tijera";
+          state.setState(cs);
+        });
         Router.go("/before-comparition");
       }
     });

@@ -12,19 +12,17 @@ import { Router } from "@vaadin/router";
   } else {
     state.setState({
       nombre: "",
-      contrincanteNombre: "Contrincante",
       userId: "",
       roomId: "",
       rtdbRoomId: "",
       roomCreator: "",
-      roomGuest: "",
       rtdbData: "",
       online: false,
       choice: "none",
       history: [],
       score: {
-        contrincante: 0,
-        tu: 0,
+        local: 0,
+        guest: 0,
       },
     });
   }

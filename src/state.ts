@@ -7,19 +7,17 @@ import { rtdb } from "./rtdb";
 const state = {
   data: {
     nombre: "",
-    contrincanteNombre: "Contrincante",
     userId: "",
     roomId: "",
     rtdbRoomId: "",
     roomCreator: "",
-    roomGuest: "",
     rtdbData: "",
     online: false,
     choice: "none",
     history: [],
     score: {
-      contrincante: 0,
-      tu: 0,
+      local: 0,
+      guest: 0,
     },
   },
   listeners: [],
@@ -105,7 +103,6 @@ const state = {
         cs.roomId = data.friendlyId;
         cs.rtdbRoomId = data.longGameRoomId;
         cs.roomCreator = true;
-        cs.roomGuest = false;
         this.listenRTDBData();
         this.setState(cs);
       });
@@ -122,7 +119,6 @@ const state = {
         return r.json();
       })
       .then((data) => {
-        cs.roomGuest = true;
         cs.roomCreator = false;
         cs.rtdbRoomId = data;
         cs.roomId = roomId;
@@ -141,7 +137,13 @@ const state = {
         player: localOrGuest,
         rtdbRoomId: rtdbRoomId,
       }),
-    });
+    })
+      .then((resp) => {
+        return resp.json();
+      })
+      .then((r) => {
+        console.log(r);
+      });
   },
   playerIsReady(localOrGuest) {
     const cs = this.getState();
@@ -156,7 +158,7 @@ const state = {
       }),
     });
   },
-  playersChoice(localOrGuest, choice) {
+  playersChoice(localOrGuest, choice, cb?) {
     const cs = state.getState();
     fetch(API_BASE + "/choice", {
       method: "post",
@@ -168,7 +170,15 @@ const state = {
         rtdbRoomId: cs.rtdbRoomId,
         choice: choice,
       }),
-    });
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then(() => {
+        if (cb) {
+          cb();
+        }
+      });
   },
   whatThePlayerChoosed(localOrGuest, cb?) {
     const cs = this.getState();
@@ -187,7 +197,6 @@ const state = {
       })
       .then((resp) => {
         cs.choice = resp.choice;
-        this.listenRTDBData();
         this.setState(cs);
         if (cb) {
           cb();
@@ -205,14 +214,14 @@ const state = {
   subscribe(callback: (any) => any) {
     this.listeners.push(callback);
   },
-  whoWins(miJugada: play, PCjuagada: any) {
-    const ganeConTijeras = miJugada == "tijera" && PCjuagada == "papel";
-    const ganeConPiedra = miJugada == "piedra" && PCjuagada == "tijera";
-    const ganeConPapel = miJugada == "papel" && PCjuagada == "piedra";
+  whoWins(localMove: play, guestMove: play) {
+    const ganeConTijeras = localMove == "tijera" && guestMove == "papel";
+    const ganeConPiedra = localMove == "piedra" && guestMove == "tijera";
+    const ganeConPapel = localMove == "papel" && guestMove == "piedra";
 
-    const perdiConTijeras = miJugada == "tijera" && PCjuagada == "piedra";
-    const perdiConPapel = miJugada == "papel" && PCjuagada == "tijera";
-    const perdiConPiedra = miJugada == "piedra" && PCjuagada == "papel";
+    const perdiConTijeras = localMove == "tijera" && guestMove == "piedra";
+    const perdiConPapel = localMove == "papel" && guestMove == "tijera";
+    const perdiConPiedra = localMove == "piedra" && guestMove == "papel";
 
     const gane = [ganeConPapel, ganeConPiedra, ganeConTijeras].includes(true);
     const perdi = [perdiConPapel, perdiConPiedra, perdiConTijeras].includes(
