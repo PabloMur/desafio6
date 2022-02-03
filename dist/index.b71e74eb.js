@@ -62454,7 +62454,7 @@ class BeforeComparition extends HTMLElement {
 }
 customElements.define("before-comparition", BeforeComparition);
 
-},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"gCVRJ":[function(require,module,exports) {
+},{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"gCVRJ":[function(require,module,exports) {
 var _state = require("../../state");
 class ComparitionPage extends HTMLElement {
     connectedCallback() {
@@ -62476,9 +62476,11 @@ class ComparitionPage extends HTMLElement {
 customElements.define("comparition-page", ComparitionPage);
 
 },{"../../state":"1Yeju"}],"ipysI":[function(require,module,exports) {
+var _state = require("../../state");
+var _router = require("@vaadin/router");
 class WaitingPage extends HTMLElement {
     connectedCallback() {
-        this.render();
+        this.asksIfTheOtherPlayerChoosed();
     }
     render() {
         const style = document.createElement("style");
@@ -62486,10 +62488,28 @@ class WaitingPage extends HTMLElement {
             <p>Esperando que tu oponente elija una pieza</p>
         `;
     }
+    asksIfTheOtherPlayerChoosed() {
+        this.render();
+        let setIN = setInterval(()=>{
+            const cs = _state.state.getState();
+            if (this.cuentaRegresiva == 0 && cs.choice == "none" || this.cuentaRegresiva == 0 && cs.contrincanteChoice == "none") {
+                clearInterval(setIN);
+                _router.Router.go("/result");
+            } else if (cs.choice != "none" && cs.contrincanteChoice != "none") {
+                clearInterval(setIN);
+                _router.Router.go("/before-comparition");
+            }
+            this.cuentaRegresiva--;
+        }, 1000);
+    }
+    constructor(...args){
+        super(...args);
+        this.cuentaRegresiva = 5;
+    }
 }
 customElements.define("waiting-page", WaitingPage);
 
-},{}],"1pzdx":[function(require,module,exports) {
+},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"1pzdx":[function(require,module,exports) {
 //Components
 var _header = require("./components/header");
 var _customText = require("./components/customText");
