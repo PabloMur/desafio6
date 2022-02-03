@@ -34,7 +34,6 @@ class ChoosePage extends HTMLElement {
     this.appendChild(style);
   }
   setingChoice() {
-    state.listenRTDBData();
     this.render();
     const cs = state.getState();
 
@@ -51,7 +50,7 @@ class ChoosePage extends HTMLElement {
         Router.go("/before-comparition");
       } else if (cs.roomCreator == false) {
         state.playersChoice("guest", "tijera", () => {
-          cs.choice = "tijera";
+          cs.contrincanteChoice = "tijera";
           state.setState(cs);
         });
         Router.go("/before-comparition");
@@ -66,7 +65,7 @@ class ChoosePage extends HTMLElement {
         Router.go("/before-comparition");
       } else if (cs.roomCreator == false) {
         state.playersChoice("guest", "papel", () => {
-          cs.choice = "papel";
+          cs.contrincanteChoice = "papel";
           state.setState(cs);
         });
         Router.go("/before-comparition");
@@ -80,8 +79,8 @@ class ChoosePage extends HTMLElement {
         });
         Router.go("/before-comparition");
       } else if (cs.roomCreator == false) {
-        state.playersChoice("local", "tijera", () => {
-          cs.choice = "tijera";
+        state.playersChoice("local", "piedra", () => {
+          cs.contrincanteChoice = "piedra";
           state.setState(cs);
         });
         Router.go("/before-comparition");

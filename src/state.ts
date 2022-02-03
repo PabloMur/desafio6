@@ -14,6 +14,7 @@ const state = {
     rtdbData: "",
     online: false,
     choice: "none",
+    contrincanteChoice: "none",
     history: [],
     score: {
       local: 0,
@@ -34,6 +35,38 @@ const state = {
       const data = snapshot.val();
       cs.rtdbData = data.currentGame;
       this.setState(cs);
+    });
+  },
+  testParaEscucharSiLosDosJugadoresYaElijieron(cb?) {
+    const cs = this.getState();
+
+    const playerOneMoveREF = rtdb.ref(
+      `gamerooms/${cs.rtdbRoomId}/currentGame/playerOne/choice`
+    );
+    playerOneMoveREF.on("value", (snap) => {
+      const cs = this.getState();
+      const data = snap.val();
+      cs.choice = data;
+      this.setState(cs);
+      console.log(data);
+
+      if (cb) {
+        cb();
+      }
+    });
+
+    const playeTwoMoveREF = rtdb.ref(
+      `gamerooms/${cs.rtdbRoomId}/currentGame/playerTwo/choice`
+    );
+    playeTwoMoveREF.on("value", (snap) => {
+      const cs = this.getState();
+      const data = snap.val();
+      cs.contrincanteChoice = data;
+      this.setState(cs);
+      console.log(data);
+      if (cb) {
+        cb();
+      }
     });
   },
   getState() {
@@ -142,6 +175,7 @@ const state = {
         return resp.json();
       })
       .then((r) => {
+        this.listenRTDBData();
         console.log(r);
       });
   },
@@ -156,7 +190,13 @@ const state = {
         player: localOrGuest,
         rtdbRoomId: cs.rtdbRoomId,
       }),
-    });
+    })
+      .then((resp) => {
+        return resp.json();
+      })
+      .then((r) => {
+        console.log(r);
+      });
   },
   playersChoice(localOrGuest, choice, cb?) {
     const cs = state.getState();
@@ -174,7 +214,9 @@ const state = {
       .then((response) => {
         return response.json();
       })
-      .then(() => {
+      .then((resp) => {
+        console.log(resp);
+        this.listenRTDBData();
         if (cb) {
           cb();
         }

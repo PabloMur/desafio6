@@ -4,17 +4,19 @@ import { state } from "../../state";
 class BeforeComparition extends HTMLElement {
   connectedCallback() {
     state.subscribe(() => {
-      //state.listenRTDBData();
       this.sync();
     });
     this.sync();
   }
-  render() {
+  render(cb?) {
+    const cs = state.getState();
     const style = document.createElement("style");
     this.innerHTML = `
-            <p class="waitingMessage">Esperando que tu oponente elija una opcion!</p>
-            <custom-button class="comparar">Comparar</custom-button>
-        `;
+    <p class="waitingMessage">Esperando que tu oponente elija una opcion!</p>
+    <p>Player One => ${cs.choice}</p>
+    <p>Player Two => ${cs.contrincanteChoice}</p>
+    <custom-button class="comparar escondido">Comparar</custom-button>
+    `;
     style.innerHTML = `
       .escondido{
         display:none;
@@ -24,22 +26,28 @@ class BeforeComparition extends HTMLElement {
       }
     `;
     this.appendChild(style);
+    if (cb) {
+      cb();
+    }
   }
   sync() {
-    const cs = state.getState();
-    const localMove = cs.rtdbData.playerOne.choice;
-    const guestMove = cs.rtdbData.playerTwo.choice;
+    state.testParaEscucharSiLosDosJugadoresYaElijieron();
+    this.render(() => {
+      const cs = state.getState();
+      const button = document.querySelector(".comparar");
+      if (
+        cs.rtdbData.playerTwo.choice !== "none" ||
+        cs.rtdbData.playerOne.choice !== "none"
+      ) {
+        button.classList.remove("escondido");
+        button.classList.add("mostrado");
+      } else if (cs.contrincanteChoice == "none" || cs.choice == "none") {
+        Router.go("/waiting");
+      }
 
-    this.render();
-
-    const waitingMessage = document.querySelector(".waitingMessage");
-    const button = document.querySelector(".comparar");
-
-    console.log(`local => ${localMove}`);
-    console.log(`guest => ${guestMove}`);
-
-    button.addEventListener("click", () => {
-      Router.go("/comparition");
+      button.addEventListener("click", () => {
+        Router.go("/comparition");
+      });
     });
   }
 }

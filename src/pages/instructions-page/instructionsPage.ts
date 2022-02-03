@@ -50,7 +50,7 @@ class instructions extends HTMLElement {
       if (cs.roomCreator == true) {
         state.playerIsReady("local");
         Router.go("/choose-room");
-      } else if (cs.roomGuest == true) {
+      } else if (cs.roomCreator == false) {
         state.playerIsReady("guest");
         Router.go("/choose-room");
       }

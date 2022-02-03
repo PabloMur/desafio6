@@ -19,6 +19,7 @@ import { Router } from "@vaadin/router";
       rtdbData: "",
       online: false,
       choice: "none",
+      contrincanteChoice: "none",
       history: [],
       score: {
         local: 0,

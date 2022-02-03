@@ -537,6 +537,7 @@ var _router = require("@vaadin/router");
         rtdbData: "",
         online: false,
         choice: "none",
+        contrincanteChoice: "none",
         history: [],
         score: {
             local: 0,
@@ -562,6 +563,7 @@ const state = {
         rtdbData: "",
         online: false,
         choice: "none",
+        contrincanteChoice: "none",
         history: [],
         score: {
             local: 0,
@@ -581,6 +583,27 @@ const state = {
             const data = snapshot.val();
             cs.rtdbData = data.currentGame;
             this.setState(cs);
+        });
+    },
+    testParaEscucharSiLosDosJugadoresYaElijieron (cb) {
+        const cs1 = this.getState();
+        const playerOneMoveREF = _rtdb.rtdb.ref(`gamerooms/${cs1.rtdbRoomId}/currentGame/playerOne/choice`);
+        playerOneMoveREF.on("value", (snap)=>{
+            const cs = this.getState();
+            const data = snap.val();
+            cs.choice = data;
+            this.setState(cs);
+            console.log(data);
+            if (cb) cb();
+        });
+        const playeTwoMoveREF = _rtdb.rtdb.ref(`gamerooms/${cs1.rtdbRoomId}/currentGame/playerTwo/choice`);
+        playeTwoMoveREF.on("value", (snap)=>{
+            const cs = this.getState();
+            const data = snap.val();
+            cs.contrincanteChoice = data;
+            this.setState(cs);
+            console.log(data);
+            if (cb) cb();
         });
     },
     getState () {
@@ -685,6 +708,7 @@ const state = {
         }).then((resp)=>{
             return resp.json();
         }).then((r)=>{
+            this.listenRTDBData();
             console.log(r);
         });
     },
@@ -699,6 +723,10 @@ const state = {
                 player: localOrGuest,
                 rtdbRoomId: cs.rtdbRoomId
             })
+        }).then((resp)=>{
+            return resp.json();
+        }).then((r)=>{
+            console.log(r);
         });
     },
     playersChoice (localOrGuest, choice, cb) {
@@ -715,7 +743,9 @@ const state = {
             })
         }).then((response)=>{
             return response.json();
-        }).then(()=>{
+        }).then((resp)=>{
+            console.log(resp);
+            this.listenRTDBData();
             if (cb) cb();
         });
     },
@@ -59583,6 +59613,10 @@ router.setRoutes([
     {
         path: "/before-comparition",
         component: "before-comparition"
+    },
+    {
+        path: "/waiting",
+        component: "waiting-page"
     }, 
 ]);
 
@@ -61952,8 +61986,9 @@ var _chooseRoomPage = require("./pages/choose-room/chooseRoomPage");
 var _instructionsPage = require("./pages/instructions-page/instructionsPage");
 var _beforeComparition = require("./pages/before-comparition/beforeComparition");
 var _comparitionPage = require("./pages/comparition-page/comparitionPage");
+var _waitingPage = require("./pages/waitingPage/waitingPage");
 
-},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","./pages/choose-room/chooseRoomPage":"hLsoi","./pages/instructions-page/instructionsPage":"jnTvn","./pages/before-comparition/beforeComparition":"9ZbQd","./pages/comparition-page/comparitionPage":"gCVRJ"}],"lkl5B":[function(require,module,exports) {
+},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","./pages/choose-room/chooseRoomPage":"hLsoi","./pages/instructions-page/instructionsPage":"jnTvn","./pages/before-comparition/beforeComparition":"9ZbQd","./pages/comparition-page/comparitionPage":"gCVRJ","./pages/waitingPage/waitingPage":"ipysI"}],"lkl5B":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 class Home extends HTMLElement {
     connectedCallback() {
@@ -62153,7 +62188,7 @@ class GameRoomPage extends HTMLElement {
     beforeClose() {
         this.render();
         const cs = _state.state.getState();
-        _state.state.playerIsOnline("local", cs.rtdbRoomId);
+        //state.playerIsOnline("local", cs.rtdbRoomId);
         const button = document.querySelector(".startGame");
         const shareMessage = document.querySelector(".share-message");
         const bothReady = document.querySelector(".cuandoEstesListo");
@@ -62258,7 +62293,6 @@ class ChoosePage extends HTMLElement {
         this.appendChild(style);
     }
     setingChoice() {
-        _state.state.listenRTDBData();
         this.render();
         const cs = _state.state.getState();
         const tijera = document.querySelector(".tijera");
@@ -62273,7 +62307,7 @@ class ChoosePage extends HTMLElement {
                 _router.Router.go("/before-comparition");
             } else if (cs.roomCreator == false) {
                 _state.state.playersChoice("guest", "tijera", ()=>{
-                    cs.choice = "tijera";
+                    cs.contrincanteChoice = "tijera";
                     _state.state.setState(cs);
                 });
                 _router.Router.go("/before-comparition");
@@ -62288,7 +62322,7 @@ class ChoosePage extends HTMLElement {
                 _router.Router.go("/before-comparition");
             } else if (cs.roomCreator == false) {
                 _state.state.playersChoice("guest", "papel", ()=>{
-                    cs.choice = "papel";
+                    cs.contrincanteChoice = "papel";
                     _state.state.setState(cs);
                 });
                 _router.Router.go("/before-comparition");
@@ -62302,8 +62336,8 @@ class ChoosePage extends HTMLElement {
                 });
                 _router.Router.go("/before-comparition");
             } else if (cs.roomCreator == false) {
-                _state.state.playersChoice("local", "tijera", ()=>{
-                    cs.choice = "tijera";
+                _state.state.playersChoice("local", "piedra", ()=>{
+                    cs.contrincanteChoice = "piedra";
                     _state.state.setState(cs);
                 });
                 _router.Router.go("/before-comparition");
@@ -62364,7 +62398,7 @@ class instructions extends HTMLElement {
             if (cs.roomCreator == true) {
                 _state.state.playerIsReady("local");
                 _router.Router.go("/choose-room");
-            } else if (cs.roomGuest == true) {
+            } else if (cs.roomCreator == false) {
                 _state.state.playerIsReady("guest");
                 _router.Router.go("/choose-room");
             }
@@ -62379,17 +62413,19 @@ var _state = require("../../state");
 class BeforeComparition extends HTMLElement {
     connectedCallback() {
         _state.state.subscribe(()=>{
-            //state.listenRTDBData();
             this.sync();
         });
         this.sync();
     }
-    render() {
+    render(cb) {
+        const cs = _state.state.getState();
         const style = document.createElement("style");
         this.innerHTML = `
-            <p class="waitingMessage">Esperando que tu oponente elija una opcion!</p>
-            <custom-button class="comparar">Comparar</custom-button>
-        `;
+    <p class="waitingMessage">Esperando que tu oponente elija una opcion!</p>
+    <p>Player One => ${cs.choice}</p>
+    <p>Player Two => ${cs.contrincanteChoice}</p>
+    <custom-button class="comparar escondido">Comparar</custom-button>
+    `;
         style.innerHTML = `
       .escondido{
         display:none;
@@ -62399,24 +62435,26 @@ class BeforeComparition extends HTMLElement {
       }
     `;
         this.appendChild(style);
+        if (cb) cb();
     }
     sync() {
-        const cs = _state.state.getState();
-        const localMove = cs.rtdbData.playerOne.choice;
-        const guestMove = cs.rtdbData.playerTwo.choice;
-        this.render();
-        const waitingMessage = document.querySelector(".waitingMessage");
-        const button = document.querySelector(".comparar");
-        console.log(`local => ${localMove}`);
-        console.log(`guest => ${guestMove}`);
-        button.addEventListener("click", ()=>{
-            _router.Router.go("/comparition");
+        _state.state.testParaEscucharSiLosDosJugadoresYaElijieron();
+        this.render(()=>{
+            const cs = _state.state.getState();
+            const button = document.querySelector(".comparar");
+            if (cs.rtdbData.playerTwo.choice !== "none" || cs.rtdbData.playerOne.choice !== "none") {
+                button.classList.remove("escondido");
+                button.classList.add("mostrado");
+            } else if (cs.contrincanteChoice == "none" || cs.choice == "none") _router.Router.go("/waiting");
+            button.addEventListener("click", ()=>{
+                _router.Router.go("/comparition");
+            });
         });
     }
 }
 customElements.define("before-comparition", BeforeComparition);
 
-},{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"gCVRJ":[function(require,module,exports) {
+},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"gCVRJ":[function(require,module,exports) {
 var _state = require("../../state");
 class ComparitionPage extends HTMLElement {
     connectedCallback() {
@@ -62437,7 +62475,21 @@ class ComparitionPage extends HTMLElement {
 }
 customElements.define("comparition-page", ComparitionPage);
 
-},{"../../state":"1Yeju"}],"1pzdx":[function(require,module,exports) {
+},{"../../state":"1Yeju"}],"ipysI":[function(require,module,exports) {
+class WaitingPage extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+            <p>Esperando que tu oponente elija una pieza</p>
+        `;
+    }
+}
+customElements.define("waiting-page", WaitingPage);
+
+},{}],"1pzdx":[function(require,module,exports) {
 //Components
 var _header = require("./components/header");
 var _customText = require("./components/customText");
