@@ -3,7 +3,7 @@ import * as cors from "cors";
 import { rtdb, firestore } from "./firestore";
 import { nanoid } from "nanoid";
 
-const port = process.env.PORT || 3003;
+const port = process.env.PORT || 3098;
 const playersCollection = firestore.collection("players");
 const gameRoomsCollection = firestore.collection("gamerooms");
 
@@ -166,6 +166,7 @@ app.post("/start", (req, res) => {
       });
   }
 });
+
 app.post("/unstart", (req, res) => {
   const { player, rtdbRoomId } = req.body;
   if (player == "local") {
@@ -216,6 +217,33 @@ app.post("/choice", (req, res) => {
       })
       .then(() => {
         res.json({ message: "player Two eligió " + choice });
+      });
+  }
+});
+
+app.post("/unchoose", (req, res) => {
+  const { localOrGuest, rtdbRoomId } = req.body;
+  if (localOrGuest == "local") {
+    const gameRoomRef = rtdb.ref(
+      `gamerooms/${rtdbRoomId}/currentGame/playerOne`
+    );
+    gameRoomRef
+      .update({
+        choice: "none",
+      })
+      .then(() => {
+        res.json({ message: "player One ya reseteó su choice" });
+      });
+  } else if (localOrGuest == "guest") {
+    const gameRoomRef = rtdb.ref(
+      `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
+    );
+    gameRoomRef
+      .update({
+        choice: "none",
+      })
+      .then(() => {
+        res.json({ message: "player Two ya reseteó su choice" });
       });
   }
 });

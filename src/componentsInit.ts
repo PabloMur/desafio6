@@ -1,5 +1,4 @@
 //Components
-import "./components/header";
 import "./components/customText";
 import "./components/button";
 import "./components/showName";
@@ -10,3 +9,5 @@ import "./components/shareCodeMessage";
 import "./components/game-option";
 import "./components/contador";
 import "./components/muestraJugada";
+import "./components/scoreComp";
+import "./components/starComp";

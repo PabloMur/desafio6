@@ -1,7 +1,7 @@
 // const API_BASE = "https://desafio6pm.herokuapp.com";
 type play = "piedra" | "papel" | "tijera";
 
-const API_BASE = "http://localhost:3003";
+const API_BASE = "https://desafio6pm.herokuapp.com";
 import { rtdb } from "./rtdb";
 
 const state = {
@@ -16,6 +16,8 @@ const state = {
     choice: "none",
     contrincanteChoice: "none",
     history: [],
+    result: "",
+    currentGame: { playerOneMove: "", playerTwoMove: "" },
     score: {
       local: 0,
       guest: 0,
@@ -37,6 +39,7 @@ const state = {
       this.setState(cs);
     });
   },
+  //cambiar nombre de este metodo antes de deployar!!!
   testParaEscucharSiLosDosJugadoresYaElijieron(cb?) {
     const cs = this.getState();
 
@@ -222,24 +225,23 @@ const state = {
         }
       });
   },
-  whatThePlayerChoosed(localOrGuest, cb?) {
+  playersResetingChoice(localOrGuest, cb?) {
     const cs = this.getState();
-    fetch(API_BASE + "/choice", {
-      method: "get",
+    fetch(API_BASE + "/unchoose", {
+      method: "post",
       headers: {
-        "content-type": "application/json",
+        "content-type": "application-json",
       },
       body: JSON.stringify({
         localOrGuest: localOrGuest,
         rtdbRoomId: cs.rtdbRoomId,
       }),
     })
-      .then((resp) => {
-        return resp.json();
+      .then((response) => {
+        return response.json();
       })
-      .then((resp) => {
-        cs.choice = resp.choice;
-        this.setState(cs);
+      .then((d) => {
+        console.log(d);
         if (cb) {
           cb();
         }
@@ -256,46 +258,47 @@ const state = {
   subscribe(callback: (any) => any) {
     this.listeners.push(callback);
   },
-  whoWins(localMove: play, guestMove: play) {
-    const ganeConTijeras = localMove == "tijera" && guestMove == "papel";
-    const ganeConPiedra = localMove == "piedra" && guestMove == "tijera";
-    const ganeConPapel = localMove == "papel" && guestMove == "piedra";
+  whoWins(localMove, guestMove) {
+    const localGanaConTijeras = localMove == "tijera" && guestMove == "papel";
+    const localGanaConPiedra = localMove == "piedra" && guestMove == "tijera";
+    const localGanaConPapel = localMove == "papel" && guestMove == "piedra";
 
-    const perdiConTijeras = localMove == "tijera" && guestMove == "piedra";
-    const perdiConPapel = localMove == "papel" && guestMove == "tijera";
-    const perdiConPiedra = localMove == "piedra" && guestMove == "papel";
+    const guestGanaConTijeras = localMove == "tijera" && guestMove == "piedra";
+    const guestGanaConPapel = localMove == "papel" && guestMove == "tijera";
+    const guestGanaConPiedra = localMove == "piedra" && guestMove == "papel";
 
-    const gane = [ganeConPapel, ganeConPiedra, ganeConTijeras].includes(true);
-    const perdi = [perdiConPapel, perdiConPiedra, perdiConTijeras].includes(
-      true
-    );
-    const empate = gane == perdi;
+    const ganaLocal = [
+      localGanaConTijeras,
+      localGanaConPiedra,
+      localGanaConPapel,
+    ].includes(true);
+    const ganaGuest = [
+      guestGanaConTijeras,
+      guestGanaConPapel,
+      guestGanaConPiedra,
+    ].includes(true);
+    const empate = ganaLocal == ganaGuest;
+    const cs = state.getState();
+    const iAmLocal = cs.roomCreator;
 
-    if (gane) {
-      const lastState = this.getState();
-      this.setState({
-        ...lastState,
-        score: { tu: lastState.score.tu + 1, maquina: lastState.score.maquina },
-        result: "gane",
-      });
-      return "gane";
+    if (ganaLocal) {
+      cs.score.local++;
+      if (iAmLocal) {
+        cs.result = "ganaste";
+      } else {
+        cs.result = "perdiste";
+      }
     }
-    if (perdi) {
-      const lastState = this.getState();
-      this.setState({
-        ...lastState,
-        score: { tu: lastState.score.tu, maquina: lastState.score.maquina + 1 },
-        result: "perdi",
-      });
-      return "perdi";
+    if (ganaGuest) {
+      cs.score.guest++;
+      if (iAmLocal) {
+        cs.result = "perdiste";
+      } else {
+        cs.result = "ganaste";
+      }
     }
     if (empate) {
-      const lastState = this.getState();
-      this.setState({
-        ...lastState,
-        result: "empate",
-      });
-      return "empate";
+      cs.result = "empataste";
     }
   },
 };

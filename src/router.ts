@@ -1,6 +1,7 @@
 import { Router } from "@vaadin/router";
 
 const router = new Router(document.querySelector(".root"));
+
 router.setRoutes([
   { path: "/", component: "home-page" },
   { path: "/access-room", component: "access-page" },
@@ -12,4 +13,5 @@ router.setRoutes([
   { path: "/comparition", component: "comparition-page" },
   { path: "/before-comparition", component: "before-comparition" },
   { path: "/waiting", component: "waiting-page" },
+  { path: "/result", component: "result-room" },
 ]);

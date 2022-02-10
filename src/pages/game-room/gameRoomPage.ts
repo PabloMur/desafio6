@@ -54,7 +54,6 @@ class GameRoomPage extends HTMLElement {
   beforeClose() {
     this.render();
     const cs = state.getState();
-    //state.playerIsOnline("local", cs.rtdbRoomId);
 
     const button = document.querySelector(".startGame");
     const shareMessage = document.querySelector(".share-message");

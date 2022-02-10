@@ -539,6 +539,11 @@ var _router = require("@vaadin/router");
         choice: "none",
         contrincanteChoice: "none",
         history: [],
+        result: "",
+        currentGame: {
+            playerOneMove: "",
+            playerTwoMove: ""
+        },
         score: {
             local: 0,
             guest: 0
@@ -552,7 +557,7 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state
 );
 var _rtdb = require("./rtdb");
-const API_BASE = "http://localhost:3003";
+const API_BASE = "http://localhost:30987";
 const state = {
     data: {
         nombre: "",
@@ -565,6 +570,11 @@ const state = {
         choice: "none",
         contrincanteChoice: "none",
         history: [],
+        result: "",
+        currentGame: {
+            playerOneMove: "",
+            playerTwoMove: ""
+        },
         score: {
             local: 0,
             guest: 0
@@ -585,6 +595,7 @@ const state = {
             this.setState(cs);
         });
     },
+    //cambiar nombre de este metodo antes de deployar!!!
     testParaEscucharSiLosDosJugadoresYaElijieron (cb) {
         const cs1 = this.getState();
         const playerOneMoveREF = _rtdb.rtdb.ref(`gamerooms/${cs1.rtdbRoomId}/currentGame/playerOne/choice`);
@@ -749,22 +760,21 @@ const state = {
             if (cb) cb();
         });
     },
-    whatThePlayerChoosed (localOrGuest, cb) {
+    playersResetingChoice (localOrGuest, cb) {
         const cs = this.getState();
-        fetch(API_BASE + "/choice", {
-            method: "get",
+        fetch(API_BASE + "/unchoose", {
+            method: "post",
             headers: {
-                "content-type": "application/json"
+                "content-type": "application-json"
             },
             body: JSON.stringify({
                 localOrGuest: localOrGuest,
                 rtdbRoomId: cs.rtdbRoomId
             })
-        }).then((resp)=>{
-            return resp.json();
-        }).then((resp)=>{
-            cs.choice = resp.choice;
-            this.setState(cs);
+        }).then((response)=>{
+            return response.json();
+        }).then((d)=>{
+            console.log(d);
             if (cb) cb();
         });
     },
@@ -778,55 +788,36 @@ const state = {
         this.listeners.push(callback);
     },
     whoWins (localMove, guestMove) {
-        const ganeConTijeras = localMove == "tijera" && guestMove == "papel";
-        const ganeConPiedra = localMove == "piedra" && guestMove == "tijera";
-        const ganeConPapel = localMove == "papel" && guestMove == "piedra";
-        const perdiConTijeras = localMove == "tijera" && guestMove == "piedra";
-        const perdiConPapel = localMove == "papel" && guestMove == "tijera";
-        const perdiConPiedra = localMove == "piedra" && guestMove == "papel";
-        const gane = [
-            ganeConPapel,
-            ganeConPiedra,
-            ganeConTijeras
+        const localGanaConTijeras = localMove == "tijera" && guestMove == "papel";
+        const localGanaConPiedra = localMove == "piedra" && guestMove == "tijera";
+        const localGanaConPapel = localMove == "papel" && guestMove == "piedra";
+        const guestGanaConTijeras = localMove == "tijera" && guestMove == "piedra";
+        const guestGanaConPapel = localMove == "papel" && guestMove == "tijera";
+        const guestGanaConPiedra = localMove == "piedra" && guestMove == "papel";
+        const ganaLocal = [
+            localGanaConTijeras,
+            localGanaConPiedra,
+            localGanaConPapel, 
         ].includes(true);
-        const perdi = [
-            perdiConPapel,
-            perdiConPiedra,
-            perdiConTijeras
+        const ganaGuest = [
+            guestGanaConTijeras,
+            guestGanaConPapel,
+            guestGanaConPiedra, 
         ].includes(true);
-        const empate = gane == perdi;
-        if (gane) {
-            const lastState = this.getState();
-            this.setState({
-                ...lastState,
-                score: {
-                    tu: lastState.score.tu + 1,
-                    maquina: lastState.score.maquina
-                },
-                result: "gane"
-            });
-            return "gane";
+        const empate = ganaLocal == ganaGuest;
+        const cs = state.getState();
+        const iAmLocal = cs.roomCreator;
+        if (ganaLocal) {
+            cs.score.local++;
+            if (iAmLocal) cs.result = "ganaste";
+            else cs.result = "perdiste";
         }
-        if (perdi) {
-            const lastState = this.getState();
-            this.setState({
-                ...lastState,
-                score: {
-                    tu: lastState.score.tu,
-                    maquina: lastState.score.maquina + 1
-                },
-                result: "perdi"
-            });
-            return "perdi";
+        if (ganaGuest) {
+            cs.score.guest++;
+            if (iAmLocal) cs.result = "perdiste";
+            else cs.result = "ganaste";
         }
-        if (empate) {
-            const lastState = this.getState();
-            this.setState({
-                ...lastState,
-                result: "empate"
-            });
-            return "empate";
-        }
+        if (empate) cs.result = "empataste";
     }
 };
 
@@ -59617,6 +59608,10 @@ router.setRoutes([
     {
         path: "/waiting",
         component: "waiting-page"
+    },
+    {
+        path: "/result",
+        component: "result-room"
     }, 
 ]);
 
@@ -61987,8 +61982,9 @@ var _instructionsPage = require("./pages/instructions-page/instructionsPage");
 var _beforeComparition = require("./pages/before-comparition/beforeComparition");
 var _comparitionPage = require("./pages/comparition-page/comparitionPage");
 var _waitingPage = require("./pages/waitingPage/waitingPage");
+var _resultPage = require("./pages/result-page/resultPage");
 
-},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","./pages/choose-room/chooseRoomPage":"hLsoi","./pages/instructions-page/instructionsPage":"jnTvn","./pages/before-comparition/beforeComparition":"9ZbQd","./pages/comparition-page/comparitionPage":"gCVRJ","./pages/waitingPage/waitingPage":"ipysI"}],"lkl5B":[function(require,module,exports) {
+},{"./pages/home-page/homePage":"lkl5B","./pages/access-page/accessPage":"jEqGg","./pages/new-room/newRoomPage":"3NBdJ","./pages/game-room/gameRoomPage":"37vkO","./pages/pre-game-room/preGameRoomPage":"bDFvm","./pages/choose-room/chooseRoomPage":"hLsoi","./pages/instructions-page/instructionsPage":"jnTvn","./pages/before-comparition/beforeComparition":"9ZbQd","./pages/comparition-page/comparitionPage":"gCVRJ","./pages/waitingPage/waitingPage":"ipysI","./pages/result-page/resultPage":"dPIew"}],"lkl5B":[function(require,module,exports) {
 var _router = require("@vaadin/router");
 class Home extends HTMLElement {
     connectedCallback() {
@@ -62188,7 +62184,6 @@ class GameRoomPage extends HTMLElement {
     beforeClose() {
         this.render();
         const cs = _state.state.getState();
-        //state.playerIsOnline("local", cs.rtdbRoomId);
         const button = document.querySelector(".startGame");
         const shareMessage = document.querySelector(".share-message");
         const bothReady = document.querySelector(".cuandoEstesListo");
@@ -62269,6 +62264,7 @@ class ChoosePage extends HTMLElement {
         const style = document.createElement("style");
         this.innerHTML = `
         <div class="container">
+          <cuenta-regresiva></cuenta-regresiva>
           <div class="contenedorDeManos">
             <game-option variant="tijera" class="tijera"></game-option>
             <game-option variant="papel" class="papel"></game-option>
@@ -62336,7 +62332,7 @@ class ChoosePage extends HTMLElement {
                 });
                 _router.Router.go("/before-comparition");
             } else if (cs.roomCreator == false) {
-                _state.state.playersChoice("local", "piedra", ()=>{
+                _state.state.playersChoice("guest", "piedra", ()=>{
                     cs.contrincanteChoice = "piedra";
                     _state.state.setState(cs);
                 });
@@ -62421,9 +62417,6 @@ class BeforeComparition extends HTMLElement {
         const cs = _state.state.getState();
         const style = document.createElement("style");
         this.innerHTML = `
-    <p class="waitingMessage">Esperando que tu oponente elija una opcion!</p>
-    <p>Player One => ${cs.choice}</p>
-    <p>Player Two => ${cs.contrincanteChoice}</p>
     <custom-button class="comparar escondido">Comparar</custom-button>
     `;
         style.innerHTML = `
@@ -62441,41 +62434,33 @@ class BeforeComparition extends HTMLElement {
         _state.state.testParaEscucharSiLosDosJugadoresYaElijieron();
         this.render(()=>{
             const cs = _state.state.getState();
-            const button = document.querySelector(".comparar");
-            if (cs.rtdbData.playerTwo.choice !== "none" || cs.rtdbData.playerOne.choice !== "none") {
-                button.classList.remove("escondido");
-                button.classList.add("mostrado");
-            } else if (cs.contrincanteChoice == "none" || cs.choice == "none") _router.Router.go("/waiting");
-            button.addEventListener("click", ()=>{
-                _router.Router.go("/comparition");
-            });
+            if (cs.rtdbData.playerTwo.choice != "none" && cs.rtdbData.playerOne.choice != "none") _router.Router.go("/comparition");
+            else if (cs.contrincanteChoice == "none" || cs.choice == "none") _router.Router.go("/waiting");
         });
     }
 }
 customElements.define("before-comparition", BeforeComparition);
 
 },{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"gCVRJ":[function(require,module,exports) {
-var _state = require("../../state");
+var _router = require("@vaadin/router");
 class ComparitionPage extends HTMLElement {
     connectedCallback() {
-        _state.state.subscribe(()=>{
-            this.render();
-        });
         this.render();
+        const button = document.querySelector(".goToResult");
+        button.addEventListener("click", ()=>{
+            _router.Router.go("/result");
+        });
     }
     render() {
         this.innerHTML = `
-    <p>Comparition</p>
     <muestra-jugada></muestra-jugada>
+    <custom-button class="goToResult">Ir a resutado</custom-button>
     `;
-    }
-    sync() {
-        this.render();
     }
 }
 customElements.define("comparition-page", ComparitionPage);
 
-},{"../../state":"1Yeju"}],"ipysI":[function(require,module,exports) {
+},{"@vaadin/router":"kVZrF"}],"ipysI":[function(require,module,exports) {
 var _state = require("../../state");
 var _router = require("@vaadin/router");
 class WaitingPage extends HTMLElement {
@@ -62485,33 +62470,64 @@ class WaitingPage extends HTMLElement {
     render() {
         const style = document.createElement("style");
         this.innerHTML = `
-            <p>Esperando que tu oponente elija una pieza</p>
+            <custom-text>Esperemos a que tu contrincante elija una opcion... Si no elije en los siguiente 30 segundos ganas esta partida picaronx</custom-text>
         `;
     }
     asksIfTheOtherPlayerChoosed() {
         this.render();
         let setIN = setInterval(()=>{
             const cs = _state.state.getState();
-            if (this.cuentaRegresiva == 0 && cs.choice == "none" || this.cuentaRegresiva == 0 && cs.contrincanteChoice == "none") {
+            const playerOneEligio = cs.choice != "none";
+            const playerTwoEligio = cs.contrincanteChoice != "none";
+            const playerOneNoEligio = !playerOneEligio;
+            const playerTwoNoEligio = !playerTwoEligio;
+            if (this.cuentaRegresiva == 0 && playerOneNoEligio && playerTwoEligio || this.cuentaRegresiva == 0 && playerOneEligio && playerTwoNoEligio) {
                 clearInterval(setIN);
                 _router.Router.go("/result");
-            } else if (cs.choice != "none" && cs.contrincanteChoice != "none") {
+            } else if (playerOneEligio && playerTwoEligio) {
                 clearInterval(setIN);
-                _router.Router.go("/before-comparition");
+                _router.Router.go("/comparition");
             }
             this.cuentaRegresiva--;
         }, 1000);
     }
     constructor(...args){
         super(...args);
-        this.cuentaRegresiva = 5;
+        this.cuentaRegresiva = 30;
     }
 }
 customElements.define("waiting-page", WaitingPage);
 
-},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"1pzdx":[function(require,module,exports) {
+},{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"dPIew":[function(require,module,exports) {
+var _state = require("../../state");
+var _router = require("@vaadin/router");
+class ResultPage extends HTMLElement {
+    connectedCallback() {
+        this.sync();
+    }
+    render() {
+        this.innerHTML = `
+            <star-comp></star-comp>
+            <custom-score></custom-score>
+            <custom-button class="playAgainButton">Volver a jugar</custom-button>
+        `;
+    }
+    sync() {
+        const cs = _state.state.getState();
+        const local = cs.roomCreator;
+        this.render();
+        const playAgainButton = document.querySelector(".playAgainButton");
+        _state.state.playersChoice("local", "none");
+        _state.state.playersChoice("guest", "none");
+        playAgainButton.addEventListener("click", ()=>{
+            _router.Router.go("/game-room");
+        });
+    }
+}
+customElements.define("result-room", ResultPage);
+
+},{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"1pzdx":[function(require,module,exports) {
 //Components
-var _header = require("./components/header");
 var _customText = require("./components/customText");
 var _button = require("./components/button");
 var _showName = require("./components/showName");
@@ -62522,30 +62538,10 @@ var _shareCodeMessage = require("./components/shareCodeMessage");
 var _gameOption = require("./components/game-option");
 var _contador = require("./components/contador");
 var _muestraJugada = require("./components/muestraJugada");
+var _scoreComp = require("./components/scoreComp");
+var _starComp = require("./components/starComp");
 
-},{"./components/header":"h4YWK","./components/customText":"e43ts","./components/button":"jqdBz","./components/showName":"1S6hc","./components/columnContainer":"fVUTk","./components/roomCode":"9Cky9","./components/marcador":"2up0v","./components/shareCodeMessage":"2o8hN","./components/game-option":"6BPxk","./components/contador":"fR4S6","./components/muestraJugada":"fPgGq"}],"h4YWK":[function(require,module,exports) {
-class Header extends HTMLElement {
-    connectedCallback() {
-        this.render();
-    }
-    render() {
-        const style = document.createElement("style");
-        this.innerHTML = `
-            <div class="header"></div>
-        `;
-        style.innerHTML = `
-        .header{
-            height: 10vh;
-            width: 100%;
-            background: red;
-        }
-        `;
-        this.appendChild(style);
-    }
-}
-customElements.define("custom-header", Header);
-
-},{}],"e43ts":[function(require,module,exports) {
+},{"./components/customText":"e43ts","./components/button":"jqdBz","./components/showName":"1S6hc","./components/columnContainer":"fVUTk","./components/roomCode":"9Cky9","./components/marcador":"2up0v","./components/shareCodeMessage":"2o8hN","./components/game-option":"6BPxk","./components/contador":"fR4S6","./components/muestraJugada":"fPgGq","./components/scoreComp":"94Lff","./components/starComp":"iBRYC"}],"e43ts":[function(require,module,exports) {
 class CustomText extends HTMLElement {
     connectedCallback() {
         this.render();
@@ -62894,10 +62890,16 @@ class Contador extends HTMLElement {
         const contador = document.querySelector(".contador");
         let setIN = setInterval(()=>{
             const cs = _state.state.getState();
-            if (this.cuentaRegresiva == 0 && cs.choice == "none") {
+            const terminoTiempo = this.cuentaRegresiva == 0;
+            const noElegiNada = cs.rtdbData.playerOne.choice == "none" || cs.rtdbData.playerTwo.choice == "none";
+            if (terminoTiempo && noElegiNada) {
+                if (cs.roomCreator) cs.score.guest++;
+                else cs.score.local++;
+                cs.result = "perdiste";
                 clearInterval(setIN);
-                _router.Router.go("/instructions");
-            } else if (cs.choice != "none") {
+                _router.Router.go("/result");
+            }
+            if (cs.choice != "none" && cs.contrincanteChoice == "none" || cs.contrincanteChoice != "none" && cs.choice == "none") {
                 clearInterval(setIN);
                 _router.Router.go("/before-comparition");
             }
@@ -62907,7 +62909,6 @@ class Contador extends HTMLElement {
     }
     constructor(...args){
         super(...args);
-        this.jugada = false;
         this.cuentaRegresiva = 3;
     }
 }
@@ -62917,25 +62918,177 @@ customElements.define("cuenta-regresiva", Contador);
 var _state = require("../state");
 class MuestraJugada extends HTMLElement {
     connectedCallback() {
-        _state.state.subscribe(()=>{
-            this.render();
-        });
         this.render();
     }
     render() {
         const cs = _state.state.getState();
+        const style = document.createElement("style");
         this.innerHTML = `
-    <p>jugada player One ${cs.rtdbData.playerOne.choice}</p>
-    <p>jugada player Two ${cs.rtdbData.playerTwo.choice}</p>
+      <game-option class="playerOneMove" variant=${cs.rtdbData.playerOne.choice}></game-option>
+      <game-option class="playerTwoMove" variant=${cs.rtdbData.playerTwo.choice}></game-option>
     `;
+        this.className = "contenedor";
+        _state.state.whoWins(cs.rtdbData.playerOne.choice, cs.rtdbData.playerTwo.choice);
+        style.innerHTML = `
+    .contenedor{
+      height: 70vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      
     }
-    constructor(...args){
-        super(...args);
-        this.jugada = "none";
+    
+    .playerTwoMove{
+        margin: 0 auto;
+        animation: fade .5s linear;
+        transform: scale(1.3);
+        
+    }
+    .playerOneMove{
+        margin: 0 auto;
+        transform: rotate(180deg)
+                   scale(1.3);        
+        animation: fadeInverted .5s linear;
+    }
+
+    @keyframes fade{
+      0%{
+        transform: translateY(100%)
+                   scale(1.3);
+      }
+      100%{
+        transform: translateY(0%)
+                   scale(1.3);
+      }
+    }
+    @keyframes fadeInverted{
+        0%{
+            transform: translateY(-500%)
+                       rotate(180deg)
+                       scale(1.3);
+        }
+        100%{
+            transform: translateY(0%)
+                       rotate(180deg)
+                       scale(1.3);
+        }
+      }
+    `;
+        this.appendChild(style);
     }
 }
 customElements.define("muestra-jugada", MuestraJugada);
 
-},{"../state":"1Yeju"}]},["8wcER","h7u1C"], "h7u1C", "parcelRequireca0a")
+},{"../state":"1Yeju"}],"94Lff":[function(require,module,exports) {
+var _state = require("../state");
+class ScoreComp extends HTMLElement {
+    connectedCallback() {
+        this.sync();
+    }
+    render() {
+        const style = document.createElement("style");
+        this.innerHTML = `
+        <div class="score-container">
+        <custom-text>Score</custom-text>
+        <custom-text>${this.playerOneName} : ${this.playerOneScore}</custom-text>
+        <custom-text>${this.playerTwoName} : ${this.playerTwoScore}</custom-text>
+        </div>    
+        `;
+        style.innerHTML = `
+        .score-container{
+          
+          width: 50%;
+          margin: 0 auto;
+
+        }
+        `;
+        this.appendChild(style);
+    }
+    sync() {
+        const cs = _state.state.getState();
+        this.playerOneName = cs.rtdbData.playerOne.nombre;
+        this.playerOneScore = cs.score.local;
+        this.playerTwoName = cs.rtdbData.playerTwo.nombre;
+        this.playerTwoScore = cs.score.guest;
+        this.render();
+    }
+    constructor(...args){
+        super(...args);
+        this.playerOneScore = 0;
+        this.playerTwoScore = 0;
+    }
+}
+customElements.define("custom-score", ScoreComp);
+
+},{"../state":"1Yeju"}],"iBRYC":[function(require,module,exports) {
+var _state = require("../state");
+class StarComp extends HTMLElement {
+    connectedCallback() {
+        this.render();
+    }
+    constructor(...args){
+        super(...args);
+        this.render = ()=>{
+            const ganaste = require("../img/ganaste.svg");
+            const perdiste = require("../img/perdiste.svg");
+            const empataste = require("../img/empataste.svg");
+            const lastState = _state.state.getState();
+            if (lastState.result == "perdiste") this.img = perdiste;
+            if (lastState.result == "ganaste") this.img = ganaste;
+            if (lastState.result == "empataste") this.img = empataste;
+            this.innerHTML = `
+        <div class="scoreCont">
+          <img class="starEl" src=${this.img}/>
+        </div>
+      `;
+            const style = document.createElement("style");
+            style.innerHTML = `
+          .starEl{
+              height: 200px;
+              width: auto;
+              animation:lower 3s linear infinite;
+              z-index: 2;
+              background: url("../img/ganaste.svg");
+          }
+          .scoreCont{
+              height: 245px;
+              width: 100%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+          }
+
+          .ganaste{
+          }
+
+
+          @keyframes lower{
+              0%{
+                  transform: translateY(0%);
+              }
+              50%{
+                transform: translateY(5%);
+              }
+              100%{
+                transform: translateY(0%);
+              }
+          }
+      `;
+            this.appendChild(style);
+        };
+    }
+}
+customElements.define("star-comp", StarComp);
+
+},{"../state":"1Yeju","../img/ganaste.svg":"2nUfK","../img/perdiste.svg":"heER0","../img/empataste.svg":"fT1w7"}],"2nUfK":[function(require,module,exports) {
+module.exports = require('./helpers/bundle-url').getBundleURL('7UhFu') + "ganaste.dc4ac33e.svg" + "?" + Date.now();
+
+},{"./helpers/bundle-url":"lgJ39"}],"heER0":[function(require,module,exports) {
+module.exports = require('./helpers/bundle-url').getBundleURL('7UhFu') + "perdiste.3bb1be25.svg" + "?" + Date.now();
+
+},{"./helpers/bundle-url":"lgJ39"}],"fT1w7":[function(require,module,exports) {
+module.exports = require('./helpers/bundle-url').getBundleURL('7UhFu') + "empataste.222db65a.svg" + "?" + Date.now();
+
+},{"./helpers/bundle-url":"lgJ39"}]},["8wcER","h7u1C"], "h7u1C", "parcelRequireca0a")
 
 //# sourceMappingURL=index.b71e74eb.js.map

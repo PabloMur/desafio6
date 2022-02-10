@@ -2,7 +2,6 @@ import { Router } from "@vaadin/router";
 import { state } from "../state";
 
 class Contador extends HTMLElement {
-  jugada: boolean = false;
   cuentaRegresiva: number = 3;
   connectedCallback() {
     this.cuentaAtras();
@@ -37,12 +36,29 @@ class Contador extends HTMLElement {
   cuentaAtras() {
     this.render();
     const contador = document.querySelector(".contador");
+
     let setIN = setInterval(() => {
       const cs = state.getState();
-      if (this.cuentaRegresiva == 0 && cs.choice == "none") {
+      const terminoTiempo = this.cuentaRegresiva == 0;
+      const noElegiNada =
+        cs.rtdbData.playerOne.choice == "none" ||
+        cs.rtdbData.playerTwo.choice == "none";
+
+      if (terminoTiempo && noElegiNada) {
+        if (cs.roomCreator) {
+          cs.score.guest++;
+        } else {
+          cs.score.local++;
+        }
+        cs.result = "perdiste";
         clearInterval(setIN);
-        Router.go("/instructions");
-      } else if (cs.choice != "none") {
+        Router.go("/result");
+      }
+
+      if (
+        (cs.choice != "none" && cs.contrincanteChoice == "none") ||
+        (cs.contrincanteChoice != "none" && cs.choice == "none")
+      ) {
         clearInterval(setIN);
         Router.go("/before-comparition");
       }

@@ -1,21 +1,18 @@
-import { state } from "../../state";
 import { Router } from "@vaadin/router";
 
 class ComparitionPage extends HTMLElement {
   connectedCallback() {
-    state.subscribe(() => {
-      this.render();
-    });
     this.render();
+    const button = document.querySelector(".goToResult");
+    button.addEventListener("click", () => {
+      Router.go("/result");
+    });
   }
   render() {
     this.innerHTML = `
-    <p>Comparition</p>
     <muestra-jugada></muestra-jugada>
+    <custom-button class="goToResult">Ir a resutado</custom-button>
     `;
-  }
-  sync() {
-    this.render();
   }
 }
 

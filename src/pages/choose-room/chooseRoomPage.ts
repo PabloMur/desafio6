@@ -9,6 +9,7 @@ class ChoosePage extends HTMLElement {
     const style = document.createElement("style");
     this.innerHTML = `
         <div class="container">
+          <cuenta-regresiva></cuenta-regresiva>
           <div class="contenedorDeManos">
             <game-option variant="tijera" class="tijera"></game-option>
             <game-option variant="papel" class="papel"></game-option>
@@ -79,7 +80,7 @@ class ChoosePage extends HTMLElement {
         });
         Router.go("/before-comparition");
       } else if (cs.roomCreator == false) {
-        state.playersChoice("local", "piedra", () => {
+        state.playersChoice("guest", "piedra", () => {
           cs.contrincanteChoice = "piedra";
           state.setState(cs);
         });

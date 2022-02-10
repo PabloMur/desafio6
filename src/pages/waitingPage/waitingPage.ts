@@ -5,26 +5,36 @@ class WaitingPage extends HTMLElement {
   connectedCallback() {
     this.asksIfTheOtherPlayerChoosed();
   }
-  cuentaRegresiva = 5;
+
+  cuentaRegresiva = 30;
+
   render() {
     const style = document.createElement("style");
     this.innerHTML = `
-            <p>Esperando que tu oponente elija una pieza</p>
+            <custom-text>Esperemos a que tu contrincante elija una opcion... Si no elije en los siguiente 30 segundos ganas esta partida picaronx</custom-text>
         `;
   }
+
   asksIfTheOtherPlayerChoosed() {
     this.render();
     let setIN = setInterval(() => {
       const cs = state.getState();
+
+      const playerOneEligio = cs.choice != "none";
+      const playerTwoEligio = cs.contrincanteChoice != "none";
+
+      const playerOneNoEligio = !playerOneEligio;
+      const playerTwoNoEligio = !playerTwoEligio;
+
       if (
-        (this.cuentaRegresiva == 0 && cs.choice == "none") ||
-        (this.cuentaRegresiva == 0 && cs.contrincanteChoice == "none")
+        (this.cuentaRegresiva == 0 && playerOneNoEligio && playerTwoEligio) ||
+        (this.cuentaRegresiva == 0 && playerOneEligio && playerTwoNoEligio)
       ) {
         clearInterval(setIN);
         Router.go("/result");
-      } else if (cs.choice != "none" && cs.contrincanteChoice != "none") {
+      } else if (playerOneEligio && playerTwoEligio) {
         clearInterval(setIN);
-        Router.go("/before-comparition");
+        Router.go("/comparition");
       }
       this.cuentaRegresiva--;
     }, 1000);

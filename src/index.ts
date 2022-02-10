@@ -21,6 +21,8 @@ import { Router } from "@vaadin/router";
       choice: "none",
       contrincanteChoice: "none",
       history: [],
+      result: "",
+      currentGame: { playerOneMove: "", playerTwoMove: "" },
       score: {
         local: 0,
         guest: 0,
