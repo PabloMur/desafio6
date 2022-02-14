@@ -1,5 +1,6 @@
 import { state } from "../../state";
 import { Router } from "@vaadin/router";
+import { resolve } from "path/posix";
 
 class ResultPage extends HTMLElement {
   connectedCallback() {
@@ -13,14 +14,19 @@ class ResultPage extends HTMLElement {
         `;
   }
   sync() {
-    const cs = state.getState();
-    const local = cs.roomCreator;
     this.render();
+    const cs = state.getState();
     const playAgainButton = document.querySelector(".playAgainButton");
-    state.playersChoice("local", "none");
-    state.playersChoice("guest", "none");
     playAgainButton.addEventListener("click", () => {
-      Router.go("/game-room");
+      if (cs.roomCreator) {
+        state.playersChoice("local", "none", () => {
+          location.reload();
+        });
+      } else if (!cs.roomCreator) {
+        state.playersChoice("guest", "none", () => {
+          location.reload();
+        });
+      }
     });
   }
 }

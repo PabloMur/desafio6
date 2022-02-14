@@ -32,10 +32,7 @@ class BeforeComparition extends HTMLElement {
     this.render(() => {
       const cs = state.getState();
 
-      if (
-        cs.rtdbData.playerTwo.choice != "none" &&
-        cs.rtdbData.playerOne.choice != "none"
-      ) {
+      if (cs.choice != "none" && cs.contrincanteChoice != "none") {
         Router.go("/comparition");
       } else if (cs.contrincanteChoice == "none" || cs.choice == "none") {
         Router.go("/waiting");

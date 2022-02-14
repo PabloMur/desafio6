@@ -37,9 +37,6 @@ class GameOption extends HTMLElement {
         margin: 0 10px;
         transition: all .2s ease-in;
       }
-      .gameObject:hover{
-        transform: scale(1.3);
-      }
       .image{
         height: 30vh;
         width: auto;

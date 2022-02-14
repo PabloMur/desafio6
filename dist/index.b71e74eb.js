@@ -557,7 +557,7 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state
 );
 var _rtdb = require("./rtdb");
-const API_BASE = "http://localhost:30987";
+const API_BASE = "http://localhost:3098";
 const state = {
     data: {
         nombre: "",
@@ -625,47 +625,47 @@ const state = {
         cs.nombre = nombre;
         this.setState(cs);
     },
-    newPlayer (nombre) {
+    async newPlayer (nombre) {
         const cs = this.getState();
-        fetch(API_BASE + "/player", {
-            method: "post",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify({
-                nombre: nombre
-            })
-        }).then((r)=>{
-            return r.json();
-        }).then((data)=>{
-            cs.userId = data.id;
+        try {
+            const data = await fetch(API_BASE + "/player", {
+                method: "post",
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    nombre: nombre
+                })
+            });
+            const response = await data.json();
+            cs.userId = await response.id;
             cs.nombre = nombre;
             this.askNewGameRoom();
-            return true;
-        }).then(()=>{
-            this.setState(cs);
-        });
+            await this.setState(cs);
+        } catch (err) {
+            console.error(err);
+        }
     },
-    guestPlayer (nombre, rtdbRoomId) {
+    async guestPlayer (nombre, rtdbRoomId) {
         const cs = this.getState();
-        fetch(API_BASE + "/player-guest", {
-            method: "post",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify({
-                nombre: nombre,
-                rtdbGameRoomId: cs.rtdbRoomId
-            })
-        }).then((r)=>{
-            return r.json();
-        }).then((data)=>{
-            cs.userId = data.id;
+        try {
+            const request = await fetch(API_BASE + "/player-guest", {
+                method: "post",
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    nombre: nombre,
+                    rtdbGameRoomId: cs.rtdbRoomId
+                })
+            });
+            const response = await request.json();
+            cs.userId = await response.id;
             cs.nombre = nombre;
-            return true;
-        }).then(()=>{
             this.setState(cs);
-        });
+        } catch (err) {
+            console.error(err);
+        }
     },
     askNewGameRoom () {
         const cs = this.getState();
@@ -719,7 +719,7 @@ const state = {
         }).then((resp)=>{
             return resp.json();
         }).then((r)=>{
-            this.listenRTDBData();
+            // this.listenRTDBData();
             console.log(r);
         });
     },
@@ -755,15 +755,13 @@ const state = {
         }).then((response)=>{
             return response.json();
         }).then((resp)=>{
-            console.log(resp);
-            this.listenRTDBData();
             if (cb) cb();
         });
     },
     playersResetingChoice (localOrGuest, cb) {
         const cs = this.getState();
         fetch(API_BASE + "/unchoose", {
-            method: "post",
+            method: "patch",
             headers: {
                 "content-type": "application-json"
             },
@@ -62434,7 +62432,7 @@ class BeforeComparition extends HTMLElement {
         _state.state.testParaEscucharSiLosDosJugadoresYaElijieron();
         this.render(()=>{
             const cs = _state.state.getState();
-            if (cs.rtdbData.playerTwo.choice != "none" && cs.rtdbData.playerOne.choice != "none") _router.Router.go("/comparition");
+            if (cs.choice != "none" && cs.contrincanteChoice != "none") _router.Router.go("/comparition");
             else if (cs.contrincanteChoice == "none" || cs.choice == "none") _router.Router.go("/waiting");
         });
     }
@@ -62500,7 +62498,6 @@ customElements.define("waiting-page", WaitingPage);
 
 },{"../../state":"1Yeju","@vaadin/router":"kVZrF"}],"dPIew":[function(require,module,exports) {
 var _state = require("../../state");
-var _router = require("@vaadin/router");
 class ResultPage extends HTMLElement {
     connectedCallback() {
         this.sync();
@@ -62513,20 +62510,22 @@ class ResultPage extends HTMLElement {
         `;
     }
     sync() {
-        const cs = _state.state.getState();
-        const local = cs.roomCreator;
         this.render();
+        const cs = _state.state.getState();
         const playAgainButton = document.querySelector(".playAgainButton");
-        _state.state.playersChoice("local", "none");
-        _state.state.playersChoice("guest", "none");
         playAgainButton.addEventListener("click", ()=>{
-            _router.Router.go("/game-room");
+            if (cs.roomCreator) _state.state.playersChoice("local", "none", ()=>{
+                location.reload();
+            });
+            else if (!cs.roomCreator) _state.state.playersChoice("guest", "none", ()=>{
+                location.reload();
+            });
         });
     }
 }
 customElements.define("result-room", ResultPage);
 
-},{"@vaadin/router":"kVZrF","../../state":"1Yeju"}],"1pzdx":[function(require,module,exports) {
+},{"../../state":"1Yeju"}],"1pzdx":[function(require,module,exports) {
 //Components
 var _customText = require("./components/customText");
 var _button = require("./components/button");
@@ -62792,9 +62791,6 @@ class GameOption extends HTMLElement {
         min-height: 200px;
         margin: 0 10px;
         transition: all .2s ease-in;
-      }
-      .gameObject:hover{
-        transform: scale(1.3);
       }
       .image{
         height: 30vh;

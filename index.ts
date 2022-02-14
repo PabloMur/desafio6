@@ -221,14 +221,14 @@ app.post("/choice", (req, res) => {
   }
 });
 
-app.post("/unchoose", (req, res) => {
+app.patch("/unchoose", (req, res) => {
   const { localOrGuest, rtdbRoomId } = req.body;
   if (localOrGuest == "local") {
     const gameRoomRef = rtdb.ref(
       `gamerooms/${rtdbRoomId}/currentGame/playerOne`
     );
     gameRoomRef
-      .update({
+      .set({
         choice: "none",
       })
       .then(() => {

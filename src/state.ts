@@ -1,7 +1,8 @@
 // const API_BASE = "https://desafio6pm.herokuapp.com";
 type play = "piedra" | "papel" | "tijera";
 
-const API_BASE = "https://desafio6pm.herokuapp.com";
+const API_BASE = "http://localhost:3098";
+import { Router } from "@vaadin/router";
 import { rtdb } from "./rtdb";
 
 const state = {
@@ -80,48 +81,42 @@ const state = {
     cs.nombre = nombre;
     this.setState(cs);
   },
-  newPlayer(nombre: string) {
+  async newPlayer(nombre: string) {
     const cs = this.getState();
-    fetch(API_BASE + "/player", {
-      method: "post",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ nombre: nombre }),
-    })
-      .then((r) => {
-        return r.json();
-      })
-      .then((data) => {
-        cs.userId = data.id;
-        cs.nombre = nombre;
-        this.askNewGameRoom();
-        return true;
-      })
-      .then(() => {
-        this.setState(cs);
+    try {
+      const data = await fetch(API_BASE + "/player", {
+        method: "post",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ nombre: nombre }),
       });
+      const response = await data.json();
+      cs.userId = await response.id;
+      cs.nombre = nombre;
+      this.askNewGameRoom();
+      await this.setState(cs);
+    } catch (err) {
+      console.error(err);
+    }
   },
-  guestPlayer(nombre: string, rtdbRoomId: string) {
+  async guestPlayer(nombre: string, rtdbRoomId: string) {
     const cs = this.getState();
-    fetch(API_BASE + "/player-guest", {
-      method: "post",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ nombre: nombre, rtdbGameRoomId: cs.rtdbRoomId }),
-    })
-      .then((r) => {
-        return r.json();
-      })
-      .then((data) => {
-        cs.userId = data.id;
-        cs.nombre = nombre;
-        return true;
-      })
-      .then(() => {
-        this.setState(cs);
+    try {
+      const request = await fetch(API_BASE + "/player-guest", {
+        method: "post",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ nombre: nombre, rtdbGameRoomId: cs.rtdbRoomId }),
       });
+      const response = await request.json();
+      cs.userId = await response.id;
+      cs.nombre = nombre;
+      this.setState(cs);
+    } catch (err) {
+      console.error(err);
+    }
   },
   askNewGameRoom() {
     const cs = this.getState();
@@ -178,7 +173,7 @@ const state = {
         return resp.json();
       })
       .then((r) => {
-        this.listenRTDBData();
+        // this.listenRTDBData();
         console.log(r);
       });
   },
@@ -218,8 +213,6 @@ const state = {
         return response.json();
       })
       .then((resp) => {
-        console.log(resp);
-        this.listenRTDBData();
         if (cb) {
           cb();
         }
@@ -228,7 +221,7 @@ const state = {
   playersResetingChoice(localOrGuest, cb?) {
     const cs = this.getState();
     fetch(API_BASE + "/unchoose", {
-      method: "post",
+      method: "patch",
       headers: {
         "content-type": "application-json",
       },
