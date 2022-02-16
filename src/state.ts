@@ -118,48 +118,48 @@ const state = {
       console.error(err);
     }
   },
-  askNewGameRoom() {
+  async askNewGameRoom() {
     const cs = this.getState();
-    fetch(API_BASE + "/game-rooms", {
-      method: "post",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ userId: cs.userId, nombre: cs.nombre }),
-    })
-      .then((r) => {
-        return r.json();
-      })
-      .then((data) => {
-        cs.roomId = data.friendlyId;
-        cs.rtdbRoomId = data.longGameRoomId;
-        cs.roomCreator = true;
-        this.listenRTDBData();
-        this.setState(cs);
+    try {
+      const requestAskingNewGameroom = await fetch(API_BASE + "/game-rooms", {
+        method: "post",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ userId: cs.userId, nombre: cs.nombre }),
       });
+      const response = await requestAskingNewGameroom.json();
+      cs.roomId = await response.friendlyId;
+      cs.rtdbRoomId = await response.longGameRoomId;
+      cs.roomCreator = true;
+      this.listenRTDBData();
+      this.setState(cs);
+    } catch (err) {
+      console.error(err);
+    }
   },
-  accesToGameRoom(roomId: string) {
-    const cs = this.getState();
-    fetch(API_BASE + "/game-rooms/" + roomId, {
-      method: "get",
-      headers: {
-        "content-type": "application/json",
-      },
-    })
-      .then((r) => {
-        return r.json();
-      })
-      .then((data) => {
-        cs.roomCreator = false;
-        cs.rtdbRoomId = data;
-        cs.roomId = roomId;
-        this.listenRTDBData();
-        this.setState(cs);
+  async accesToGameRoom(roomId: string) {
+    try {
+      const cs = this.getState();
+      const requestAccesing = await fetch(API_BASE + "/game-rooms/" + roomId, {
+        method: "get",
+        headers: {
+          "content-type": "application/json",
+        },
       });
+      const data = await requestAccesing.json();
+      cs.roomCreator = false;
+      cs.rtdbRoomId = await data;
+      cs.roomId = roomId;
+      this.listenRTDBData();
+      this.setState(cs);
+    } catch (err) {
+      console.error(err);
+    }
   },
-  playerIsOnline(localOrGuest, rtdbRoomId) {
+  async playerIsOnline(localOrGuest, rtdbRoomId) {
     const cs = this.getState();
-    fetch(API_BASE + "/online", {
+    const request = await fetch(API_BASE + "/online", {
       method: "post",
       headers: {
         "content-type": "application/json",
@@ -168,18 +168,13 @@ const state = {
         player: localOrGuest,
         rtdbRoomId: rtdbRoomId,
       }),
-    })
-      .then((resp) => {
-        return resp.json();
-      })
-      .then((r) => {
-        // this.listenRTDBData();
-        console.log(r);
-      });
+    });
+    const response = await request.json();
+    console.log(response);
   },
-  playerIsReady(localOrGuest) {
+  async playerIsReady(localOrGuest) {
     const cs = this.getState();
-    fetch(API_BASE + "/start", {
+    const request = await fetch(API_BASE + "/start", {
       method: "post",
       headers: {
         "content-type": "application/json",
@@ -188,17 +183,28 @@ const state = {
         player: localOrGuest,
         rtdbRoomId: cs.rtdbRoomId,
       }),
-    })
-      .then((resp) => {
-        return resp.json();
-      })
-      .then((r) => {
-        console.log(r);
-      });
+    });
+    const response = await request.json();
+    console.log(response);
   },
-  playersChoice(localOrGuest, choice, cb?) {
+  async playerUnstart(localOrGuest) {
+    const cs = this.getState();
+    const request = await fetch(API_BASE + "/unstart", {
+      method: "post",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        player: localOrGuest,
+        rtdbRoomId: cs.rtdbRoomId,
+      }),
+    });
+    const response = await request.json();
+    console.log(response);
+  },
+  async playersChoice(localOrGuest, choice, cb?) {
     const cs = state.getState();
-    fetch(API_BASE + "/choice", {
+    const request = await fetch(API_BASE + "/choice", {
       method: "post",
       headers: {
         "content-type": "application/json",
@@ -208,38 +214,14 @@ const state = {
         rtdbRoomId: cs.rtdbRoomId,
         choice: choice,
       }),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((resp) => {
-        if (cb) {
-          cb();
-        }
-      });
+    });
+    const response = await request.json();
+
+    if (cb) {
+      cb();
+    }
   },
-  playersResetingChoice(localOrGuest, cb?) {
-    const cs = this.getState();
-    fetch(API_BASE + "/unchoose", {
-      method: "patch",
-      headers: {
-        "content-type": "application-json",
-      },
-      body: JSON.stringify({
-        localOrGuest: localOrGuest,
-        rtdbRoomId: cs.rtdbRoomId,
-      }),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((d) => {
-        console.log(d);
-        if (cb) {
-          cb();
-        }
-      });
-  },
+
   setState(newState) {
     this.data = newState;
     for (const cb of this.listeners) {
@@ -293,6 +275,9 @@ const state = {
     if (empate) {
       cs.result = "empataste";
     }
+  },
+  pushToHistory(currentGame) {
+    return this.data.history.push(currentGame);
   },
 };
 

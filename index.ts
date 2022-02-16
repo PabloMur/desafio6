@@ -228,7 +228,7 @@ app.patch("/unchoose", (req, res) => {
       `gamerooms/${rtdbRoomId}/currentGame/playerOne`
     );
     gameRoomRef
-      .set({
+      .update({
         choice: "none",
       })
       .then(() => {

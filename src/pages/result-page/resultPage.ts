@@ -1,6 +1,6 @@
 import { state } from "../../state";
 import { Router } from "@vaadin/router";
-import { resolve } from "path/posix";
+import { stat } from "fs";
 
 class ResultPage extends HTMLElement {
   connectedCallback() {
@@ -15,17 +15,26 @@ class ResultPage extends HTMLElement {
   }
   sync() {
     this.render();
+    //state.listenRTDBData();
+    const playerOnerReseting = async () => {
+      await state.playersChoice("local", "none");
+      await state.playerUnstart("local");
+      Router.go("/instructions");
+    };
+    const playerTworReseting = async () => {
+      console.log("listo guest");
+      await state.playersChoice("guest", "none");
+      await state.playerUnstart("guest");
+      Router.go("/instructions");
+    };
+
     const cs = state.getState();
     const playAgainButton = document.querySelector(".playAgainButton");
     playAgainButton.addEventListener("click", () => {
       if (cs.roomCreator) {
-        state.playersChoice("local", "none", () => {
-          location.reload();
-        });
+        playerOnerReseting();
       } else if (!cs.roomCreator) {
-        state.playersChoice("guest", "none", () => {
-          location.reload();
-        });
+        playerTworReseting();
       }
     });
   }
