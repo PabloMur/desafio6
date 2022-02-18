@@ -6,12 +6,12 @@ class WaitingPage extends HTMLElement {
     this.asksIfTheOtherPlayerChoosed();
   }
 
-  cuentaRegresiva = 30;
+  cuentaRegresiva = 15;
 
   render() {
     const style = document.createElement("style");
     this.innerHTML = `
-            <custom-text>Esperemos a que tu contrincante elija una opcion... Si no elije en los siguiente 30 segundos ganas esta partida picaronx</custom-text>
+            <custom-text>Esperemos a que tu contrincante elija una opcion... Si no elije en los siguiente 15 segundos ganas esta partida picaronx</custom-text>
         `;
   }
 

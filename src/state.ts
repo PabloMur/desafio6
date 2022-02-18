@@ -263,6 +263,7 @@ const state = {
       } else {
         cs.result = "perdiste";
       }
+      state.setState(cs);
     }
     if (ganaGuest) {
       cs.score.guest++;
@@ -271,9 +272,11 @@ const state = {
       } else {
         cs.result = "ganaste";
       }
+      state.setState(cs);
     }
     if (empate) {
       cs.result = "empataste";
+      state.setState(cs);
     }
   },
   pushToHistory(currentGame) {

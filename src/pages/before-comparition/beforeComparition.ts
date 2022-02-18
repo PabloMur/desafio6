@@ -31,7 +31,6 @@ class BeforeComparition extends HTMLElement {
     state.testParaEscucharSiLosDosJugadoresYaElijieron();
     this.render(() => {
       const cs = state.getState();
-
       if (cs.choice != "none" && cs.contrincanteChoice != "none") {
         Router.go("/comparition");
       } else if (cs.contrincanteChoice == "none" || cs.choice == "none") {

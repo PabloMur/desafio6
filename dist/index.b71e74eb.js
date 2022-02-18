@@ -803,13 +803,18 @@ const state = {
             cs.score.local++;
             if (iAmLocal) cs.result = "ganaste";
             else cs.result = "perdiste";
+            state.setState(cs);
         }
         if (ganaGuest) {
             cs.score.guest++;
             if (iAmLocal) cs.result = "perdiste";
             else cs.result = "ganaste";
+            state.setState(cs);
         }
-        if (empate) cs.result = "empataste";
+        if (empate) {
+            cs.result = "empataste";
+            state.setState(cs);
+        }
     },
     pushToHistory (currentGame) {
         return this.data.history.push(currentGame);
@@ -62465,7 +62470,7 @@ class WaitingPage extends HTMLElement {
     render() {
         const style = document.createElement("style");
         this.innerHTML = `
-            <custom-text>Esperemos a que tu contrincante elija una opcion... Si no elije en los siguiente 30 segundos ganas esta partida picaronx</custom-text>
+            <custom-text>Esperemos a que tu contrincante elija una opcion... Si no elije en los siguiente 15 segundos ganas esta partida picaronx</custom-text>
         `;
     }
     asksIfTheOtherPlayerChoosed() {
@@ -62488,7 +62493,7 @@ class WaitingPage extends HTMLElement {
     }
     constructor(...args){
         super(...args);
-        this.cuentaRegresiva = 30;
+        this.cuentaRegresiva = 15;
     }
 }
 customElements.define("waiting-page", WaitingPage);
@@ -62509,19 +62514,18 @@ class ResultPage extends HTMLElement {
     }
     sync() {
         this.render();
-        //state.listenRTDBData();
+        const cs = _state.state.getState();
+        // state.setState(cs);
         const playerOnerReseting = async ()=>{
             await _state.state.playersChoice("local", "none");
             await _state.state.playerUnstart("local");
-            _router.Router.go("/instructions");
+            _router.Router.go("/game-room");
         };
         const playerTworReseting = async ()=>{
-            console.log("listo guest");
             await _state.state.playersChoice("guest", "none");
             await _state.state.playerUnstart("guest");
-            _router.Router.go("/instructions");
+            _router.Router.go("/game-room");
         };
-        const cs = _state.state.getState();
         const playAgainButton = document.querySelector(".playAgainButton");
         playAgainButton.addEventListener("click", ()=>{
             if (cs.roomCreator) playerOnerReseting();
