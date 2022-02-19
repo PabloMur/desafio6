@@ -20,11 +20,11 @@
     "typescript": "^4.5.4"
   },
   "scripts": {
-    "dev:front":"parcel serve ./src/index.html",
-    "dev": "nodemon --watch './index.ts' --exec 'ts-node ./dev.ts'", 
-    "build:front":"parcel build ./src/index.html",
+    "dev:front":"parcel serve ./client/src/index.html",
+    "dev": "nodemon --watch './server/index.ts' --exec 'ts-node ./server/dev.ts'", 
+    "build:front":"parcel build ./client/src/index.html",
     "build:api":"tsc",
     "build":"yarn build:front && yarn build:api",
-    "start":"node index.js"
+    "start":"node ./server/index.js"
   }
 }

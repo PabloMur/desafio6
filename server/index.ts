@@ -60,6 +60,7 @@ app.post("/game-rooms", (req, res) => {
       gameRoomRef
         .set({
           creator: userId,
+          replay: false,
           currentGame: {
             playerOne: {
               nombre: nombre,
@@ -221,31 +222,16 @@ app.post("/choice", (req, res) => {
   }
 });
 
-app.patch("/unchoose", (req, res) => {
-  const { localOrGuest, rtdbRoomId } = req.body;
-  if (localOrGuest == "local") {
-    const gameRoomRef = rtdb.ref(
-      `gamerooms/${rtdbRoomId}/currentGame/playerOne`
-    );
-    gameRoomRef
-      .update({
-        choice: "none",
-      })
-      .then(() => {
-        res.json({ message: "player One ya reseteó su choice" });
-      });
-  } else if (localOrGuest == "guest") {
-    const gameRoomRef = rtdb.ref(
-      `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
-    );
-    gameRoomRef
-      .update({
-        choice: "none",
-      })
-      .then(() => {
-        res.json({ message: "player Two ya reseteó su choice" });
-      });
-  }
+app.post("/replay", (req, res) => {
+  const { rtdbRoomId } = req.body;
+  const gameRoomRef = rtdb.ref(`gamerooms/${rtdbRoomId}/`);
+  gameRoomRef
+    .update({
+      replay: true,
+    })
+    .then(() => {
+      res.json({ message: "player wants to play again" });
+    });
 });
 
 app.get("/choice", (req, res) => {

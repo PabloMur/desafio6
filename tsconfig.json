@@ -5,5 +5,5 @@
         "resolveJsonModule": true,
         "module":"commonJS"
     },
-    "files": ["index.ts"]
+    "files": ["server/index.ts"]
 }
