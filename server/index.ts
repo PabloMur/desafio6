@@ -68,6 +68,7 @@ app.post("/game-rooms", (req, res) => {
               start: false,
               online: true,
               creator: true,
+              score: 0,
             },
             playerTwo: {
               nombre: "contrincante",
@@ -75,6 +76,7 @@ app.post("/game-rooms", (req, res) => {
               start: false,
               online: false,
               creator: false,
+              score: 0,
             },
           },
         })
@@ -88,6 +90,7 @@ app.post("/game-rooms", (req, res) => {
               rtdbGameRoomId: longGameRoomId,
               creator: userId,
               friendlyId: shortGameRoomId.toString(),
+              score: { local: 0, guest: 0 },
             })
             .then(() => {
               res.json({

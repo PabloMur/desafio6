@@ -9,7 +9,6 @@ class BeforeComparition extends HTMLElement {
     this.sync();
   }
   render(cb?) {
-    const cs = state.getState();
     const style = document.createElement("style");
     this.innerHTML = `
     <custom-button class="comparar escondido">Comparar</custom-button>
@@ -31,9 +30,20 @@ class BeforeComparition extends HTMLElement {
     state.testParaEscucharSiLosDosJugadoresYaElijieron();
     this.render(() => {
       const cs = state.getState();
-      if (cs.choice != "none" && cs.contrincanteChoice != "none") {
+      const bothReady =
+        cs.rtdbData.playerOne.start && cs.rtdbData.playerTwo.start;
+      const replay = cs.rtdbData.replay === true;
+      console.log(bothReady);
+
+      const playerOneChoice = cs.rtdbData.playerOne.choice;
+      const playerTwoChoice = cs.rtdbData.playerTwo.choice;
+
+      if (playerOneChoice != "none" && playerTwoChoice != "none" && bothReady) {
         Router.go("/comparition");
-      } else if (cs.contrincanteChoice == "none" || cs.choice == "none") {
+      } else if (
+        (playerOneChoice == "none" && bothReady) ||
+        (playerTwoChoice == "none" && bothReady)
+      ) {
         Router.go("/waiting");
       }
     });

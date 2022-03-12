@@ -3,12 +3,12 @@ import "./pagesInit";
 import "./componentsInit";
 
 import { state } from "./state";
-import { Router } from "@vaadin/router";
+//import { Router } from "@vaadin/router";
 
 (function () {
   if (localStorage.getItem("saved-state")) {
     state.init();
-    Router.go("/game-room");
+    //Router.go("/game-room");
   } else {
     state.setState({
       nombre: "",

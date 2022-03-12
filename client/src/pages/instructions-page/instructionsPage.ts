@@ -47,10 +47,10 @@ class instructions extends HTMLElement {
     const playButton = document.querySelector(".play-button");
 
     playButton.addEventListener("click", () => {
-      if (cs.roomCreator == true) {
+      if (cs.roomCreator) {
         state.playerIsReady("local");
         Router.go("/choose-room");
-      } else if (cs.roomCreator == false) {
+      } else if (!cs.roomCreator) {
         state.playerIsReady("guest");
         Router.go("/choose-room");
       }

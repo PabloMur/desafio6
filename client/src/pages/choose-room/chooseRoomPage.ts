@@ -43,47 +43,31 @@ class ChoosePage extends HTMLElement {
     const piedra = document.querySelector(".piedra");
 
     tijera.addEventListener("click", () => {
-      if (cs.roomCreator == true) {
-        state.playersChoice("local", "tijera", () => {
-          cs.choice = "tijera";
-          state.setState(cs);
-        });
+      if (cs.roomCreator) {
+        state.playersChoice("local", "tijera");
         Router.go("/before-comparition");
-      } else if (cs.roomCreator == false) {
-        state.playersChoice("guest", "tijera", () => {
-          cs.contrincanteChoice = "tijera";
-          state.setState(cs);
-        });
+      } else if (!cs.roomCreato) {
+        state.playersChoice("guest", "tijera");
         Router.go("/before-comparition");
       }
     });
+
     papel.addEventListener("click", () => {
-      if (cs.roomCreator == true) {
-        state.playersChoice("local", "papel", () => {
-          cs.choice = "papel";
-          state.setState(cs);
-        });
+      if (cs.roomCreator) {
+        state.playersChoice("local", "papel");
         Router.go("/before-comparition");
-      } else if (cs.roomCreator == false) {
-        state.playersChoice("guest", "papel", () => {
-          cs.contrincanteChoice = "papel";
-          state.setState(cs);
-        });
+      } else if (!cs.roomCreator) {
+        state.playersChoice("guest", "papel");
         Router.go("/before-comparition");
       }
     });
+
     piedra.addEventListener("click", () => {
-      if (cs.roomCreator == true) {
-        state.playersChoice("local", "piedra", () => {
-          cs.choice = "piedra";
-          state.setState(cs);
-        });
+      if (cs.roomCreator) {
+        state.playersChoice("local", "piedra");
         Router.go("/before-comparition");
-      } else if (cs.roomCreator == false) {
-        state.playersChoice("guest", "piedra", () => {
-          cs.contrincanteChoice = "piedra";
-          state.setState(cs);
-        });
+      } else if (!cs.roomCreator) {
+        state.playersChoice("guest", "piedra");
         Router.go("/before-comparition");
       }
     });

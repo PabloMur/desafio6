@@ -2,7 +2,7 @@ import { Router } from "@vaadin/router";
 import { state } from "../state";
 
 class Contador extends HTMLElement {
-  cuentaRegresiva: number = 3;
+  cuentaRegresiva: number = 6;
   connectedCallback() {
     this.cuentaAtras();
   }
