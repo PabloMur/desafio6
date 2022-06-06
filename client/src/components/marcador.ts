@@ -1,7 +1,7 @@
 import { state } from "../state";
 class Marcador extends HTMLElement {
   nombre: string;
-  contrincanteNombre: string = "Contrincante";
+  contrincanteNombre: string = "papa";
   tu: number;
   contrincante: number;
   connectedCallback() {
@@ -12,10 +12,11 @@ class Marcador extends HTMLElement {
   }
   syncWithState() {
     const lastState = state.getState();
-    this.nombre = lastState.rtdbData.playerOne.nombre;
+    this.nombre = lastState.rtdbData.playerOne.nombre || "playerOne";
     this.contrincante = lastState.score.guest;
     this.tu = lastState.score.local;
-    this.contrincanteNombre = lastState.rtdbData.playerTwo.nombre;
+    this.contrincanteNombre =
+      lastState.rtdbData.playerTwo.nombre || "playerTwo";
     this.render();
   }
   render() {
@@ -29,14 +30,24 @@ class Marcador extends HTMLElement {
     style.innerHTML = `
         .marcador-container{
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
             flex-direction:column;
             height: 10vh;
-            width: 20vw;
+            width: auto;
+            margin: 20px;
         }
+
+        .marcador-el{
+          color: black;
+          font-size: 25px;
+          font-family: sans-serif;
+          text-align:end;
+          width: 100%;;
+        }
+
         .guest{
-          color: red;
+          
         }
     `;
     this.appendChild(style);

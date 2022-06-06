@@ -14,4 +14,5 @@ router.setRoutes([
   { path: "/before-comparition", component: "before-comparition" },
   { path: "/waiting", component: "waiting-page" },
   { path: "/result", component: "result-room" },
+  { path: "/path", component: "path-page" },
 ]);

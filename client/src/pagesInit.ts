@@ -10,3 +10,4 @@ import "./pages/before-comparition/beforeComparition";
 import "./pages/comparition-page/comparitionPage";
 import "./pages/waitingPage/waitingPage";
 import "./pages/result-page/resultPage";
+import "./pages/path-page/index";

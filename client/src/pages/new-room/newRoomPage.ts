@@ -7,10 +7,18 @@ class NewRoomPage extends HTMLElement {
 
     const startRoom = document.querySelector(".startRoom");
     const nombreDelJugador = document.querySelector(".playerName") as any;
+    const emailDelJugador = document.querySelector(".playerEmail") as any;
 
-    startRoom.addEventListener("click", () => {
-      state.newPlayer(nombreDelJugador.value);
-      Router.go("/game-room");
+    startRoom.addEventListener("click", async () => {
+      state.setNombreAndEmail(nombreDelJugador.value, emailDelJugador.value);
+      state.createPlayer(() => {
+        state.signIn(() => {
+          state.askNewGameRoom(() => {
+            state.accesToGameRoom();
+          });
+          Router.go("/game-room");
+        });
+      });
     });
   }
   render() {
@@ -19,7 +27,18 @@ class NewRoomPage extends HTMLElement {
         <div class="container">
          <custom-text variant="title">Piedra Papel o Tijera</custom-text>
          
-          <input type="text" name="nombre" placeholder="Ingresa tu nombre" class="playerName">
+          <div>
+            <div>
+              <label>Ingresa tu nombre</label>
+            </div>
+            <input type="text" name="nombre" class="playerName">
+          </div>
+          <div>
+            <div>
+              <label>Ingresa tu email</label>
+            </div>
+            <input type="text" name="email" class="playerEmail">
+          </div>
          
          <custom-button class="startRoom">Comenzar</custom-button>
         </div>
@@ -34,13 +53,21 @@ class NewRoomPage extends HTMLElement {
       justify-content: space-around;
       align-items: center;
     }
-    .playerName{
-      width: 57%;
-      height: 10vh;
-      border: 5px solid blue;
-      border-radius: 5px;
-      padding: 7px;
+    .playerName, .playerEmail{
+      width: 600px;
+      height: 11.5vh;
+      color: white;
+      font-size: 20px;
+      background: #006CFC;
+      border: 10px solid #001997;
+      border-radius: 4px;
       text-align: center;
+    }
+
+    label{
+      margin: 10px;
+      font-size: 20px;
+      font-family: sans-serif;
     }
     `;
     this.appendChild(style);

@@ -11,3 +11,5 @@ import "./components/contador";
 import "./components/muestraJugada";
 import "./components/scoreComp";
 import "./components/starComp";
+import "./components/welcome-form/index";
+import "./components/questionary/index";

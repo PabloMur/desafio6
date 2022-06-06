@@ -2,7 +2,6 @@
 type play = "piedra" | "papel" | "tijera";
 
 const API_BASE = "http://localhost:3098";
-import { Router } from "@vaadin/router";
 import { rtdb } from "./rtdb";
 
 const state = {
@@ -13,6 +12,7 @@ const state = {
     rtdbRoomId: "",
     roomCreator: "",
     rtdbData: "",
+    local: "",
     online: false,
     choice: "none",
     contrincanteChoice: "none",
@@ -30,6 +30,7 @@ const state = {
     const localData = localStorage.getItem("saved-state");
     this.setState(JSON.parse(localData));
   },
+
   listenRTDBData() {
     const currentState = this.getState();
     const gameRoomRef = rtdb.ref("/gamerooms/" + currentState.rtdbRoomId);
@@ -40,19 +41,32 @@ const state = {
       this.setState(cs);
     });
   },
+
+  listenBothPlayersInRoom() {
+    const currentState = this.getState();
+    const rtdbroomId = currentState.rtdbRoomId;
+    const gameRoomRef = rtdb.ref(`/gamerooms/${rtdbroomId}/playerTwo/online`);
+    gameRoomRef.on("value", (snapshot) => {
+      const cs = this.getState();
+      const data = snapshot.val();
+      cs.rtdbData = data.currentGame;
+      this.setState(cs);
+      console.log("Ambos conectados");
+    });
+  },
+
   //cambiar nombre de este metodo antes de deployar!!!
-  testParaEscucharSiLosDosJugadoresYaElijieron(cb?) {
+  listenPlayerChoice(cb?) {
     const cs = this.getState();
 
     const playerOneMoveREF = rtdb.ref(
       `gamerooms/${cs.rtdbRoomId}/currentGame/playerOne/choice`
     );
-    playerOneMoveREF.on("value", (snap) => {
-      const cs = this.getState();
+
+    playerOneMoveREF.once("value", (snap) => {
       const data = snap.val();
       cs.choice = data;
       this.setState(cs);
-      console.log(data);
 
       if (cb) {
         cb();
@@ -62,63 +76,139 @@ const state = {
     const playeTwoMoveREF = rtdb.ref(
       `gamerooms/${cs.rtdbRoomId}/currentGame/playerTwo/choice`
     );
-    playeTwoMoveREF.on("value", (snap) => {
-      const cs = this.getState();
+
+    playeTwoMoveREF.once("value", (snap) => {
       const data = snap.val();
       cs.contrincanteChoice = data;
       this.setState(cs);
-      console.log(data);
       if (cb) {
         cb();
       }
     });
   },
+
   getState() {
     return this.data;
   },
-  setNombre(nombre: string) {
+  //seteamos el nombre y el email del player en el state
+  setNombreAndEmail(nombre: string, email: string) {
     const cs = this.getState();
     cs.nombre = nombre;
+    cs.email = email;
     this.setState(cs);
   },
-  async newPlayer(nombre: string) {
+
+  //determinamos si es local o es invitado
+  setLocalOrGuest(localOrGuest: boolean) {
     const cs = this.getState();
-    try {
-      const data = await fetch(API_BASE + "/player", {
-        method: "post",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ nombre: nombre }),
-      });
-      const response = await data.json();
-      cs.userId = await response.id;
-      cs.nombre = nombre;
-      this.askNewGameRoom();
-      await this.setState(cs);
-    } catch (err) {
-      console.error(err);
-    }
+    cs.local = localOrGuest;
+    this.setState(cs);
   },
-  async guestPlayer(nombre: string, rtdbRoomId: string) {
+
+  async createPlayer(cb?) {
     const cs = this.getState();
-    try {
-      const request = await fetch(API_BASE + "/player-guest", {
+    const nombre = cs.nombre;
+    const email = cs.email;
+    const urlForFetch = API_BASE + "/signup";
+
+    if (cs.email) {
+      const fetchedData = await fetch(urlForFetch, {
         method: "post",
         headers: {
           "content-type": "application/json",
         },
-        body: JSON.stringify({ nombre: nombre, rtdbGameRoomId: cs.rtdbRoomId }),
+        body: JSON.stringify({ email: email, nombre: nombre }),
       });
-      const response = await request.json();
-      cs.userId = await response.id;
-      cs.nombre = nombre;
+      const response = await fetchedData.json();
+      cs.registrated = true;
+      cs.userId = response.id;
+
+      console.log("Player creado");
+
       this.setState(cs);
+      if (cb) cb();
+    } else {
+      console.error("no hay un mail en el state");
+    }
+  },
+
+  async guestPlayer(callback?) {
+    const cs = this.getState();
+    const rtdbGameRoomId = await cs.rtdbGameRoomId;
+    const nombre = await cs.nombre;
+
+    try {
+      const fetching = await fetch(API_BASE + "/player-guest", {
+        method: "post",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          nombre: nombre,
+          rtdbGameRoomId: rtdbGameRoomId,
+        }),
+      });
+      console.log(nombre);
+
+      const response = await fetching.json();
+      console.log(response);
+
+      if (callback) {
+        callback();
+      }
     } catch (err) {
       console.error(err);
     }
   },
-  async askNewGameRoom() {
+
+  async signIn(cb?) {
+    const cs = this.getState();
+    const urlForFetch = API_BASE + "/auth";
+
+    if (cs.email) {
+      const fetchedData = await fetch(urlForFetch, {
+        method: "post",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ email: cs.email }),
+      });
+      const response = await fetchedData.json();
+      cs.userId = response.id;
+      this.setState(cs);
+      if (cb) {
+        cb();
+      }
+    } else {
+      console.error("no hay un mail en el state");
+    }
+  },
+
+  //creamos un usuario, que posteriormente va a crear una sala de juego
+  // async newPlayer(nombre: string) {
+  //   const cs = this.getState();
+  //   try {
+  //     const data = await fetch(API_BASE + "/player", {
+  //       method: "post",
+  //       headers: {
+  //         "content-type": "application/json",
+  //       },
+  //       body: JSON.stringify({ nombre: nombre }),
+  //     });
+
+  //     const response = await data.json();
+
+  //     cs.userId = await response.id;
+  //     cs.nombre = nombre;
+
+  //     await this.setState(cs);
+  //     this.askNewGameRoom();
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // },
+
+  async askNewGameRoom(callback?) {
     const cs = this.getState();
     try {
       const requestAskingNewGameroom = await fetch(API_BASE + "/game-rooms", {
@@ -129,36 +219,48 @@ const state = {
         body: JSON.stringify({ userId: cs.userId, nombre: cs.nombre }),
       });
       const response = await requestAskingNewGameroom.json();
-      cs.roomId = await response.friendlyId;
-      cs.rtdbRoomId = await response.longGameRoomId;
+      cs.roomId = response.friendlyId;
+      cs.rtdbRoomId = response.longGameRoomId;
       cs.roomCreator = true;
-      this.listenRTDBData();
       this.setState(cs);
+      if (callback) {
+        callback();
+      }
     } catch (err) {
       console.error(err);
     }
   },
-  async accesToGameRoom(roomId: string) {
+
+  async accesToGameRoom(callback?) {
     try {
       const cs = this.getState();
-      const requestAccesing = await fetch(API_BASE + "/game-rooms/" + roomId, {
-        method: "get",
-        headers: {
-          "content-type": "application/json",
-        },
-      });
+      const roomId = cs.roomId;
+      const userId = cs.userId;
+      const requestAccesing = await fetch(
+        API_BASE + "/game-rooms/" + roomId + "?userId=" + userId,
+        {
+          method: "get",
+          headers: {
+            "content-type": "application/json",
+          },
+        }
+      );
       const data = await requestAccesing.json();
-      cs.roomCreator = false;
       cs.rtdbRoomId = await data;
       cs.roomId = roomId;
-      this.listenRTDBData();
       this.setState(cs);
+      this.listenRTDBData();
+      if (callback) {
+        callback();
+      }
     } catch (err) {
       console.error(err);
     }
   },
+
   async playerIsOnline(localOrGuest, rtdbRoomId) {
     const cs = this.getState();
+
     const request = await fetch(API_BASE + "/online", {
       method: "post",
       headers: {
@@ -169,9 +271,10 @@ const state = {
         rtdbRoomId: rtdbRoomId,
       }),
     });
+
     const response = await request.json();
-    console.log(response);
   },
+
   async playerIsReady(localOrGuest) {
     const cs = this.getState();
     const request = await fetch(API_BASE + "/start", {
@@ -187,8 +290,10 @@ const state = {
     const response = await request.json();
     console.log(response);
   },
+
   async playerUnstart(localOrGuest) {
     const cs = this.getState();
+
     const request = await fetch(API_BASE + "/unstart", {
       method: "post",
       headers: {
@@ -199,11 +304,14 @@ const state = {
         rtdbRoomId: cs.rtdbRoomId,
       }),
     });
+
     const response = await request.json();
     console.log(response);
   },
+
   async playersChoice(localOrGuest, choice, cb?) {
     const cs = state.getState();
+
     const request = await fetch(API_BASE + "/choice", {
       method: "post",
       headers: {
@@ -215,6 +323,7 @@ const state = {
         choice: choice,
       }),
     });
+
     const response = await request.json();
 
     if (cb) {
@@ -230,9 +339,11 @@ const state = {
     localStorage.setItem("saved-state", JSON.stringify(newState));
     console.log("Soy el state, he cambiado", this.data);
   },
+
   subscribe(callback: (any) => any) {
     this.listeners.push(callback);
   },
+
   whoWins(localMove, guestMove) {
     const localGanaConTijeras = localMove == "tijera" && guestMove == "papel";
     const localGanaConPiedra = localMove == "piedra" && guestMove == "tijera";
@@ -279,6 +390,7 @@ const state = {
       state.setState(cs);
     }
   },
+
   pushToHistory(currentGame) {
     return this.data.history.push(currentGame);
   },

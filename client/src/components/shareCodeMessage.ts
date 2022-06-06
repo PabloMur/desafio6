@@ -16,10 +16,32 @@ class ShareCodeMessage extends HTMLElement {
   render() {
     const style = document.createElement("style");
     this.innerHTML = `
-        <div class="messageContainer">
-        <p>Comparte este codigo</p> <h3>${this.roomId}</h3> <p>con tu contrincante</p>
+        <div class="message-container">
+          <p>Comparte este codigo con tu contrincante:</p> 
+          <h3 class="code">${this.roomId}</h3> 
         </div>
       `;
+    style.innerHTML = `
+      .message-container{
+        height: 40vh;
+        width: 90vw;
+        display: flex;
+        flex-direction: column;
+        justify-content:center;
+        align-items: center;
+      }
+      p{
+        font-size: 30px;
+      }
+
+      .code{
+        font-size: 70px;
+        color: #006CFC;
+        margin: 50px;
+      }
+    `;
+
+    this.appendChild(style);
   }
 }
 customElements.define("custom-share-code-message", ShareCodeMessage);

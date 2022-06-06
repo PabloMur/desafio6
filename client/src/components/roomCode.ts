@@ -14,7 +14,22 @@ class RoomCode extends HTMLElement {
   }
 
   render() {
-    this.innerHTML = `<p>SALA:${this.roomId}</p>`;
+    const style = document.createElement("style");
+
+    this.innerHTML = `<h3 class="code-container">SALA:${this.roomId}</h3>`;
+
+    style.innerHTML = `
+      .code-container{
+        padding: 15px;
+        background-color:#006CFC;
+        border: 10px solid #001997;
+        border-radius: 4px;
+        color: white;
+        margin-right: 15px;
+        font-family: sans-serif;
+      }
+    `;
+    this.appendChild(style);
   }
 }
 

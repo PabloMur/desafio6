@@ -18,6 +18,7 @@ class Button extends HTMLElement {
                   color:#D8FCFC;
                   width: 90vw;
                   border: 10px solid #001997;
+                  border-radius: 4px;
                   animation: lower .4s ease ;
               }
               @media screen and (min-width: 960px){

@@ -41,6 +41,11 @@ class GameOption extends HTMLElement {
         height: 30vh;
         width: auto;
       }
+      @media (max-width: 600px){
+        .image{
+          height: 25vh;
+        }
+      }
     
     `;
     this.appendChild(style);

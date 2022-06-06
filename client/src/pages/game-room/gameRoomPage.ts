@@ -27,7 +27,7 @@ class GameRoomPage extends HTMLElement {
 
     style.innerHTML = `
     .container{
-      height: 95vh;
+      height: 100vh;
       width: 100%;
       margin: 0;
       display: flex;
@@ -59,13 +59,13 @@ class GameRoomPage extends HTMLElement {
     const shareMessage = document.querySelector(".share-message");
     const bothReady = document.querySelector(".cuandoEstesListo");
 
-    if (cs.rtdbData.playerTwo.online == true) {
-      shareMessage.classList.add("escondido");
-      bothReady.classList.remove("escondido");
-      bothReady.classList.add("mostrado");
-      button.classList.remove("escondido");
-      button.classList.add("mostrado");
-    }
+    // if (cs.rtdbData.playerTwo.online == true) {
+    //   shareMessage.classList.toggle("escondido");
+    //   bothReady.classList.toggle("escondido");
+    //   bothReady.classList.toggle("mostrado");
+    //   button.classList.toggle("escondido");
+    //   button.classList.toggle("mostrado");
+    // }
 
     button.addEventListener("click", () => {
       Router.go("/instructions");

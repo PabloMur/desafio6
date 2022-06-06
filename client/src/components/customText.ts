@@ -15,6 +15,11 @@ class CustomText extends HTMLElement {
             color: #009048;
             transition: all 3s ease;
         }
+        @media (max-width:600px){
+          .title{
+            text-align:center;
+          }
+        }
         .body{
             font-size: 30px;
             max-width: 600px;

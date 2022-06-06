@@ -4,21 +4,37 @@ import { state } from "../../state";
 class AccessRoomPage extends HTMLElement {
   connectedCallback() {
     this.render();
-    const accessToRoomButton = document.querySelector(".access");
-    const code = document.querySelector(".codeRoomId") as any;
+  }
 
-    accessToRoomButton.addEventListener("click", () => {
-      state.accesToGameRoom(code.value);
-      Router.go("pre-game-room");
+  addListeners() {
+    const form = document.querySelector(".form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const target = e.target as any;
+      const roomCode = target.roomcode.value;
+      const currentState = state.getState();
+      currentState.roomId = Number(roomCode);
+      await state.setState(currentState);
+      Router.go("/pre-game-room");
+      // await state.signIn(() => {
+      //   state.accessRoom(() => {
+      //     Router.go("/chat");
+      //   });
+      // });
     });
   }
+
   render() {
     const style = document.createElement("style");
     this.innerHTML = `
         <div class="container">
          <custom-text variant="title">Piedra Papel o Tijera</custom-text>
-         <input type="text" name="nombre" placeholder="codigo" class="codeRoomId">
-         <custom-button class="access">Ingresar a una Sala</custom-button>
+         <div>
+         <form class="form">
+             <input type="text" name="roomcode"></>
+             <button class="button">Ingresar a la sala</button>
+         </form>
+     </div>
         </div>
       `;
     style.innerHTML = `
@@ -31,7 +47,7 @@ class AccessRoomPage extends HTMLElement {
         justify-content: space-around;
         align-items: center;
       }
-      .codeRoomId{
+      .code{
         width: 57%;
         height: 10vh;
         border: 5px solid blue;
@@ -41,6 +57,7 @@ class AccessRoomPage extends HTMLElement {
       }
     `;
     this.appendChild(style);
+    this.addListeners();
   }
 }
 

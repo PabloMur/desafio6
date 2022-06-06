@@ -4,17 +4,23 @@ import { state } from "../../state";
 class PreGameRoomPage extends HTMLElement {
   connectedCallback() {
     this.render();
-
+  }
+  addListeners(){
     const getInGameRoom = document.querySelector(".startRoom");
     const nombre = document.querySelector(".playerName") as any;
+    const email = document.querySelector(".playerEmail") as any;
 
-    getInGameRoom.addEventListener("click", () => {
-      const cs = state.getState();
-      state.setNombre(nombre.value);
-      state.guestPlayer(nombre.value, cs.rtdbRommId);
-      state.playerIsOnline("guest", cs.rtdbRoomId);
-      state.accesToGameRoom(cs.roomId);
+    getInGameRoom.addEventListener("click", async () => {
+      await state.setNombreAndEmail(nombre.value, email.value);
+      await state.createPlayer(false);
       Router.go("/game-room");
+      await state.signIn(async () => {
+        await state.accesToGameRoom(async () => {
+          await state.guestPlayer(() => {
+            console.log("Esto se ejecuto");
+          });
+        });
+      });
     });
   }
   render() {
@@ -24,6 +30,7 @@ class PreGameRoomPage extends HTMLElement {
          <custom-text variant="title">Ingresa tu nombre</custom-text>
          
           <input type="text" name="nombre" placeholder="Ingresa tu nombre" class="playerName">
+          <input type="text" name="email" placeholder="Ingresa tu email" class="playerEmail">
          
          <custom-button class="startRoom">Comenzar</custom-button>
         </div>
@@ -38,7 +45,7 @@ class PreGameRoomPage extends HTMLElement {
       justify-content: space-around;
       align-items: center;
     }
-    .playerName{
+    .playerName, .playerEmail{
       width: 57%;
       height: 10vh;
       border: 5px solid blue;
@@ -48,6 +55,7 @@ class PreGameRoomPage extends HTMLElement {
     }
     `;
     this.appendChild(style);
+    this.addListeners();
   }
 }
 
