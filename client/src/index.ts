@@ -17,6 +17,7 @@ import { state } from "./state";
       rtdbRoomId: "",
       roomCreator: "",
       rtdbData: {
+        replay: false,
         playerOne: {
           nombre: "playerOne",
           choice: "none",
@@ -34,17 +35,7 @@ import { state } from "./state";
           score: 0,
         },
       },
-      local: "",
-      online: false,
-      choice: "none",
-      contrincanteChoice: "none",
-      history: [],
       result: "",
-      currentGame: { playerOneMove: "", playerTwoMove: "" },
-      score: {
-        local: 0,
-        guest: 0,
-      },
     });
   }
 })();

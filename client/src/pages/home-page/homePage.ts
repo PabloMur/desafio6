@@ -1,16 +1,19 @@
-import { Router } from "@vaadin/router";
-
 class Home extends HTMLElement {
-  connectedCallback() {
-    this.render();
+  shadow: ShadowRoot;
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
   render() {
-    this.innerHTML = `
+    this.shadow.innerHTML = `
       <div class="container">
       <custom-text variant="title" class="title">Piedra Papel o Tijera</custom-text>
       <welcome-form></welcome-form>
       </div>
     `;
+  }
+  connectedCallback() {
+    this.render();
   }
   // addListeners(){
   //   const newGameButton = document.querySelector(".newGame");

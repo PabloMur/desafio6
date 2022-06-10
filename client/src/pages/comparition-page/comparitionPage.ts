@@ -1,18 +1,21 @@
 import { Router } from "@vaadin/router";
 
 class ComparitionPage extends HTMLElement {
-  connectedCallback() {
-    this.render();
-    const button = document.querySelector(".goToResult");
-    button.addEventListener("click", () => {
-      Router.go("/result");
-    });
+  shadow: ShadowRoot;
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
   render() {
-    this.innerHTML = `
+    this.shadow.innerHTML = `
     <muestra-jugada></muestra-jugada>
-    <custom-button class="goToResult">Ir a resutado</custom-button>
     `;
+  }
+  connectedCallback() {
+    this.render();
+    setTimeout(function () {
+      Router.go("/result");
+    }, 5000);
   }
 }
 

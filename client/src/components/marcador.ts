@@ -1,30 +1,22 @@
 import { state } from "../state";
 class Marcador extends HTMLElement {
-  nombre: string;
-  contrincanteNombre: string = "papa";
-  tu: number;
-  contrincante: number;
-  connectedCallback() {
-    state.subscribe(() => {
-      this.syncWithState();
-    });
-    this.syncWithState();
+  shadow: ShadowRoot;
+  playerOneName: string;
+  playerTwoName: string;
+  playerOneScore: number;
+  playerTwoScore: number;
+
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
-  syncWithState() {
-    const lastState = state.getState();
-    this.nombre = lastState.rtdbData.playerOne.nombre || "playerOne";
-    this.contrincante = lastState.score.guest;
-    this.tu = lastState.score.local;
-    this.contrincanteNombre =
-      lastState.rtdbData.playerTwo.nombre || "playerTwo";
-    this.render();
-  }
+
   render() {
     const style = document.createElement("style");
-    this.innerHTML = `
+    this.shadow.innerHTML = `
         <div class="marcador-container">
-            <div class="marcador-el local">${this.nombre}:${this.tu}</div>
-            <div class="marcador-el guest">${this.contrincanteNombre}:${this.contrincante}</div>
+            <div class="marcador-el local">${this.playerOneName}:${this.playerOneScore}</div>
+            <div class="marcador-el guest">${this.playerTwoName}:${this.playerTwoScore}</div>
         </div>
         `;
     style.innerHTML = `
@@ -46,11 +38,27 @@ class Marcador extends HTMLElement {
           width: 100%;;
         }
 
-        .guest{
-          
-        }
     `;
-    this.appendChild(style);
+    this.shadow.appendChild(style);
+  }
+  syncWithState() {
+    const lastState = state.getState();
+    const data = lastState.rtdbData;
+
+    //names
+    this.playerOneName = data.playerOne.nombre;
+    this.playerOneScore = data.playerOne.score;
+    //scores
+    this.playerTwoName = data.playerTwo.nombre;
+    this.playerTwoScore = data.playerTwo.score;
+
+    this.render();
+  }
+  connectedCallback() {
+    state.subscribe(() => {
+      this.syncWithState();
+    });
+    this.syncWithState();
   }
 }
 customElements.define("custom-marcador", Marcador);

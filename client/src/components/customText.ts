@@ -1,8 +1,10 @@
 class CustomText extends HTMLElement {
-  shadow = this.attachShadow({ mode: "open" });
-  connectedCallback() {
-    this.render();
+  shadow: ShadowRoot;
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
+
   render() {
     const variant = this.getAttribute("variant") || "body";
     const div = document.createElement("div");
@@ -30,6 +32,9 @@ class CustomText extends HTMLElement {
     div.textContent = this.textContent;
     this.shadow.appendChild(div);
     this.shadow.appendChild(style);
+  }
+  connectedCallback() {
+    this.render();
   }
 }
 customElements.define("custom-text", CustomText);

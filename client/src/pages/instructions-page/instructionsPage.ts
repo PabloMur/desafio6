@@ -2,19 +2,23 @@ import { Router } from "@vaadin/router";
 import { state } from "../../state";
 
 class instructions extends HTMLElement {
-  connectedCallback() {
-    this.userIsReady();
+  shadow: ShadowRoot;
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
+
   render() {
     const style = document.createElement("style");
-    this.innerHTML = `
+    this.shadow.innerHTML = `
+          <div class="contenedor">
             <p class="instructions">
                 Presioná jugar y elegí: piedra, papel o tijera antes de que pasen los 3 segundos.
                 Suerte!
             </p>
             <custom-button class="play-button">Jugar!</custom-button>
+          </div>
         `;
-    this.className = "contenedor";
     style.innerHTML = `
     .contenedor{
       height: 60vh;
@@ -39,22 +43,25 @@ class instructions extends HTMLElement {
         opacity: 1;
       }
     }`;
-    this.appendChild(style);
+    this.shadow.appendChild(style);
   }
   userIsReady() {
     this.render();
     const cs = state.getState();
-    const playButton = document.querySelector(".play-button");
+    const playButton = this.shadow.querySelector(".play-button");
 
     playButton.addEventListener("click", () => {
       if (cs.roomCreator) {
-        state.playerIsReady("local");
+        state.playerIsReady("playerOne");
         Router.go("/choose-room");
       } else if (!cs.roomCreator) {
-        state.playerIsReady("guest");
+        state.playerIsReady("playerTwo");
         Router.go("/choose-room");
       }
     });
+  }
+  connectedCallback() {
+    this.userIsReady();
   }
 }
 customElements.define("instructions-page", instructions);

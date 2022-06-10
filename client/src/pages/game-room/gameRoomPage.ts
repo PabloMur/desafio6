@@ -59,13 +59,13 @@ class GameRoomPage extends HTMLElement {
     const shareMessage = document.querySelector(".share-message");
     const bothReady = document.querySelector(".cuandoEstesListo");
 
-    // if (cs.rtdbData.playerTwo.online == true) {
-    //   shareMessage.classList.toggle("escondido");
-    //   bothReady.classList.toggle("escondido");
-    //   bothReady.classList.toggle("mostrado");
-    //   button.classList.toggle("escondido");
-    //   button.classList.toggle("mostrado");
-    // }
+    if (cs.rtdbData.playerTwo.nombre !== "playerTwo") {
+      shareMessage.classList.toggle("escondido");
+      bothReady.classList.toggle("escondido");
+      bothReady.classList.toggle("mostrado");
+      button.classList.toggle("escondido");
+      button.classList.toggle("mostrado");
+    }
 
     button.addEventListener("click", () => {
       Router.go("/instructions");

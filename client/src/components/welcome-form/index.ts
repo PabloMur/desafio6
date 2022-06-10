@@ -2,22 +2,14 @@ import { state } from "../../state";
 import { Router } from "@vaadin/router";
 
 class WelcomeForm extends HTMLElement {
-  connectedCallback() {
-    this.render();
-    const form = document.querySelector("form");
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const target = e.target as any;
-      const email = target.email.value;
-      const nombre = target.nombre.value;
-      Router.go("/path");
-      await state.setNombreAndEmail(nombre, email);
-      await state.createPlayer();
-    });
+  shadow: ShadowRoot;
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
   render() {
     const style = document.createElement("style");
-    this.innerHTML = `
+    this.shadow.innerHTML = `
       <div class="form-container">
         <form class="form">
           <div>
@@ -29,51 +21,87 @@ class WelcomeForm extends HTMLElement {
           </div>
           <input type="text" name="nombre" class="input">
           <div>
-            <button class="ingresar">Comenzar</button>
+            <button class="form-button">Comenzar</button>
           </div>
         </form>
       </div>
     `;
     style.innerHTML = `
-      .form-container{
-        min-height:90vh;
-        display:flex;
-        justify-content: center;
-        align-items:center;
+    .form-container{
+      height: 95vh;
+      width: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .input{
+      width: 600px;
+      height: 11.5vh;
+      color: white;
+      font-size: 20px;
+      background: #006CFC;
+      border: 10px solid #001997;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    label{
+      margin: 10px;
+      font-size: 20px;
+      font-family: sans-serif;
+    }
+    button {
+      font-size: 18px;
+      border-radius: 4px;
+      padding: 17px 13px;
+      background-color: #006CFC;
+      color: #D8FCFC;
+      width: 90vw;
+      border: 10px solid #001997;
+      border-radius: 4px;
+      animation: lower .4s ease;
+    }
+    
+    @media screen and (min-width: 960px) {
+      button {
+        max-width: 600px;
+        margin: 0 auto;
       }
-      .form{
-        background:#A99BFF;
-        margin:0 auto;
-        height: 100%;
-        width: 33%;
-        padding: 20px;
-        text-align: center;
-        border-radius: 5px;
+    }
+    
+    @keyframes lower {
+      0% {
+        transform: translateY(100%);
       }
-      .label{
-        font-family: sans-serif;
-        padding-top: 10px;
+    
+      75% {
+        transform: translateY(-10%);
       }
-      .input{
-        width: 100%;
-        height: 35px;
-        border: none;
-        border-radius: 5px;
-        margin: 5px auto;
-        box-shadow: 5px 5px 5px grey;
+    
+      100% {
+        transform: translateY(0%);
       }
-      .ingresar{
-        border:none;
-        width: 100%;
-        padding: 10px;
-        margin-top: 10px;
-        border-radius: 5px;
-        background:#800080;
-        color: white;
-        box-shadow: 5px 5px 5px grey;
-      }
+    }
     `;
-    this.appendChild(style);
+    this.shadow.appendChild(style);
+  }
+  addListeners() {
+    this.render();
+    const form = this.shadow.querySelector(".form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const target = e.target as any;
+      const email = target.email.value;
+      const nombre = target.nombre.value;
+      state.setNombreAndEmail(nombre, email);
+      Router.go("/path");
+      await state.createPlayer();
+    });
+  }
+  connectedCallback() {
+    this.addListeners();
   }
 }
 customElements.define("welcome-form", WelcomeForm);

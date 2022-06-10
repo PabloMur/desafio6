@@ -2,13 +2,16 @@ import { Router } from "@vaadin/router";
 import { state } from "../state";
 
 class Contador extends HTMLElement {
+  shadow: ShadowRoot;
   cuentaRegresiva: number = 6;
-  connectedCallback() {
-    this.cuentaAtras();
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
+
   render() {
     const style = document.createElement("style");
-    this.innerHTML = `
+    this.shadow.innerHTML = `
     <div class="contador"></div>`;
     style.innerHTML = `
     .contador{
@@ -31,20 +34,22 @@ class Contador extends HTMLElement {
         }
       }
       `;
-    this.appendChild(style);
+    this.shadow.appendChild(style);
   }
   cuentaAtras() {
     this.render();
-    const contador = document.querySelector(".contador");
+    const contador = this.shadow.querySelector(".contador");
 
     let setIN = setInterval(() => {
       const cs = state.getState();
-      const terminoTiempo = this.cuentaRegresiva == 0;
-      const noElegiNada =
-        cs.rtdbData.playerOne.choice == "none" ||
-        cs.rtdbData.playerTwo.choice == "none";
+      const dataRealtime = cs.rtdbData;
 
-      if (terminoTiempo && noElegiNada) {
+      const terminoTiempo = this.cuentaRegresiva == 0;
+      const noElegioNada =
+        dataRealtime.playerOne.choice == "none" ||
+        dataRealtime.playerTwo.choice == "none";
+
+      if (terminoTiempo && noElegioNada) {
         if (cs.roomCreator) {
           cs.score.guest++;
         } else {
@@ -65,6 +70,9 @@ class Contador extends HTMLElement {
       contador.innerHTML = this.cuentaRegresiva.toString();
       this.cuentaRegresiva--;
     }, 1000);
+  }
+  connectedCallback() {
+    this.cuentaAtras();
   }
 }
 

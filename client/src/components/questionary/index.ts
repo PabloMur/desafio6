@@ -2,18 +2,26 @@ import { state } from "../../state";
 import { Router } from "@vaadin/router";
 
 class Questinary extends HTMLElement {
-  connectedCallback() {
-    this.render();
+  shadow: ShadowRoot;
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
+  }
+  render() {
+    this.shadow.innerHTML = `
+            <div class="container">
+                <custom-button class="crear">Crear una nueva Sala</custom-button>
+                <custom-button class="test">Ingresar a una Sala</custom-button>
+            </div>
+        `;
   }
   addListeners() {
-    const ingresar = document.querySelector(".ingresar");
-    const crear = document.querySelector(".crear");
-    const cs = state.getState();
-    const nombre = cs.nombre;
+    this.render();
+    const crear = this.shadow.querySelector(".crear");
+    const probar = this.shadow.querySelector(".test");
 
-    ingresar.addEventListener("click", (e) => {
-      e.preventDefault();
-      console.log("ingresar a sala");
+    probar.addEventListener("click", function () {
+      Router.go("/access-room");
     });
 
     crear.addEventListener("click", () => {
@@ -25,13 +33,7 @@ class Questinary extends HTMLElement {
       });
     });
   }
-  render() {
-    this.innerHTML = `
-            <div class="container">
-                <custom-button class="crear">Crear una nueva Sala</custom-button>
-                <custom-button class="ingresar">Ingresar a una Sala</custom-button>
-            </div>
-        `;
+  connectedCallback() {
     this.addListeners();
   }
 }

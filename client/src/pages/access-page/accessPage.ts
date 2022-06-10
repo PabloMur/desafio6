@@ -2,36 +2,44 @@ import { Router } from "@vaadin/router";
 import { state } from "../../state";
 
 class AccessRoomPage extends HTMLElement {
+  shadow: ShadowRoot;
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
+  }
   connectedCallback() {
-    this.render();
+    this.addListeners();
   }
 
   addListeners() {
-    const form = document.querySelector(".form");
+    this.render();
+    const form = this.shadow.querySelector(".form");
+    const currentState = state.getState();
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const target = e.target as any;
       const roomCode = target.roomcode.value;
-      const currentState = state.getState();
-      currentState.roomId = Number(roomCode);
-      await state.setState(currentState);
-      Router.go("/pre-game-room");
-      // await state.signIn(() => {
-      //   state.accessRoom(() => {
-      //     Router.go("/chat");
-      //   });
-      // });
+      currentState.roomId = roomCode;
+      currentState.roomCreator = false;
+      state.setState(currentState);
+
+      state.signIn(() => {
+        state.accesToGameRoom(() => {
+          Router.go("/game-room");
+          state.guestPlayer();
+        });
+      });
     });
   }
 
   render() {
     const style = document.createElement("style");
-    this.innerHTML = `
+    this.shadow.innerHTML = `
         <div class="container">
          <custom-text variant="title">Piedra Papel o Tijera</custom-text>
          <div>
          <form class="form">
-             <input type="text" name="roomcode"></>
+             <input type="text" name="roomcode" class="code"></>
              <button class="button">Ingresar a la sala</button>
          </form>
      </div>
@@ -56,8 +64,7 @@ class AccessRoomPage extends HTMLElement {
         text-align: center;
       }
     `;
-    this.appendChild(style);
-    this.addListeners();
+    this.shadow.appendChild(style);
   }
 }
 

@@ -2,15 +2,17 @@ import { state } from "../../state";
 import { Router } from "@vaadin/router";
 
 class WaitingPage extends HTMLElement {
-  connectedCallback() {
-    this.asksIfTheOtherPlayerChoosed();
+  shadow: ShadowRoot;
+  cuentaRegresiva: number;
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
+    this.cuentaRegresiva = 15;
   }
-
-  cuentaRegresiva = 15;
 
   render() {
     const style = document.createElement("style");
-    this.innerHTML = `
+    this.shadow.innerHTML = `
             <custom-text>Esperemos a que tu contrincante elija una opcion... Si no elije en los siguiente 15 segundos ganas esta partida picaronx</custom-text>
         `;
   }
@@ -19,9 +21,10 @@ class WaitingPage extends HTMLElement {
     this.render();
     let setIN = setInterval(() => {
       const cs = state.getState();
+      const dataRealtime = cs.rtdbData;
 
-      const playerOneEligio = cs.choice != "none";
-      const playerTwoEligio = cs.contrincanteChoice != "none";
+      const playerOneEligio = dataRealtime.playerOne.choice != "none";
+      const playerTwoEligio = dataRealtime.playerTwo.choice != "none";
 
       const playerOneNoEligio = !playerOneEligio;
       const playerTwoNoEligio = !playerTwoEligio;
@@ -38,6 +41,9 @@ class WaitingPage extends HTMLElement {
       }
       this.cuentaRegresiva--;
     }, 1000);
+  }
+  connectedCallback() {
+    this.asksIfTheOtherPlayerChoosed();
   }
 }
 

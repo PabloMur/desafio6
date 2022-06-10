@@ -3,7 +3,7 @@ import * as cors from "cors";
 import { rtdb, firestore } from "./firestore";
 import { nanoid } from "nanoid";
 
-const port = process.env.PORT || 3098;
+const port = process.env.PORT || 3000;
 const playersCollection = firestore.collection("players");
 const gameRoomsCollection = firestore.collection("gamerooms");
 
@@ -11,6 +11,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded());
 
 app.post("/signup", async (req, res) => {
   // Este endopoint nos habilita un nuevo usuario en firestore. Y nos retorna su id
@@ -68,15 +69,16 @@ app.post("/auth", async (req, res) => {
 //   });
 // });
 
-app.post("/player-guest", async (req, res) => {
+app.patch("/player-guest", async (req, res) => {
   const { nombre, rtdbGameRoomId } = req.body;
   const gameRoomRef = rtdb.ref(
     `gamerooms/${rtdbGameRoomId}/currentGame/playerTwo`
   );
-  gameRoomRef.update({ nombre, online: true });
+  await gameRoomRef.update({ nombre });
 
   res.json({
     message: "nombre actualizado",
+    nombre: nombre,
   });
 });
 
@@ -87,11 +89,10 @@ app.post("/game-rooms", async (req, res) => {
 
   if (document.exists) {
     const gameRoomRef = rtdb.ref("gamerooms/" + nanoid());
-
-    gameRoomRef.set({
+    await gameRoomRef.set({
       creator: userId,
-      replay: false,
       currentGame: {
+        replay: false,
         playerOne: {
           nombre: nombre,
           choice: "none",
@@ -110,15 +111,14 @@ app.post("/game-rooms", async (req, res) => {
         },
       },
     });
-
     const longGameRoomId = gameRoomRef.key;
     const shortGameRoomId = 1000 + Math.floor(Math.random() * 999);
 
-    gameRoomsCollection.doc(shortGameRoomId.toString()).set({
+    await gameRoomsCollection.doc(shortGameRoomId.toString()).set({
       rtdbGameRoomId: longGameRoomId,
       creator: userId,
       friendlyId: shortGameRoomId.toString(),
-      score: { local: 0, guest: 0 },
+      score: { playerOne: 0, playerTwo: 0 },
     });
     res.json({
       friendlyId: shortGameRoomId.toString(),
@@ -175,100 +175,49 @@ app.get("/game-rooms/:roomId", async (req, res) => {
 //   }
 // });
 
-app.post("/start", (req, res) => {
+app.patch("/start", async (req, res) => {
+  //en player recibe "playerOne" o "playerTwo" segun el caso
   const { player, rtdbRoomId } = req.body;
-  if (player == "local") {
-    const gameRoomRef = rtdb.ref(
-      `gamerooms/${rtdbRoomId}/currentGame/playerOne`
-    );
-    gameRoomRef
-      .update({
-        start: true,
-      })
-      .then(() => {
-        res.json({ message: "player One is ready" });
-      });
-  } else if (player == "guest") {
-    const gameRoomRef = rtdb.ref(
-      `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
-    );
-    gameRoomRef
-      .update({
-        start: true,
-      })
-      .then(() => {
-        res.json({ message: "player Two is ready" });
-      });
-  }
+
+  const gameRoomRef = rtdb.ref(`gamerooms/${rtdbRoomId}/currentGame/${player}`);
+  await gameRoomRef.update({ start: true });
+
+  res.json({ message: `${player} is ready` });
 });
 
-app.post("/unstart", (req, res) => {
+app.patch("/unstart", async (req, res) => {
+  //en player recibe "playerOne" o "playerTwo" segun el caso
   const { player, rtdbRoomId } = req.body;
-  if (player == "local") {
-    const gameRoomRef = rtdb.ref(
-      `gamerooms/${rtdbRoomId}/currentGame/playerOne`
-    );
-    gameRoomRef
-      .update({
-        start: false,
-      })
-      .then(() => {
-        res.json({ message: "player One is ready for an other game" });
-      });
-  } else if (player == "guest") {
-    const gameRoomRef = rtdb.ref(
-      `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
-    );
-    gameRoomRef
-      .update({
-        start: false,
-      })
-      .then(() => {
-        res.json({ message: "player Two is ready for an other game" });
-      });
-  }
+  const gameRoomRef = rtdb.ref(`gamerooms/${rtdbRoomId}/currentGame/${player}`);
+  await gameRoomRef.update({
+    start: false,
+  });
+
+  res.json({ message: "player One is ready for an other game" });
 });
 
-app.post("/choice", (req, res) => {
-  const { localOrGuest, rtdbRoomId, choice } = req.body;
-  if (localOrGuest == "local") {
-    const gameRoomRef = rtdb.ref(
-      `gamerooms/${rtdbRoomId}/currentGame/playerOne`
-    );
-    gameRoomRef
-      .update({
-        choice: choice,
-      })
-      .then(() => {
-        res.json({ message: "player One eligió " + choice });
-      });
-  } else if (localOrGuest == "guest") {
-    const gameRoomRef = rtdb.ref(
-      `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
-    );
-    gameRoomRef
-      .update({
-        choice: choice,
-      })
-      .then(() => {
-        res.json({ message: "player Two eligió " + choice });
-      });
-  }
-});
+app.patch("/choice", async (req, res) => {
+  //en player recibe "playerOne" o "playerTwo" segun el caso
+  const { player, rtdbRoomId, choice } = req.body;
 
-app.post("/replay", (req, res) => {
-  const { rtdbRoomId } = req.body;
-  const gameRoomRef = rtdb.ref(`gamerooms/${rtdbRoomId}/`);
-  gameRoomRef
-    .update({
-      replay: true,
-    })
-    .then(() => {
-      res.json({ message: "player wants to play again" });
-    });
-});
+  const gameRoomRef = rtdb.ref(`gamerooms/${rtdbRoomId}/currentGame/${player}`);
+  await gameRoomRef.update({ choice: choice });
 
+  res.json({ message: `${player} eligio: ${choice}` });
+});
 app.get("/choice", (req, res) => {
+  app.post("/replay", (req, res) => {
+    const { rtdbRoomId } = req.body;
+    const gameRoomRef = rtdb.ref(`gamerooms/${rtdbRoomId}/`);
+    gameRoomRef
+      .update({
+        replay: true,
+      })
+      .then(() => {
+        res.json({ message: "player wants to play again" });
+      });
+  });
+
   let { localOrGuest, rtdbRoomId } = req.body;
   if (localOrGuest == "local") {
     const playerChoiceRef = rtdb.ref(
@@ -287,6 +236,26 @@ app.get("/choice", (req, res) => {
       res.json(response.choice);
     });
   }
+});
+
+app.patch("/last-score/:roomId", async (req, res) => {
+  const { roomId } = req.params;
+  const { lastScore } = req.body;
+  await gameRoomsCollection.doc(roomId.toString()).update({
+    score: { playerOne: lastScore.one, playerTwo: lastScore.two },
+  });
+  res.json({
+    message: "score actualizado",
+  });
+});
+
+app.get("/last-score/:roomId", async (req, res) => {
+  const { roomId } = req.params;
+  const gameRoomRef = await gameRoomsCollection.doc(roomId.toString()).get();
+  const data = gameRoomRef.data();
+  res.json({
+    score: data.score,
+  });
 });
 
 //Sirve la carpeta dist creada por parcel

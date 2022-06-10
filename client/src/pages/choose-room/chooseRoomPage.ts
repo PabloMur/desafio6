@@ -2,12 +2,14 @@ import { state } from "../../state";
 import { Router } from "@vaadin/router";
 
 class ChoosePage extends HTMLElement {
-  connectedCallback() {
-    this.setingChoice();
+  shadow: ShadowRoot;
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
   render() {
     const style = document.createElement("style");
-    this.innerHTML = `
+    this.shadow.innerHTML = `
         <div class="container">
           <cuenta-regresiva></cuenta-regresiva>
           <div class="contenedorDeManos">
@@ -32,45 +34,48 @@ class ChoosePage extends HTMLElement {
 
     `;
 
-    this.appendChild(style);
+    this.shadow.appendChild(style);
   }
   setingChoice() {
     this.render();
     const cs = state.getState();
 
-    const tijera = document.querySelector(".tijera");
-    const papel = document.querySelector(".papel");
-    const piedra = document.querySelector(".piedra");
+    const tijera = this.shadow.querySelector(".tijera");
+    const papel = this.shadow.querySelector(".papel");
+    const piedra = this.shadow.querySelector(".piedra");
 
     tijera.addEventListener("click", () => {
       if (cs.roomCreator) {
-        state.playersChoice("local", "tijera");
-        Router.go("/before-comparition");
-      } else if (!cs.roomCreato) {
-        state.playersChoice("guest", "tijera");
-        Router.go("/before-comparition");
+        state.playersChoice("playerOne", "tijera");
+        Router.go("/waiting");
+      } else if (!cs.roomCreator) {
+        state.playersChoice("playerTwo", "tijera");
+        Router.go("/waiting");
       }
     });
 
     papel.addEventListener("click", () => {
       if (cs.roomCreator) {
-        state.playersChoice("local", "papel");
-        Router.go("/before-comparition");
+        state.playersChoice("playerOne", "papel");
+        Router.go("/waiting");
       } else if (!cs.roomCreator) {
-        state.playersChoice("guest", "papel");
-        Router.go("/before-comparition");
+        state.playersChoice("playerTwo", "papel");
+        Router.go("/waiting");
       }
     });
 
     piedra.addEventListener("click", () => {
       if (cs.roomCreator) {
-        state.playersChoice("local", "piedra");
-        Router.go("/before-comparition");
+        state.playersChoice("playerOne", "piedra");
+        Router.go("/waiting");
       } else if (!cs.roomCreator) {
-        state.playersChoice("guest", "piedra");
-        Router.go("/before-comparition");
+        state.playersChoice("playerTwo", "piedra");
+        Router.go("/waiting");
       }
     });
+  }
+  connectedCallback() {
+    this.setingChoice();
   }
 }
 customElements.define("choose-room-page", ChoosePage);
