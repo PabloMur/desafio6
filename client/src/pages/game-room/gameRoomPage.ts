@@ -2,15 +2,14 @@ import { Router } from "@vaadin/router";
 import { state } from "../../state";
 
 class GameRoomPage extends HTMLElement {
-  connectedCallback() {
-    state.subscribe(() => {
-      this.beforeClose();
-    });
-    this.beforeClose();
+  shadow: ShadowRoot;
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
   render() {
     const style = document.createElement("style");
-    this.innerHTML = `
+    this.shadow.innerHTML = `
         <div class="container">
          <div class="container-room-score">
           <custom-marcador></custom-marcador>
@@ -49,15 +48,15 @@ class GameRoomPage extends HTMLElement {
       display:inherit;
     }
     `;
-    this.appendChild(style);
+    this.shadow.appendChild(style);
   }
   beforeClose() {
     this.render();
     const cs = state.getState();
 
-    const button = document.querySelector(".startGame");
-    const shareMessage = document.querySelector(".share-message");
-    const bothReady = document.querySelector(".cuandoEstesListo");
+    const button = this.shadow.querySelector(".startGame") as any;
+    const shareMessage = this.shadow.querySelector(".share-message") as any;
+    const bothReady = this.shadow.querySelector(".cuandoEstesListo") as any;
 
     if (cs.rtdbData.playerTwo.nombre !== "playerTwo") {
       shareMessage.classList.toggle("escondido");
@@ -68,8 +67,16 @@ class GameRoomPage extends HTMLElement {
     }
 
     button.addEventListener("click", () => {
+      //state.listenRTDBDataReplay();
       Router.go("/instructions");
     });
+  }
+
+  connectedCallback() {
+    state.subscribe(() => {
+      this.beforeClose();
+    });
+    this.beforeClose();
   }
 }
 

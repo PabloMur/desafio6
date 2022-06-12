@@ -6,9 +6,9 @@ class GameOption extends HTMLElement {
     this.render();
   }
   render() {
-    const imgTijera = require("../img/tijera.svg");
-    const imgPapel = require("../img/papel.svg");
-    const imgPiedra = require("../img/piedra.svg");
+    const imgTijera = require("../img/tijera.svg") as any;
+    const imgPapel = require("../img/papel.svg") as any;
+    const imgPiedra = require("../img/piedra.svg") as any;
 
     const variant = this.getAttribute("variant");
     const style = document.createElement("style");

@@ -13,7 +13,7 @@ class AccessRoomPage extends HTMLElement {
 
   addListeners() {
     this.render();
-    const form = this.shadow.querySelector(".form");
+    const form = this.shadow.querySelector(".form") as any;
     const currentState = state.getState();
     form.addEventListener("submit", async (e) => {
       e.preventDefault();

@@ -45,12 +45,13 @@ class Marcador extends HTMLElement {
     const lastState = state.getState();
     const data = lastState.rtdbData;
 
-    //names
+    //playerOne name and score
     this.playerOneName = data.playerOne.nombre;
-    this.playerOneScore = data.playerOne.score;
-    //scores
+    this.playerOneScore = lastState.score.playerOne;
+
+    //playerOne name and score
     this.playerTwoName = data.playerTwo.nombre;
-    this.playerTwoScore = data.playerTwo.score;
+    this.playerTwoScore = lastState.score.playerTwo;
 
     this.render();
   }

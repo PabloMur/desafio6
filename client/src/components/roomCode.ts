@@ -1,22 +1,17 @@
 import { state } from "../state";
 class RoomCode extends HTMLElement {
-  roomId: string;
-  connectedCallback() {
-    state.subscribe(() => {
-      this.syncWithState();
-    });
-    this.syncWithState();
-  }
-  syncWithState() {
-    const lastState = state.getState();
-    this.roomId = lastState.roomId;
-    this.render();
+  roomId: string = "0000";
+  shadow: ShadowRoot;
+
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
 
   render() {
     const style = document.createElement("style");
 
-    this.innerHTML = `<h3 class="code-container">SALA:${this.roomId}</h3>`;
+    this.shadow.innerHTML = `<h3 class="code-container">SALA:${this.roomId}</h3>`;
 
     style.innerHTML = `
       .code-container{
@@ -29,7 +24,20 @@ class RoomCode extends HTMLElement {
         font-family: sans-serif;
       }
     `;
-    this.appendChild(style);
+    this.shadow.appendChild(style);
+  }
+
+  syncWithState() {
+    const lastState = state.getState();
+    this.roomId = lastState.roomId;
+    this.render();
+  }
+
+  connectedCallback() {
+    state.subscribe(() => {
+      this.syncWithState();
+    });
+    this.syncWithState();
   }
 }
 

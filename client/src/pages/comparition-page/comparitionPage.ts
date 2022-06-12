@@ -15,7 +15,7 @@ class ComparitionPage extends HTMLElement {
     this.render();
     setTimeout(function () {
       Router.go("/result");
-    }, 5000);
+    }, 2000);
   }
 }
 

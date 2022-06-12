@@ -12,7 +12,8 @@ class Button extends HTMLElement {
     <button class="root"></button>
     `;
 
-    this.shadow.querySelector(".root").textContent = this.textContent || "ups!";
+    const button = this.shadow.querySelector(".root") as any;
+    button.textContent = this.textContent || "ups!";
 
     style.innerHTML = `
       .root{
@@ -21,15 +22,16 @@ class Button extends HTMLElement {
         padding: 17px 13px;
         background-color:#006CFC;
         color:#D8FCFC;
-        width: 90vw;
+        min-width: 600px;
         border: 10px solid #001997;
         border-radius: 4px;
         animation: lower .4s ease ;
+        margin:auto;
       }
-      @media screen and (min-width: 960px){
+      @media screen and (max-width: 600px){
         .root{
-          max-width: 600px;
-          margin: 0 auto;
+          min-width: 90vw;
+          margin:0 5vw;
         }
       }
       @keyframes lower{

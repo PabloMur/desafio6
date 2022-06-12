@@ -12,4 +12,4 @@ import "./components/scoreComp";
 import "./components/starComp";
 import "./components/welcome-form/index";
 import "./components/questionary/index";
-import "./components/access-button/index";
+import "./components/replay/index";

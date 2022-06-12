@@ -17,14 +17,12 @@ import { state } from "./state";
       rtdbRoomId: "",
       roomCreator: "",
       rtdbData: {
-        replay: false,
         playerOne: {
           nombre: "playerOne",
           choice: "none",
           start: false,
           online: true,
           creator: true,
-          score: 0,
         },
         playerTwo: {
           nombre: "playerTwo",
@@ -32,10 +30,14 @@ import { state } from "./state";
           start: false,
           online: false,
           creator: false,
-          score: 0,
         },
       },
       result: "",
+      score: {
+        playerOne: 0,
+        playerTwo: 0,
+      },
+      replay: false,
     });
   }
 })();

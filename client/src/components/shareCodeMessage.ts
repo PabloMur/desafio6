@@ -1,21 +1,16 @@
 import { state } from "../state";
 class ShareCodeMessage extends HTMLElement {
-  roomId: string;
+  roomId: string = "0000";
+  shadow: ShadowRoot;
 
-  connectedCallback() {
-    state.subscribe(() => {
-      this.syncWhithState();
-    });
-    this.syncWhithState();
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
-  syncWhithState() {
-    const cs = state.getState();
-    this.roomId = cs.roomId;
-    this.render();
-  }
+
   render() {
     const style = document.createElement("style");
-    this.innerHTML = `
+    this.shadow.innerHTML = `
         <div class="message-container">
           <p>Comparte este codigo con tu contrincante:</p> 
           <h3 class="code">${this.roomId}</h3> 
@@ -41,7 +36,18 @@ class ShareCodeMessage extends HTMLElement {
       }
     `;
 
-    this.appendChild(style);
+    this.shadow.appendChild(style);
+  }
+  syncWhithState() {
+    this.render();
+    const cs = state.getState();
+    this.roomId = cs.roomId;
+  }
+  connectedCallback() {
+    state.subscribe(() => {
+      this.syncWhithState();
+    });
+    this.syncWhithState();
   }
 }
 customElements.define("custom-share-code-message", ShareCodeMessage);

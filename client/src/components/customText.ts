@@ -16,16 +16,24 @@ class CustomText extends HTMLElement {
             font-weight: bold;
             color: #009048;
             transition: all 3s ease;
-        }
-        @media (max-width:600px){
-          .title{
-            text-align:center;
           }
-        }
-        .body{
+          @media (max-width:600px){
+            .title{
+              width: 90%;
+              margin: 0 auto;
+            }
+          }
+          .body{
+            text-align:center;
+            color: black;
             font-size: 30px;
             max-width: 600px;
             margin-bottom: 20px;
+        }@media (max-width:600px){
+          .body{
+            width: 90%;
+            margin: 0 auto;
+          }
         }
       `;
     div.className = variant;

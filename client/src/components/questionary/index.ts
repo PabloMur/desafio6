@@ -1,6 +1,7 @@
 import { state } from "../../state";
 import { Router } from "@vaadin/router";
 
+
 class Questinary extends HTMLElement {
   shadow: ShadowRoot;
   constructor() {
@@ -17,8 +18,8 @@ class Questinary extends HTMLElement {
   }
   addListeners() {
     this.render();
-    const crear = this.shadow.querySelector(".crear");
-    const probar = this.shadow.querySelector(".test");
+    const crear = this.shadow.querySelector(".crear") as any;
+    const probar = this.shadow.querySelector(".test") as any;
 
     probar.addEventListener("click", function () {
       Router.go("/access-room");
@@ -28,7 +29,9 @@ class Questinary extends HTMLElement {
       Router.go("/game-room");
       state.signIn(() => {
         state.askNewGameRoom(() => {
-          state.accesToGameRoom();
+          state.accesToGameRoom(() => {
+            state.listenRTDBData();
+          });
         });
       });
     });

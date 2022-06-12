@@ -12,20 +12,20 @@ class instructions extends HTMLElement {
     const style = document.createElement("style");
     this.shadow.innerHTML = `
           <div class="contenedor">
-            <p class="instructions">
-                Presioná jugar y elegí: piedra, papel o tijera antes de que pasen los 3 segundos.
+            <custom-text>
+                Presioná jugar y elegí: piedra, papel o tijera antes de que pasen los 3 segundos.<br>
                 Suerte!
-            </p>
+            </custom-text>
             <custom-button class="play-button">Jugar!</custom-button>
           </div>
         `;
     style.innerHTML = `
     .contenedor{
-      height: 60vh;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
-
+      justify-content: center;
+      align-items:center;
     }
     .instructions{
       font-size: 45px;
@@ -48,7 +48,7 @@ class instructions extends HTMLElement {
   userIsReady() {
     this.render();
     const cs = state.getState();
-    const playButton = this.shadow.querySelector(".play-button");
+    const playButton = this.shadow.querySelector(".play-button") as any;
 
     playButton.addEventListener("click", () => {
       if (cs.roomCreator) {

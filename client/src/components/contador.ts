@@ -3,7 +3,7 @@ import { state } from "../state";
 
 class Contador extends HTMLElement {
   shadow: ShadowRoot;
-  cuentaRegresiva: number = 6;
+  cuentaRegresiva: number = 10;
   constructor() {
     super();
     this.shadow = this.attachShadow({ mode: "open" });
@@ -38,36 +38,34 @@ class Contador extends HTMLElement {
   }
   cuentaAtras() {
     this.render();
-    const contador = this.shadow.querySelector(".contador");
 
-    let setIN = setInterval(() => {
+    const setIN = setInterval(() => {
+      const contador = this.shadow.querySelector(".contador") as any;
       const cs = state.getState();
-      const dataRealtime = cs.rtdbData;
 
       const terminoTiempo = this.cuentaRegresiva == 0;
-      const noElegioNada =
-        dataRealtime.playerOne.choice == "none" ||
-        dataRealtime.playerTwo.choice == "none";
 
-      if (terminoTiempo && noElegioNada) {
-        if (cs.roomCreator) {
-          cs.score.guest++;
-        } else {
-          cs.score.local++;
-        }
-        cs.result = "perdiste";
+      const soyPlayerOneYNoEleginada =
+        cs.roomCreator && cs.rtdbData.playerOne.choice == "none";
+      const soyPlayerTwoYNoElegiNada =
+        !cs.roomCreator && cs.rtdbData.playerTwo.choice == "none";
+
+      if (terminoTiempo && soyPlayerOneYNoEleginada) {
         clearInterval(setIN);
+        cs.score.playerTwo++;
+        cs.result = "perdiste";
+        state.setState(cs);
+        Router.go("/result");
+      }
+      if (terminoTiempo && soyPlayerTwoYNoElegiNada) {
+        clearInterval(setIN);
+        cs.score.playerOne++;
+        cs.result = "perdiste";
+        state.setState(cs);
         Router.go("/result");
       }
 
-      if (
-        (cs.choice != "none" && cs.contrincanteChoice == "none") ||
-        (cs.contrincanteChoice != "none" && cs.choice == "none")
-      ) {
-        clearInterval(setIN);
-        Router.go("/before-comparition");
-      }
-      contador.innerHTML = this.cuentaRegresiva.toString();
+      contador.innerHTML = `${this.cuentaRegresiva}`;
       this.cuentaRegresiva--;
     }, 1000);
   }

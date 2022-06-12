@@ -1,19 +1,22 @@
 import { state } from "../state";
 
 class MuestraJugada extends HTMLElement {
-  connectedCallback() {
-    this.render();
+  shadow: ShadowRoot;
+  constructor() {
+    super();
+    this.shadow = this.attachShadow({ mode: "open" });
   }
   render() {
     const cs = state.getState();
+    const dataRealtime = cs.rtdbData;
     const style = document.createElement("style");
-    this.innerHTML = `
-      <game-option class="playerOneMove" variant=${cs.rtdbData.playerOne.choice}></game-option>
-      <game-option class="playerTwoMove" variant=${cs.rtdbData.playerTwo.choice}></game-option>
-    `;
-    this.className = "contenedor";
 
-    state.whoWins(cs.rtdbData.playerOne.choice, cs.rtdbData.playerTwo.choice);
+    this.shadow.innerHTML = `
+      <div class="contenedor">
+        <game-option class="playerOneMove" variant=${cs.rtdbData.playerOne.choice}></game-option>
+        <game-option class="playerTwoMove" variant=${cs.rtdbData.playerTwo.choice}></game-option>
+      </div>
+    `;
 
     style.innerHTML = `
     .contenedor{
@@ -60,7 +63,13 @@ class MuestraJugada extends HTMLElement {
         }
       }
     `;
-    this.appendChild(style);
+    this.shadow.appendChild(style);
+  }
+  connectedCallback() {
+    state.subscribe(() => {
+      this.render();
+    });
+    this.render();
   }
 }
 

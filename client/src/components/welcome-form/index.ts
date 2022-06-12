@@ -89,7 +89,7 @@ class WelcomeForm extends HTMLElement {
   }
   addListeners() {
     this.render();
-    const form = this.shadow.querySelector(".form");
+    const form = this.shadow.querySelector(".form") as any;
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const target = e.target as any;

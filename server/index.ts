@@ -11,7 +11,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 
 app.post("/signup", async (req, res) => {
   // Este endopoint nos habilita un nuevo usuario en firestore. Y nos retorna su id
@@ -53,22 +53,6 @@ app.post("/auth", async (req, res) => {
   }
 });
 
-// app.post("/player", (req, res) => {
-//   const { nombre } = req.body;
-
-//   playersCollection.add({ nombre }).then((newPlayerRef) => {
-//     playersCollection.doc(newPlayerRef.id).update({
-//       id: newPlayerRef.id,
-//     });
-
-//     res.json({
-//       nombre,
-//       id: newPlayerRef.id,
-//       new: true,
-//     });
-//   });
-// });
-
 app.patch("/player-guest", async (req, res) => {
   const { nombre, rtdbGameRoomId } = req.body;
   const gameRoomRef = rtdb.ref(
@@ -97,17 +81,13 @@ app.post("/game-rooms", async (req, res) => {
           nombre: nombre,
           choice: "none",
           start: false,
-          online: true,
           creator: true,
-          score: 0,
         },
         playerTwo: {
           nombre: "playerTwo",
           choice: "none",
           start: false,
-          online: false,
           creator: false,
-          score: 0,
         },
       },
     });
@@ -148,32 +128,6 @@ app.get("/game-rooms/:roomId", async (req, res) => {
   }
 });
 
-// app.post("/online", (req, res) => {
-//   const { player, rtdbRoomId } = req.body;
-//   if (player == "local") {
-//     const gameRoomRef = rtdb.ref(
-//       `gamerooms/${rtdbRoomId}/currentGame/playerOne`
-//     );
-//     gameRoomRef
-//       .update({
-//         online: true,
-//       })
-//       .then(() => {
-//         res.json({ message: "player One is online" });
-//       });
-//   } else if (player == "guest") {
-//     const gameRoomRef = rtdb.ref(
-//       `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
-//     );
-//     gameRoomRef
-//       .update({
-//         online: true,
-//       })
-//       .then(() => {
-//         res.json({ message: "player Two is online" });
-//       });
-//   }
-// });
 
 app.patch("/start", async (req, res) => {
   //en player recibe "playerOne" o "playerTwo" segun el caso
@@ -185,17 +139,6 @@ app.patch("/start", async (req, res) => {
   res.json({ message: `${player} is ready` });
 });
 
-app.patch("/unstart", async (req, res) => {
-  //en player recibe "playerOne" o "playerTwo" segun el caso
-  const { player, rtdbRoomId } = req.body;
-  const gameRoomRef = rtdb.ref(`gamerooms/${rtdbRoomId}/currentGame/${player}`);
-  await gameRoomRef.update({
-    start: false,
-  });
-
-  res.json({ message: "player One is ready for an other game" });
-});
-
 app.patch("/choice", async (req, res) => {
   //en player recibe "playerOne" o "playerTwo" segun el caso
   const { player, rtdbRoomId, choice } = req.body;
@@ -205,45 +148,63 @@ app.patch("/choice", async (req, res) => {
 
   res.json({ message: `${player} eligio: ${choice}` });
 });
-app.get("/choice", (req, res) => {
-  app.post("/replay", (req, res) => {
-    const { rtdbRoomId } = req.body;
-    const gameRoomRef = rtdb.ref(`gamerooms/${rtdbRoomId}/`);
-    gameRoomRef
-      .update({
-        replay: true,
-      })
-      .then(() => {
-        res.json({ message: "player wants to play again" });
-      });
-  });
 
-  let { localOrGuest, rtdbRoomId } = req.body;
-  if (localOrGuest == "local") {
-    const playerChoiceRef = rtdb.ref(
-      `gamerooms/${rtdbRoomId}/currentGame/playerOne`
-    );
-    playerChoiceRef.get().then((data) => {
-      const response = data.val();
-      res.json(response.choice);
-    });
-  } else if ((localOrGuest = "guest")) {
-    const playerChoiceRef = rtdb.ref(
-      `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
-    );
-    playerChoiceRef.get().then((data) => {
-      const response = data.val();
-      res.json(response.choice);
-    });
-  }
+app.get("/choice", async (req, res) => {
+  const { player, rtdbRoomId } = req.body;
+
+  const playerChoiceRef = rtdb.ref(
+    `gamerooms/${rtdbRoomId}/currentGame/${player}`
+  );
+  const response = await playerChoiceRef.get();
+  const data = response.val().choice;
+  res.json(data);
+});
+
+app.patch("/replay", async (req, res) => {
+  const { rtdbRoomId } = req.body;
+
+  const updateData = {
+    choice: "none",
+    start: false,
+  };
+
+  const playerOneReseting = rtdb.ref(
+    `gamerooms/${rtdbRoomId}/currentGame/playerOne`
+  );
+  const playerTwoReseting = rtdb.ref(
+    `gamerooms/${rtdbRoomId}/currentGame/playerTwo`
+  );
+  const replayRef = rtdb.ref(`gamerooms/${rtdbRoomId}/currentGame`);
+
+  await playerOneReseting.update({
+    choice: "none",
+    start: false,
+  });
+  await playerTwoReseting.update({
+    choice: "none",
+    start: false,
+  });
+  await replayRef.update({ replay: true });
+
+  res.json({ message: "players ready para volver a jugar" });
+});
+
+app.patch("/clear-replay", async (req, res) => {
+  const { rtdbRoomId } = req.body;
+  const cleaningreplayRef = rtdb.ref(`gamerooms/${rtdbRoomId}/currentGame`);
+  await cleaningreplayRef.update({ replay: false });
+  res.json({
+    message: "Replay back to false",
+  });
 });
 
 app.patch("/last-score/:roomId", async (req, res) => {
   const { roomId } = req.params;
   const { lastScore } = req.body;
-  await gameRoomsCollection.doc(roomId.toString()).update({
+  const score = {
     score: { playerOne: lastScore.one, playerTwo: lastScore.two },
-  });
+  };
+  await gameRoomsCollection.doc(roomId.toString()).update(score);
   res.json({
     message: "score actualizado",
   });

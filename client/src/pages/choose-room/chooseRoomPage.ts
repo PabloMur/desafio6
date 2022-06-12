@@ -40,9 +40,9 @@ class ChoosePage extends HTMLElement {
     this.render();
     const cs = state.getState();
 
-    const tijera = this.shadow.querySelector(".tijera");
-    const papel = this.shadow.querySelector(".papel");
-    const piedra = this.shadow.querySelector(".piedra");
+    const tijera = this.shadow.querySelector(".tijera") as any;
+    const papel = this.shadow.querySelector(".papel") as any;
+    const piedra = this.shadow.querySelector(".piedra") as any;
 
     tijera.addEventListener("click", () => {
       if (cs.roomCreator) {
