@@ -11,33 +11,28 @@ import { state } from "./state";
     //Router.go("/game-room");
   } else {
     state.setState({
-      nombre: "",
       userId: "",
       roomId: "",
       rtdbRoomId: "",
       roomCreator: "",
       rtdbData: {
+        replay: false,
         playerOne: {
           nombre: "playerOne",
           choice: "none",
           start: false,
-          online: true,
           creator: true,
+          score: 0,
         },
         playerTwo: {
           nombre: "playerTwo",
           choice: "none",
           start: false,
-          online: false,
           creator: false,
+          score: 0,
         },
       },
       result: "",
-      score: {
-        playerOne: 0,
-        playerTwo: 0,
-      },
-      replay: false,
     });
   }
 })();

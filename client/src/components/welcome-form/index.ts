@@ -9,48 +9,81 @@ class WelcomeForm extends HTMLElement {
   }
   render() {
     const style = document.createElement("style");
-    this.shadow.innerHTML = `
+    this.shadow.innerHTML = ` 
+
       <div class="form-container">
         <form class="form">
-          <div>
+          <div class="input-container">
             <label class="label">Tu Email</label>
+            <input type="text" name="email" class="input">
           </div>
-          <input type="text" name="email" class="input">
-          <div>
+          <div class="input-container">
             <label class="label">Tu Nombre</label>
+            <input type="text" name="nombre" class="input">
           </div>
-          <input type="text" name="nombre" class="input">
-          <div>
-            <button class="form-button">Comenzar</button>
-          </div>
+          <button class="form-button">Comenzar</button> 
         </form>
-      </div>
+      </>
     `;
     style.innerHTML = `
     .form-container{
-      height: 95vh;
+      height: 70vh;
       width: 100%;
+      margin: 0 auto;
+    }
+
+    @media(max-width:600px){
+      .form-container{
+        max-width: 90vw;
+        margin: 0 5vw;
+        overflow: hidden;
+        height: 50vh;
+      }
+    }
+
+    .form{
+      height: 100%;
+      width: 600px;
       margin: 0;
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
-      align-items: center;
+      justify-content: center;
+      align-items:center;
+    } 
+    @media(max-width: 600px){
+      .form{
+        width: 90vw;
+      }
     }
+
+    .input-container{
+      width: 100%;
+      margin: 20px auto 0 auto;
+    }
+
     .input{
-      width: 600px;
-      height: 11.5vh;
+      width: 99%;
+      height: 35px;
       color: white;
       font-size: 20px;
       background: #006CFC;
-      border: 10px solid #001997;
+      border:none;
       border-radius: 4px;
       text-align: center;
+      margin: 0 auto;
+    }
+
+    @media(max-width: 600px){
+      .input-container{
+        width: 90vw;
+      }
     }
 
     label{
       margin: 10px;
       font-size: 20px;
       font-family: sans-serif;
+      
     }
     button {
       font-size: 18px;
@@ -58,16 +91,16 @@ class WelcomeForm extends HTMLElement {
       padding: 17px 13px;
       background-color: #006CFC;
       color: #D8FCFC;
-      width: 90vw;
+      width: 600px;
       border: 10px solid #001997;
       border-radius: 4px;
       animation: lower .4s ease;
+      margin: 20px auto 0 auto;
     }
     
-    @media screen and (min-width: 960px) {
+    @media(max-width: 600px) {
       button {
-        max-width: 600px;
-        margin: 0 auto;
+        width: 90vw;
       }
     }
     

@@ -1,10 +1,6 @@
 import { state } from "../state";
 
 class ScoreComp extends HTMLElement {
-  playerOneScore: number = 0;
-  playerOneName: string;
-  playerTwoScore: number = 0;
-  playerTwoName: string;
   shadow: ShadowRoot;
 
   constructor() {
@@ -17,8 +13,7 @@ class ScoreComp extends HTMLElement {
     this.shadow.innerHTML = `
         <div class="score-container">
          <custom-text>Score</custom-text>
-         <custom-text>${this.playerOneName} : ${this.playerOneScore}</custom-text>
-         <custom-text>${this.playerTwoName} : ${this.playerTwoScore}</custom-text>
+         <custom-marcador>Score</custom-marcador>
         </div>    
         `;
     style.innerHTML = `
@@ -42,17 +37,11 @@ class ScoreComp extends HTMLElement {
     this.shadow.appendChild(style);
   }
 
-  sync() {
-    const cs = state.getState();
-    this.playerOneName = cs.rtdbData.playerOne.nombre;
-    this.playerOneScore = cs.score.playerOne;
-    this.playerTwoName = cs.rtdbData.playerTwo.nombre;
-    this.playerTwoScore = cs.score.playerTwo;
-    this.render();
-  }
-
   connectedCallback() {
-    this.sync();
+    state.subscribe(() => {
+      this.render();
+    });
+    this.render();
   }
 }
 customElements.define("custom-score", ScoreComp);

@@ -20,7 +20,9 @@ class CustomText extends HTMLElement {
           @media (max-width:600px){
             .title{
               width: 90%;
+              font-size:70px;
               margin: 0 auto;
+              text-align: center;
             }
           }
           .body{

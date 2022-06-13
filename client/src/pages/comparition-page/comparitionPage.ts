@@ -1,4 +1,5 @@
 import { Router } from "@vaadin/router";
+import { state } from "../../state";
 
 class ComparitionPage extends HTMLElement {
   shadow: ShadowRoot;
@@ -13,8 +14,15 @@ class ComparitionPage extends HTMLElement {
   }
   connectedCallback() {
     this.render();
-    setTimeout(function () {
-      Router.go("/result");
+    const cs = state.getState();
+    setTimeout(() => {
+      state.whoWins(
+        cs.rtdbData.playerOne.choice,
+        cs.rtdbData.playerTwo.choice,
+        () => {
+          Router.go("/result");
+        }
+      );
     }, 2000);
   }
 }

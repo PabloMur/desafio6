@@ -3,8 +3,8 @@ class Marcador extends HTMLElement {
   shadow: ShadowRoot;
   playerOneName: string;
   playerTwoName: string;
-  playerOneScore: number;
-  playerTwoScore: number;
+  playerOneScore: number = 0;
+  playerTwoScore: number = 0;
 
   constructor() {
     super();
@@ -47,11 +47,11 @@ class Marcador extends HTMLElement {
 
     //playerOne name and score
     this.playerOneName = data.playerOne.nombre;
-    this.playerOneScore = lastState.score.playerOne;
+    this.playerOneScore = data.playerOne.score;
 
     //playerOne name and score
     this.playerTwoName = data.playerTwo.nombre;
-    this.playerTwoScore = lastState.score.playerTwo;
+    this.playerTwoScore = data.playerTwo.score;
 
     this.render();
   }

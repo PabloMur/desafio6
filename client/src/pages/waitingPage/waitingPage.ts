@@ -43,8 +43,14 @@ class WaitingPage extends HTMLElement {
       const playerTwoNoEligio = !playerTwoEligio;
 
       if (
-        (this.cuentaRegresiva == 0 && playerOneNoEligio && playerTwoEligio) ||
-        (this.cuentaRegresiva == 0 && playerOneEligio && playerTwoNoEligio)
+        (!cs.roomCreator &&
+          this.cuentaRegresiva == 0 &&
+          playerOneNoEligio &&
+          playerTwoEligio) ||
+        (cs.roomCreator &&
+          this.cuentaRegresiva == 0 &&
+          playerOneEligio &&
+          playerTwoNoEligio)
       ) {
         clearInterval(setIN);
         Router.go("/result");
@@ -55,33 +61,6 @@ class WaitingPage extends HTMLElement {
       this.cuentaRegresiva--;
     }, 1000);
   }
-  // const cs = state.getState();
-  // const dataRealtime = cs.rtdbData;
-  // const terminoTiempo = this.cuentaRegresiva == 0;
-  // const soyPlayerOne = cs.roomCreator;
-  // const soyPlayerTwo = !soyPlayerOne;
-  // const playerOneNoEligio = (dataRealtime.playerOne.choice = "none");
-  // const playerTwoNoEligio = (dataRealtime.playerTwo.choice = "none");
-  // const ambosElegimos =
-  //   dataRealtime.playerOne.choice != "none" &&
-  //   dataRealtime.playerTwo.choice != "none";
-
-  // if (ambosElegimos) {
-  //   clearInterval(setIN);
-  //   Router.go("/comparition");
-  // } else if (terminoTiempo && soyPlayerOne && playerTwoNoEligio) {
-  //   clearInterval(setIN);
-  //   cs.score.playerOne++;
-  //   cs.result = "ganaste";
-  //   state.setState(cs);
-  //   Router.go("/result");
-  // } else if (terminoTiempo && soyPlayerTwo && playerOneNoEligio) {
-  //   clearInterval(setIN);
-  //   cs.score.playerTwo++;
-  //   cs.result = "ganaste";
-  //   state.setState(cs);
-  //   Router.go("/result");
-  // }
 
   connectedCallback() {
     this.asksIfTheOtherPlayerChoosed();

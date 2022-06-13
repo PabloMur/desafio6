@@ -3,22 +3,16 @@ type move = "piedra" | "papel" | "tijera";
 type player = "playerOne" | "playerTwo";
 
 const API_BASE = "http://localhost:3000";
-import { rtdb } from "./rtdb";
+import { rtdb, ref, onValue } from "./rtdb";
 
 const state = {
   data: {
-    nombre: "",
     userId: "",
     roomId: "",
     rtdbRoomId: "",
     roomCreator: "",
     rtdbData: {},
     result: "",
-    score: {
-      playerOne: 0,
-      playerTwo: 0,
-    },
-    replay: "",
   },
   listeners: [],
 
@@ -28,14 +22,11 @@ const state = {
   },
 
   listenRTDBData() {
-    const currentState = this.getState();
-    const gameRoomRef = rtdb.ref(
-      "/gamerooms/" + currentState.rtdbRoomId + "/currentGame"
-    );
-    gameRoomRef.on("value", (snapshot) => {
+    const cs = this.getState();
+    const gameRoomRef = ref(rtdb, `/gamerooms/${cs.rtdbRoomId}/currentGame`);
+    onValue(gameRoomRef, (snapshot) => {
       const data = snapshot.val();
-      currentState.rtdbData = data;
-      this.setState(currentState);
+      this.setState({ ...cs, rtdbData: data });
     });
   },
 
@@ -62,53 +53,6 @@ const state = {
   subscribe(callback: (any) => any) {
     this.listeners.push(callback);
   },
-
-  whoWins(localMove: move, guestMove: move, callback) {
-    const cs = state.getState();
-
-    const pOneGanaConTijeras = localMove == "tijera" && guestMove == "papel";
-    const pOneGanaConPiedra = localMove == "piedra" && guestMove == "tijera";
-    const pOnelGanaConPapel = localMove == "papel" && guestMove == "piedra";
-
-    const pTwoGanaConTijeras = localMove == "tijera" && guestMove == "piedra";
-    const pTwoGanaConPapel = localMove == "papel" && guestMove == "tijera";
-    const pTwoGanaConPiedra = localMove == "piedra" && guestMove == "papel";
-
-    const ganaPlayerOne = [
-      pOneGanaConPiedra,
-      pOnelGanaConPapel,
-      pOneGanaConTijeras,
-    ].includes(true);
-
-    const ganaPlayerTwo = [
-      pTwoGanaConTijeras,
-      pTwoGanaConPapel,
-      pTwoGanaConPiedra,
-    ].includes(true);
-
-    const empate = localMove && guestMove;
-    const iAmLocal = cs.roomCreator;
-
-    if (ganaPlayerOne) {
-      cs.score.playerOne++;
-      cs.result = iAmLocal ? "ganaste" : "perdiste";
-      state.setState(cs);
-    }
-    if (ganaPlayerTwo) {
-      cs.score.playerTwo++;
-      cs.result = iAmLocal ? "perdiste" : "ganaste";
-      state.setState(cs);
-    }
-    if (empate) {
-      cs.result = "empataste";
-      state.setState(cs);
-    }
-    callback();
-  },
-
-  // pushToHistory(currentGame) {
-  //   return this.data.history.push(currentGame);
-  // },
 
   async createPlayer(cb?) {
     try {
@@ -141,33 +85,24 @@ const state = {
   },
 
   async guestPlayer(callback?) {
-    try {
-      const cs = this.getState();
-      const rtdbGameRoomId = cs.rtdbRoomId;
-      const nombre = cs.nombre;
-      console.log(rtdbGameRoomId);
+    const cs = this.getState();
+    const rtdbGameRoomId = cs.rtdbRoomId;
+    const nombre = cs.nombre;
 
-      const fetching = await fetch(API_BASE + "/player-guest", {
-        mode: "cors",
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nombre: nombre,
-          rtdbGameRoomId: rtdbGameRoomId,
-        }),
-      });
+    await fetch(API_BASE + "/player-guest", {
+      mode: "cors",
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nombre: nombre,
+        rtdbGameRoomId: rtdbGameRoomId,
+      }),
+    });
 
-      const response = await fetching.json();
-
-      if (callback) {
-        callback();
-      } else {
-        console.log("Error");
-      }
-    } catch (error) {
-      console.error(error);
+    if (callback) {
+      callback();
     }
   },
 
@@ -175,7 +110,7 @@ const state = {
     const cs = this.getState();
 
     if (cs.email) {
-      const fetchedData = await fetch(API_BASE + "/auth", {
+      const fetchedData = await fetch(API_BASE + "/authorize", {
         mode: "cors",
         method: "POST",
         headers: {
@@ -218,28 +153,24 @@ const state = {
   },
 
   async accesToGameRoom(callback?) {
-    try {
-      const cs = this.getState();
-      const roomId = cs.roomId;
-      const userId = cs.userId;
-      const requestAccesing = await fetch(
-        API_BASE + "/game-rooms/" + roomId + "?userId=" + userId
-      );
-      const data = await requestAccesing.json();
-      cs.rtdbRoomId = data;
-      cs.roomId = roomId;
-      this.setState(cs);
-      this.listenRTDBData();
+    const cs = this.getState();
+    const roomId = cs.roomId;
+    const userId = cs.userId;
+    const requestAccesing = await fetch(
+      API_BASE + "/game-rooms/" + roomId + "?userId=" + userId
+    );
+    const data = await requestAccesing.json();
+    cs.rtdbRoomId = data;
+    cs.roomId = roomId;
+    this.setState(cs);
+    this.listenRTDBData();
 
-      if (callback) {
-        callback();
-      }
-    } catch (err) {
-      console.error(err);
+    if (callback) {
+      callback();
     }
   },
 
-  async playerIsReady(localOrGuest: player) {
+  async playerIsReady(localOrGuest: player, callback?) {
     //recibe "playerOne" o "playerTwo"
     const cs = this.getState();
     const request = await fetch(API_BASE + "/start", {
@@ -253,7 +184,9 @@ const state = {
         rtdbRoomId: cs.rtdbRoomId,
       }),
     });
-    const response = await request.json();
+    if (callback) {
+      callback();
+    }
   },
 
   async playersChoice(localOrGuest: player, choice: move, callback?) {
@@ -313,52 +246,79 @@ const state = {
       callback();
     }
   },
-
-  async setScoreFirestore(cb?) {
-    //osea que estamos guardando el ultimo score en la base de datos de firestore
+  async growScore(player: player, callback?) {
     const cs = this.getState();
-    const dataRealtime: any = cs.rtdbData;
-    const roomid: string = cs.roomId;
-    const scorePlayerOne: number = dataRealtime.playerOne.score;
-    const scorePlayerTwo: number = dataRealtime.playerTwo.score;
-    const urlForFetch = `${API_BASE}/last-score/${roomid}`;
-    const lastScore = {
-      one: scorePlayerOne,
-      two: scorePlayerTwo,
-    };
-    await fetch(urlForFetch, {
+    const rtdbRoomId = cs.rtdbRoomId;
+    const score = cs.roomCreator
+      ? cs.rtdbData.playerOne.score
+      : cs.rtdbData.playerTwo.score;
+    await fetch(API_BASE + "/grow-score", {
       mode: "cors",
       method: "PATCH",
       headers: {
-        "Content-Type": "application/json",
+        "Content-type": "application/json",
       },
       body: JSON.stringify({
-        lastScore: lastScore,
+        player: player,
+        rtdbRoomId: rtdbRoomId,
+        score: score + 1,
       }),
     });
+    if (callback) {
+      callback();
+    }
   },
 
-  async getScoreFirestore(callback?) {
+  whoWins(localMove: move, guestMove: move, callback) {
     const cs = this.getState();
-    const dataRealtime: any = cs.rtdbData;
-    const roomid: string = cs.roomId;
-    const scorePlayerOne: number = dataRealtime.playerOne.score;
-    const scorePlayerTwo: number = dataRealtime.playerTwo.score;
-    const urlForFetch = `${API_BASE}/last-score/${roomid}`;
-    const lastScore = {
-      one: scorePlayerOne,
-      two: scorePlayerTwo,
-    };
-    await fetch(urlForFetch, {
-      mode: "cors",
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        lastScore: lastScore,
-      }),
-    });
+
+    const pOneGanaConTijeras = localMove == "tijera" && guestMove == "papel";
+    const pOneGanaConPiedra = localMove == "piedra" && guestMove == "tijera";
+    const pOnelGanaConPapel = localMove == "papel" && guestMove == "piedra";
+
+    const pTwoGanaConTijeras = localMove == "papel" && guestMove == "tijera";
+    const pTwoGanaConPapel = localMove == "piedra" && guestMove == "papel";
+    const pTwoGanaConPiedra = localMove == "tijera" && guestMove == "piedra";
+
+    const ganaPlayerOne = [
+      pOneGanaConPiedra,
+      pOnelGanaConPapel,
+      pOneGanaConTijeras,
+    ].includes(true);
+
+    const ganaPlayerTwo = [
+      pTwoGanaConTijeras,
+      pTwoGanaConPapel,
+      pTwoGanaConPiedra,
+    ].includes(true);
+
+    const empate = localMove && guestMove;
+    const iAmLocal = cs.roomCreator;
+
+    if (ganaPlayerOne) {
+      if (iAmLocal) {
+        state.growScore("playerOne", function () {
+          state.setState({ ...cs, result: "ganaste" });
+          callback();
+        });
+      } else {
+        state.setState({ ...cs, result: "perdiste" });
+        callback();
+      }
+    } else if (ganaPlayerTwo) {
+      if (iAmLocal) {
+        state.setState({ ...cs, result: "perdiste" });
+        callback();
+      } else {
+        state.growScore("playerTwo", function () {
+          state.setState({ ...cs, result: "ganaste" });
+          callback();
+        });
+      }
+    } else if (empate) {
+      this.setState({ ...cs, result: "empataste" });
+      callback();
+    }
   },
 };
 

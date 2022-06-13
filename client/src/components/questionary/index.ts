@@ -15,6 +15,19 @@ class Questinary extends HTMLElement {
                 <custom-button class="test">Ingresar a una Sala</custom-button>
             </div>
         `;
+    const style = document.createElement("style") as any;
+    style.innerHTML = `
+      .container{
+        display:flex;
+        flex-direction: column;
+        justify-content:center;
+        align-items:center;
+      }
+      custom-button{
+        margin:10px;
+      }
+    `;
+    this.shadow.appendChild(style);
   }
   addListeners() {
     this.render();
@@ -26,11 +39,10 @@ class Questinary extends HTMLElement {
     });
 
     crear.addEventListener("click", () => {
-      Router.go("/game-room");
       state.signIn(() => {
         state.askNewGameRoom(() => {
           state.accesToGameRoom(() => {
-            state.listenRTDBData();
+            Router.go("/game-room");
           });
         });
       });

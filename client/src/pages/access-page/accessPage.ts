@@ -55,13 +55,38 @@ class AccessRoomPage extends HTMLElement {
         justify-content: space-around;
         align-items: center;
       }
+      .form{
+        height: 50vh;
+        width: 600px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      @media(max-width: 600px){
+        .form{
+          
+          width: 90vw;
+        }
+      }
       .code{
-        width: 57%;
-        height: 10vh;
-        border: 5px solid blue;
-        border-radius: 5px;
+        width: 100%;
+        height: 45px;
+        border-radius: 15px;
+        border:none;
         padding: 7px;
         text-align: center;
+        box-shadow: 10px 5px 5px black;
+      }
+      .button{
+        width: 103%;
+        height: 60px;
+        background: #006CFC;
+        border: none;
+        border-radius: 15px;
+        margin-top: 20px;
+        color: white;
+        font-size: 20px;
       }
     `;
     this.shadow.appendChild(style);

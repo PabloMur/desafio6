@@ -30,20 +30,26 @@ class ResultPage extends HTMLElement {
   }
   sync() {
     this.render();
-
+    const cs = state.getState();
     const playAgainButton = this.shadow.querySelector(
       ".playAgainButton"
     ) as any;
     playAgainButton.addEventListener("click", async () => {
-      await state.replay(() => {
-        Router.go("/instructions");
-      });
+      if (cs.rtdbData.replay) {
+        await state.cleaningReplay(() => {
+          Router.go("/instructions");
+        });
+      } else {
+        await state.replay(() => {
+          Router.go("/instructions");
+        });
+      }
     });
   }
   connectedCallback() {
-    // state.subscribe(() => {
-    //   this.sync;
-    // });
+    state.subscribe(() => {
+      this.sync;
+    });
     this.sync();
   }
 }

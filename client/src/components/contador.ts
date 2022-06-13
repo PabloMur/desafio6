@@ -36,33 +36,37 @@ class Contador extends HTMLElement {
       `;
     this.shadow.appendChild(style);
   }
-  cuentaAtras() {
-    this.render();
-
+  async cuentaAtras() {
     const setIN = setInterval(() => {
+      this.render();
       const contador = this.shadow.querySelector(".contador") as any;
       const cs = state.getState();
 
       const terminoTiempo = this.cuentaRegresiva == 0;
+      const playerOneNoEligio = cs.rtdbData.playerOne.choice == "none";
+      const playerTwoNoEligio = cs.rtdbData.playerTwo.choice == "none";
 
-      const soyPlayerOneYNoEleginada =
-        cs.roomCreator && cs.rtdbData.playerOne.choice == "none";
-      const soyPlayerTwoYNoElegiNada =
-        !cs.roomCreator && cs.rtdbData.playerTwo.choice == "none";
-
-      if (terminoTiempo && soyPlayerOneYNoEleginada) {
+      if (terminoTiempo) {
         clearInterval(setIN);
-        cs.score.playerTwo++;
-        cs.result = "perdiste";
-        state.setState(cs);
-        Router.go("/result");
-      }
-      if (terminoTiempo && soyPlayerTwoYNoElegiNada) {
+        if (playerOneNoEligio && playerTwoNoEligio) {
+          Router.go("/instructions");
+        }
+        if (cs.roomCreator && playerOneNoEligio) {
+          state.growScore("playerTwo", () => {
+            cs.result = "perdiste";
+            state.setState(cs);
+            Router.go("/result");
+          });
+        }
+        if (!cs.roomCreator && playerTwoNoEligio) {
+          state.growScore("playerOne", () => {
+            cs.result = "perdiste";
+            state.setState(cs);
+            Router.go("/result");
+          });
+        }
+      } else if (!playerOneNoEligio && !playerTwoNoEligio) {
         clearInterval(setIN);
-        cs.score.playerOne++;
-        cs.result = "perdiste";
-        state.setState(cs);
-        Router.go("/result");
       }
 
       contador.innerHTML = `${this.cuentaRegresiva}`;

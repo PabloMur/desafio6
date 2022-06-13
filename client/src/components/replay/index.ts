@@ -53,9 +53,6 @@ class WantReplay extends HTMLElement {
     });
   }
   connectedCallback() {
-    // state.subscribe(() => {
-    //   this.listeners();
-    // });
     this.listeners();
   }
 }

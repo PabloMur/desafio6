@@ -10,18 +10,18 @@ class ChoosePage extends HTMLElement {
   render() {
     const style = document.createElement("style");
     this.shadow.innerHTML = `
-        <div class="container">
+      <div class="container">
           <cuenta-regresiva></cuenta-regresiva>
           <div class="contenedorDeManos">
-            <game-option variant="tijera" class="tijera"></game-option>
-            <game-option variant="papel" class="papel"></game-option>
             <game-option variant="piedra" class="piedra"></game-option>
+            <game-option variant="papel" class="papel"></game-option>
+            <game-option variant="tijera" class="tijera"></game-option>
           </div>
         </div>
       `;
     style.innerHTML = `
     .container{
-      height: 90vh;
+      height: 100vh;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -46,31 +46,37 @@ class ChoosePage extends HTMLElement {
 
     tijera.addEventListener("click", () => {
       if (cs.roomCreator) {
-        state.playersChoice("playerOne", "tijera");
-        Router.go("/waiting");
-      } else if (!cs.roomCreator) {
-        state.playersChoice("playerTwo", "tijera");
-        Router.go("/waiting");
+        state.playersChoice("playerOne", "tijera", () => {
+          Router.go("/waiting");
+        });
+      } else {
+        state.playersChoice("playerTwo", "tijera", () => {
+          Router.go("/waiting");
+        });
       }
     });
 
     papel.addEventListener("click", () => {
       if (cs.roomCreator) {
-        state.playersChoice("playerOne", "papel");
-        Router.go("/waiting");
-      } else if (!cs.roomCreator) {
-        state.playersChoice("playerTwo", "papel");
-        Router.go("/waiting");
+        state.playersChoice("playerOne", "papel", () => {
+          Router.go("/waiting");
+        });
+      } else {
+        state.playersChoice("playerTwo", "papel", () => {
+          Router.go("/waiting");
+        });
       }
     });
 
     piedra.addEventListener("click", () => {
       if (cs.roomCreator) {
-        state.playersChoice("playerOne", "piedra");
-        Router.go("/waiting");
-      } else if (!cs.roomCreator) {
-        state.playersChoice("playerTwo", "piedra");
-        Router.go("/waiting");
+        state.playersChoice("playerOne", "piedra", () => {
+          Router.go("/waiting");
+        });
+      } else {
+        state.playersChoice("playerTwo", "piedra", () => {
+          Router.go("/waiting");
+        });
       }
     });
   }

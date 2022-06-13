@@ -35,6 +35,13 @@ class instructions extends HTMLElement {
       text-align: center;
       animation: fade .7s ease;
     }
+
+    @media(max-width:600px){
+      .play-button{
+        margin-top: 20px;
+      }
+    }
+
     @keyframes fade{
       0%{
         opacity: 0;
@@ -52,11 +59,13 @@ class instructions extends HTMLElement {
 
     playButton.addEventListener("click", () => {
       if (cs.roomCreator) {
-        state.playerIsReady("playerOne");
-        Router.go("/choose-room");
+        state.playerIsReady("playerOne", () => {
+          Router.go("/choose-room");
+        });
       } else if (!cs.roomCreator) {
-        state.playerIsReady("playerTwo");
-        Router.go("/choose-room");
+        state.playerIsReady("playerTwo", () => {
+          Router.go("/choose-room");
+        });
       }
     });
   }

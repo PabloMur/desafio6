@@ -35,7 +35,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post("/auth", async (req, res) => {
+app.post("/authorize", async (req, res) => {
   //este nos da nuestro id de firestore siempre y cuando alguno de los usuario tenga nuestro email
 
   const { email } = req.body;
@@ -82,12 +82,14 @@ app.post("/game-rooms", async (req, res) => {
           choice: "none",
           start: false,
           creator: true,
+          score: 0,
         },
         playerTwo: {
           nombre: "playerTwo",
           choice: "none",
           start: false,
           creator: false,
+          score: 0,
         },
       },
     });
@@ -128,7 +130,6 @@ app.get("/game-rooms/:roomId", async (req, res) => {
   }
 });
 
-
 app.patch("/start", async (req, res) => {
   //en player recibe "playerOne" o "playerTwo" segun el caso
   const { player, rtdbRoomId } = req.body;
@@ -162,11 +163,6 @@ app.get("/choice", async (req, res) => {
 
 app.patch("/replay", async (req, res) => {
   const { rtdbRoomId } = req.body;
-
-  const updateData = {
-    choice: "none",
-    start: false,
-  };
 
   const playerOneReseting = rtdb.ref(
     `gamerooms/${rtdbRoomId}/currentGame/playerOne`
@@ -217,6 +213,19 @@ app.get("/last-score/:roomId", async (req, res) => {
   res.json({
     score: data.score,
   });
+});
+
+app.patch("/grow-score", async (req, res) => {
+  try {
+    const { player, rtdbRoomId, score } = req.body;
+    const ref = rtdb.ref(`gamerooms/${rtdbRoomId}/currentGame/${player}`);
+    await ref.update({ score: score });
+    res.json({
+      message: "aumentado",
+    });
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 //Sirve la carpeta dist creada por parcel

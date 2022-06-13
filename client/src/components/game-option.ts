@@ -1,5 +1,3 @@
-import { state } from "../state";
-
 class GameOption extends HTMLElement {
   imgURL: string;
   connectedCallback() {
@@ -38,12 +36,12 @@ class GameOption extends HTMLElement {
         transition: all .2s ease-in;
       }
       .image{
-        height: 30vh;
+        height: 45vh;
         width: auto;
       }
       @media (max-width: 600px){
         .image{
-          height: 25vh;
+          height: 30vh;
         }
       }
     

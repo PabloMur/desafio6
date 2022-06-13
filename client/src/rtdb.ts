@@ -1,13 +1,14 @@
-import firebase from "firebase";
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, onValue } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "JTDfzonOMV02qaufNecYor20EXITQIeDacrpL6JG",
-  authDomain: "modulo6v3.firebaseapp.com",
-  databaseURL: "https://modulo6v3-default-rtdb.firebaseio.com",
-  projectId: "modulo6v3",
+  apiKey: "3Kqkb9z5Icx2cQvwBSUcnv5NgJw6uemItncCEDaI",
+  authDomain: "mod6v4.firebaseapp.com",
+  databaseURL: "https://mod6v4-default-rtdb.firebaseio.com",
+  projectId: "mod6v4",
 };
 
-const app = firebase.initializeApp(firebaseConfig);
-const rtdb = app.database();
+const app = initializeApp(firebaseConfig);
+const rtdb = getDatabase(app);
 
-export { rtdb };
+export { rtdb, ref, onValue };
