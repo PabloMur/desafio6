@@ -10,16 +10,6 @@ class StarComp extends HTMLElement {
   }
 
   render() {
-    const ganaste = require("url:../img/ganaste.svg");
-    const perdiste = require("url:../img/perdiste.svg");
-    const empataste = require("url:../img/empataste.svg");
-
-    const lastState = state.getState();
-
-    if (lastState.result == "perdiste") this.img = perdiste;
-    if (lastState.result == "ganaste") this.img = ganaste;
-    if (lastState.result == "empataste") this.img = empataste;
-
     this.shadow.innerHTML = `
       <div class="scoreCont">
         <img class="starEl" src=${this.img}/>
@@ -57,11 +47,24 @@ class StarComp extends HTMLElement {
 
     this.shadow.appendChild(style);
   }
+  sync() {
+    const ganaste = require("../img/ganaste.svg");
+    const perdiste = require("../img/perdiste.svg");
+    const empataste = require("../img/empataste.svg");
+
+    const lastState = state.getState();
+
+    if (lastState.result == "perdiste") this.img = perdiste;
+    if (lastState.result == "ganaste") this.img = ganaste;
+    if (lastState.result == "empataste") this.img = empataste;
+
+    this.render();
+  }
   connectedCallback() {
     state.subscribe(() => {
-      this.render();
+      this.sync();
     });
-    this.render();
+    this.sync();
   }
 }
 

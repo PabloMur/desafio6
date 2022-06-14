@@ -22,7 +22,7 @@ class ScoreComp extends HTMLElement {
           margin: 10px auto;
           background: white;
           text-align: center;
-          border: 10px solid blue;
+          border: 10px solid #001997;
           border-radius: 4px;
           display:flex;
           flex-direction:column;

@@ -30,20 +30,14 @@ class ResultPage extends HTMLElement {
   }
   sync() {
     this.render();
-    const cs = state.getState();
+    state.listenRTDBData();
     const playAgainButton = this.shadow.querySelector(
       ".playAgainButton"
     ) as any;
     playAgainButton.addEventListener("click", () => {
-      if (cs.rtdbData.replay) {
-        state.cleaningReplay(() => {
-          Router.go("/instructions");
-        });
-      } else {
-        state.replay(() => {
-          Router.go("/instructions");
-        });
-      }
+      state.replay(() => {
+        Router.go("/instructions");
+      });
     });
   }
   connectedCallback() {
