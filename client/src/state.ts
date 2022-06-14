@@ -1,7 +1,7 @@
 type move = "piedra" | "papel" | "tijera";
 type player = "playerOne" | "playerTwo";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://desafio-mod6.herokuapp.com/";
 import { rtdb, ref, onValue } from "./rtdb";
 
 const state = {
