@@ -10,7 +10,7 @@ class StarComp extends HTMLElement {
   }
 
   render() {
-    const ganaste = require("../img/ganaste.svg") as any;
+    const ganaste = require("url:../img/ganaste.svg") as any;
     const perdiste = require("../img/perdiste.svg") as any;
     const empataste = require("../img/empataste.svg") as any;
 
