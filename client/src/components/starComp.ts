@@ -10,9 +10,9 @@ class StarComp extends HTMLElement {
   }
 
   render() {
-    const ganaste = require("url:../img/ganaste.svg") as any;
-    const perdiste = require("../img/perdiste.svg") as any;
-    const empataste = require("../img/empataste.svg") as any;
+    const ganaste = require("url:../../img/ganaste.svg");
+    const perdiste = require("url:../../img/perdiste.svg");
+    const empataste = require("url:../../img/empataste.svg");
 
     const lastState = state.getState();
 
