@@ -34,22 +34,19 @@ class ResultPage extends HTMLElement {
     const playAgainButton = this.shadow.querySelector(
       ".playAgainButton"
     ) as any;
-    playAgainButton.addEventListener("click", async () => {
+    playAgainButton.addEventListener("click", () => {
       if (cs.rtdbData.replay) {
-        await state.cleaningReplay(() => {
+        state.cleaningReplay(() => {
           Router.go("/instructions");
         });
       } else {
-        await state.replay(() => {
+        state.replay(() => {
           Router.go("/instructions");
         });
       }
     });
   }
   connectedCallback() {
-    state.subscribe(() => {
-      this.sync;
-    });
     this.sync();
   }
 }

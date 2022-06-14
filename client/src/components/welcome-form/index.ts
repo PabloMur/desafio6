@@ -92,10 +92,11 @@ class WelcomeForm extends HTMLElement {
       background-color: #006CFC;
       color: #D8FCFC;
       width: 600px;
-      border: 10px solid #001997;
       border-radius: 4px;
       animation: lower .4s ease;
       margin: 20px auto 0 auto;
+      border: none;
+      box-shadow: 5px 5px 2px #c7c7c7;
     }
     
     @media(max-width: 600px) {
@@ -128,9 +129,9 @@ class WelcomeForm extends HTMLElement {
       const target = e.target as any;
       const email = target.email.value;
       const nombre = target.nombre.value;
-      state.setNombreAndEmail(nombre, email);
       Router.go("/path");
-      await state.createPlayer();
+      state.setNombreAndEmail(nombre, email);
+      state.createPlayer();
     });
   }
   connectedCallback() {

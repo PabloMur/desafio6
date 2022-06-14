@@ -21,6 +21,7 @@ class ComparitionPage extends HTMLElement {
         cs.rtdbData.playerTwo.choice,
         () => {
           Router.go("/result");
+          state.listenRTDBData();
         }
       );
     }, 2000);

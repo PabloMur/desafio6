@@ -41,9 +41,8 @@ class Questinary extends HTMLElement {
     crear.addEventListener("click", () => {
       state.signIn(() => {
         state.askNewGameRoom(() => {
-          state.accesToGameRoom(() => {
-            Router.go("/game-room");
-          });
+          Router.go("/game-room");
+          state.accesToGameRoom();
         });
       });
     });

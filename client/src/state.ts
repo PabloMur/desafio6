@@ -1,4 +1,3 @@
-// const API_BASE = "https://desafio6pm.herokuapp.com";
 type move = "piedra" | "papel" | "tijera";
 type player = "playerOne" | "playerTwo";
 
@@ -297,26 +296,33 @@ const state = {
 
     if (ganaPlayerOne) {
       if (iAmLocal) {
-        state.growScore("playerOne", function () {
+        state.growScore("playerOne", () => {
           state.setState({ ...cs, result: "ganaste" });
+          state.listenRTDBData();
           callback();
         });
-      } else {
+      } else if (!iAmLocal) {
         state.setState({ ...cs, result: "perdiste" });
+        state.listenRTDBData();
         callback();
       }
-    } else if (ganaPlayerTwo) {
-      if (iAmLocal) {
-        state.setState({ ...cs, result: "perdiste" });
-        callback();
-      } else {
-        state.growScore("playerTwo", function () {
+    }
+    if (ganaPlayerTwo) {
+      if (!iAmLocal) {
+        state.growScore("playerTwo", () => {
           state.setState({ ...cs, result: "ganaste" });
+          state.listenRTDBData();
           callback();
         });
+      } else if (iAmLocal) {
+        state.setState({ ...cs, result: "perdiste" });
+        state.listenRTDBData();
+        callback();
       }
-    } else if (empate) {
+    }
+    if (empate) {
       this.setState({ ...cs, result: "empataste" });
+      state.listenRTDBData();
       callback();
     }
   },

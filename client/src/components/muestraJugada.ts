@@ -2,19 +2,19 @@ import { state } from "../state";
 
 class MuestraJugada extends HTMLElement {
   shadow: ShadowRoot;
+  playerOneChoice: string;
+  playerTwoChoice: string;
   constructor() {
     super();
     this.shadow = this.attachShadow({ mode: "open" });
   }
   render() {
-    const cs = state.getState();
-    const dataRealtime = cs.rtdbData;
     const style = document.createElement("style");
 
     this.shadow.innerHTML = `
       <div class="contenedor">
-        <game-option class="playerOneMove" variant=${cs.rtdbData.playerOne.choice}></game-option>
-        <game-option class="playerTwoMove" variant=${cs.rtdbData.playerTwo.choice}></game-option>
+        <game-option class="playerOneMove" variant=${this.playerOneChoice}></game-option>
+        <game-option class="playerTwoMove" variant=${this.playerTwoChoice}></game-option>
       </div>
     `;
 
@@ -65,11 +65,17 @@ class MuestraJugada extends HTMLElement {
     `;
     this.shadow.appendChild(style);
   }
+  sync() {
+    const cs = state.getState();
+    this.playerOneChoice = cs.rtdbData.playerOne.choice;
+    this.playerTwoChoice = cs.rtdbData.playerTwo.choice;
+    this.render();
+  }
   connectedCallback() {
     state.subscribe(() => {
-      this.render();
+      this.sync();
     });
-    this.render();
+    this.sync();
   }
 }
 

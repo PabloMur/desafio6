@@ -194,26 +194,26 @@ app.patch("/clear-replay", async (req, res) => {
   });
 });
 
-app.patch("/last-score/:roomId", async (req, res) => {
-  const { roomId } = req.params;
-  const { lastScore } = req.body;
-  const score = {
-    score: { playerOne: lastScore.one, playerTwo: lastScore.two },
-  };
-  await gameRoomsCollection.doc(roomId.toString()).update(score);
-  res.json({
-    message: "score actualizado",
-  });
-});
+// app.patch("/last-score/:roomId", async (req, res) => {
+//   const { roomId } = req.params;
+//   const { lastScore } = req.body;
+//   const score = {
+//     score: { playerOne: lastScore.one, playerTwo: lastScore.two },
+//   };
+//   await gameRoomsCollection.doc(roomId.toString()).update(score);
+//   res.json({
+//     message: "score actualizado",
+//   });
+// });
 
-app.get("/last-score/:roomId", async (req, res) => {
-  const { roomId } = req.params;
-  const gameRoomRef = await gameRoomsCollection.doc(roomId.toString()).get();
-  const data = gameRoomRef.data();
-  res.json({
-    score: data.score,
-  });
-});
+// app.get("/last-score/:roomId", async (req, res) => {
+//   const { roomId } = req.params;
+//   const gameRoomRef = await gameRoomsCollection.doc(roomId.toString()).get();
+//   const data = gameRoomRef.data();
+//   res.json({
+//     score: data.score,
+//   });
+// });
 
 app.patch("/grow-score", async (req, res) => {
   try {

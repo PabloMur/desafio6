@@ -3,8 +3,8 @@ class Marcador extends HTMLElement {
   shadow: ShadowRoot;
   playerOneName: string;
   playerTwoName: string;
-  playerOneScore: number = 0;
-  playerTwoScore: number = 0;
+  playerOneScore: number;
+  playerTwoScore: number;
 
   constructor() {
     super();
@@ -56,9 +56,6 @@ class Marcador extends HTMLElement {
     this.render();
   }
   connectedCallback() {
-    state.subscribe(() => {
-      this.syncWithState();
-    });
     this.syncWithState();
   }
 }
