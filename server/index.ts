@@ -12,6 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static("dist"));
 
 app.post("/signup", async (req, res) => {
   // Este endopoint nos habilita un nuevo usuario en firestore. Y nos retorna su id
@@ -198,42 +199,41 @@ app.patch("/replay", async (req, res) => {
 //   const { roomId } = req.params;
 //   const { lastScore } = req.body;
 //   const score = {
-  //     score: { playerOne: lastScore.one, playerTwo: lastScore.two },
-  //   };
-  //   await gameRoomsCollection.doc(roomId.toString()).update(score);
-  //   res.json({
-    //     message: "score actualizado",
-    //   });
-    // });
-    
-    // app.get("/last-score/:roomId", async (req, res) => {
-      //   const { roomId } = req.params;
-      //   const gameRoomRef = await gameRoomsCollection.doc(roomId.toString()).get();
-      //   const data = gameRoomRef.data();
-      //   res.json({
-        //     score: data.score,
-        //   });
-        // });
-        
-        app.patch("/grow-score", async (req, res) => {
-          try {
-            const { player, rtdbRoomId, score } = req.body;
-            const ref = rtdb.ref(`gamerooms/${rtdbRoomId}/currentGame/${player}`);
-            await ref.update({ score: score });
-            res.json({
-              message: "aumentado",
-            });
-          } catch (error) {
-            console.error(error);
-          }
-        });
-        
-        //Sirve la carpeta dist creada por parcel
-        app.use(express.static("dist"));
+//     score: { playerOne: lastScore.one, playerTwo: lastScore.two },
+//   };
+//   await gameRoomsCollection.doc(roomId.toString()).update(score);
+//   res.json({
+//     message: "score actualizado",
+//   });
+// });
+
+// app.get("/last-score/:roomId", async (req, res) => {
+//   const { roomId } = req.params;
+//   const gameRoomRef = await gameRoomsCollection.doc(roomId.toString()).get();
+//   const data = gameRoomRef.data();
+//   res.json({
+//     score: data.score,
+//   });
+// });
+
+app.patch("/grow-score", async (req, res) => {
+  try {
+    const { player, rtdbRoomId, score } = req.body;
+    const ref = rtdb.ref(`gamerooms/${rtdbRoomId}/currentGame/${player}`);
+    await ref.update({ score: score });
+    res.json({
+      message: "aumentado",
+    });
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+//Sirve la carpeta dist creada por parcel
 
 //Sirve el index.html si el resto de los endpoints no estan en uso
 app.get("*", (req, res) => {
-  res.sendFile(__dirname + "/dist/index.html");
+  res.sendFile(__dirname + "../dist/index.html");
 });
 
 app.listen(port, () => {
