@@ -1,1 +1,0 @@
-{"mappings":"AAAA;;;;AAIA","sources":["client/src/index.css"],"sourcesContent":["* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  background-image: url(\"./img/fondo.png\");\n  background-position: center;\n  background-repeat: repeat;\n  background-size: cover;\n}\n\n"],"names":[],"version":3,"file":"index.78a442b2.css.map","sourceRoot":"/__parcel_source_root/"}
