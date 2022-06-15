@@ -35,7 +35,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post("/authorize", async (req, res) => {
+app.get("/authorize", async (req, res) => {
   //este nos da nuestro id de firestore siempre y cuando alguno de los usuario tenga nuestro email
 
   const { email } = req.body;
@@ -185,14 +185,14 @@ app.patch("/replay", async (req, res) => {
   res.json({ message: "players ready para volver a jugar" });
 });
 
-app.patch("/clear-replay", async (req, res) => {
-  const { rtdbRoomId } = req.body;
-  const cleaningreplayRef = rtdb.ref(`gamerooms/${rtdbRoomId}/currentGame`);
-  await cleaningreplayRef.update({ replay: false });
-  res.json({
-    message: "Replay back to false",
-  });
-});
+// app.patch("/clear-replay", async (req, res) => {
+//   const { rtdbRoomId } = req.body;
+//   const cleaningreplayRef = rtdb.ref(`gamerooms/${rtdbRoomId}/currentGame`);
+//   await cleaningreplayRef.update({ replay: false });
+//   res.json({
+//     message: "Replay back to false",
+//   });
+// });
 
 // app.patch("/last-score/:roomId", async (req, res) => {
 //   const { roomId } = req.params;
