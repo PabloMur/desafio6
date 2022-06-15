@@ -111,7 +111,7 @@ const state = {
     if (cs.email) {
       const fetchedData = await fetch(API_BASE + "/authorize", {
         mode: "cors",
-        method: "GET",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },

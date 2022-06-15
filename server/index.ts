@@ -36,7 +36,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.get("/authorize", async (req, res) => {
+app.post("/authorize", async (req, res) => {
   //este nos da nuestro id de firestore siempre y cuando alguno de los usuario tenga nuestro email
 
   const { email } = req.body;
