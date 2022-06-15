@@ -237,9 +237,6 @@ app.patch("/grow-score", async (req, res) => {
 //Sirve la carpeta dist creada por parcel
 
 //Sirve el index.html si el resto de los endpoints no estan en uso
-app.get("*", (req, res) => {
-  res.sendFile(__dirname);
-}),
   app.listen(port, () => {
     console.log("Iniciado en el puerto " + port);
   });
