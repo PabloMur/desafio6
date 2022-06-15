@@ -238,7 +238,7 @@ app.patch("/grow-score", async (req, res) => {
 
 //Sirve el index.html si el resto de los endpoints no estan en uso
 app.get("*", (req, res) => {
-  res.send(__dirname);
+  res.sendFile(__dirname);
 }),
   app.listen(port, () => {
     console.log("Iniciado en el puerto " + port);
