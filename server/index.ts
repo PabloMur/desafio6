@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.static("dist"));
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/*", (req, res) => {
+app.get("*", (req, res) => {
   res.sendFile(__dirname + "/dist/index.html");
 });
 
@@ -236,7 +236,9 @@ app.patch("/grow-score", async (req, res) => {
 //Sirve la carpeta dist creada por parcel
 
 //Sirve el index.html si el resto de los endpoints no estan en uso
-
+app.get("*", (req, res) => {
+  res.sendFile(__dirname + "/dist/index.html");
+});
 
 app.listen(port, () => {
   console.log("Iniciado en el puerto " + port);
