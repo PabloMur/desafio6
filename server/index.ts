@@ -12,12 +12,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static("dist"));
+app.use('/static', express.static('dist'));
 app.use(express.urlencoded({ extended: true }));
-
-app.get("*", (req, res) => {
-  res.sendFile(__dirname + "/dist/index.html");
-});
 
 app.post("/signup", async (req, res) => {
   // Este endopoint nos habilita un nuevo usuario en firestore. Y nos retorna su id
