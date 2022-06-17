@@ -4,7 +4,7 @@ import * as path from "path";
 import { rtdb, firestore } from "./firestore";
 import { nanoid } from "nanoid";
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const playersCollection = firestore.collection("players");
 const gameRoomsCollection = firestore.collection("gamerooms");
 
