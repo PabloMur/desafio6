@@ -7,6 +7,7 @@ class WaitingOponent extends HTMLElement {
   constructor() {
     super();
     this.shadow = this.attachShadow({ mode: "open" });
+    this.cuentaRegresiva = 50;
   }
 
   render() {
