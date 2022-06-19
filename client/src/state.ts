@@ -1,7 +1,8 @@
 type move = "piedra" | "papel" | "tijera";
 type player = "playerOne" | "playerTwo";
-let perras;
-const API_BASE = "https://desafio-mod6.herokuapp.com";
+
+//const API_BASE = "https://desafio-mod6.herokuapp.com";
+const API_BASE = "http://localhost:3000";
 import { rtdb, ref, onValue } from "./rtdb";
 
 const state = {
@@ -291,7 +292,7 @@ const state = {
       pTwoGanaConPiedra,
     ].includes(true);
 
-    const empate = localMove && guestMove;
+    const empate = localMove == guestMove;
     const iAmLocal = cs.roomCreator;
 
     if (ganaPlayerOne) {

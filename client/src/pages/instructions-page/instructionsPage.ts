@@ -60,10 +60,12 @@ class instructions extends HTMLElement {
     playButton.addEventListener("click", () => {
       if (cs.roomCreator) {
         state.playerIsReady("playerOne", () => {
+          state.listenRTDBData();
           Router.go("/waiting-oponent");
         });
       } else if (!cs.roomCreator) {
         state.playerIsReady("playerTwo", () => {
+          state.listenRTDBData();
           Router.go("/waiting-oponent");
         });
       }

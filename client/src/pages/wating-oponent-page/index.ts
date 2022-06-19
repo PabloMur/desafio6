@@ -3,6 +3,7 @@ import { state } from "../../state";
 
 class WaitingOponent extends HTMLElement {
   shadow: ShadowRoot;
+  cuentaRegresiva: number;
   constructor() {
     super();
     this.shadow = this.attachShadow({ mode: "open" });
@@ -11,37 +12,46 @@ class WaitingOponent extends HTMLElement {
   render() {
     const style = document.createElement("style");
     this.shadow.innerHTML = `
-          <div class="contenedor">
-            <custom-text>
-                Espera hasta que tu oponente este listo para jugar!
-            </custom-text>
-          </div>
+            <div class="container">
+              <custom-text>Esperemos a que tu contrincante esté listo para jugar!</custom-text>
+            </div>
         `;
     style.innerHTML = `
-    .contenedor{
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items:center;
-    }`;
+      .container{
+        display: flex;
+        justify-content:center;
+        align-items:center;
+        height: 100vh;
+        width: 100vw;
+      }
+    `;
     this.shadow.appendChild(style);
   }
-  usersAreReady() {
-    const cs = state.getState();
 
-    const ambosListos =
-      cs.rtdbData.playerOne.start && cs.rtdbData.playerTwo.start;
+  asksIfTheOtherPlayerChoosed() {
+    const setIN = setInterval(() => {
+      this.render();
+      const cs = state.getState();
+      const dataRealtime = cs.rtdbData;
 
-    this.render();
-    state.listenRTDBData();
-    if (ambosListos) Router.go("/choose");
+      const playerOneListo =
+        dataRealtime.playerOne.choice == "none" && dataRealtime.playerOne.start;
+      const playerTwoListo =
+        dataRealtime.playerTwo.choice == "none" && dataRealtime.playerTwo.start;
+
+      if (playerOneListo && playerTwoListo) {
+        clearInterval(setIN);
+        Router.go("/choose");
+      } else if (this.cuentaRegresiva == 0) {
+        clearInterval(setIN);
+        Router.go("/isntructions");
+      }
+      this.cuentaRegresiva--;
+    }, 1000);
   }
+
   connectedCallback() {
-    state.subscribe(() => {
-      this.usersAreReady;
-    });
-    this.usersAreReady();
+    this.asksIfTheOtherPlayerChoosed();
   }
 }
 customElements.define("waiting-oponent-page", WaitingOponent);
