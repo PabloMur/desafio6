@@ -14,6 +14,7 @@ class ComparitionPage extends HTMLElement {
   }
   connectedCallback() {
     this.render();
+    state.listenRTDBData();
     const cs = state.getState();
     setTimeout(() => {
       state.whoWins(
@@ -21,7 +22,6 @@ class ComparitionPage extends HTMLElement {
         cs.rtdbData.playerTwo.choice,
         () => {
           Router.go("/result");
-          state.listenRTDBData();
         }
       );
     }, 2000);

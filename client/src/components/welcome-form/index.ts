@@ -59,11 +59,12 @@ class WelcomeForm extends HTMLElement {
     .input-container{
       width: 100%;
       margin: 20px auto 0 auto;
+      animation: lower .4s ease;
     }
 
     .input{
       width: 99%;
-      height: 35px;
+      height: 50px;
       color: white;
       font-size: 20px;
       background: #006CFC;
@@ -71,6 +72,7 @@ class WelcomeForm extends HTMLElement {
       border-radius: 4px;
       text-align: center;
       margin: 0 auto;
+      box-shadow: 5px 5px 2px #c7c7c7;
     }
 
     @media(max-width: 600px){

@@ -27,10 +27,10 @@ class Contador extends HTMLElement {
       }
       @keyframes fade{
         0%{
-          transform: translateY(-100%)
+          opacity:0;
         }
         100%{
-          transform: translateY(0%)
+          opacity:1;
         }
       }
       `;
@@ -50,15 +50,13 @@ class Contador extends HTMLElement {
         clearInterval(setIN);
         if (playerOneNoEligio && playerTwoNoEligio) {
           Router.go("/instructions");
-        }
-        if (cs.roomCreator && playerOneNoEligio) {
+        } else if (cs.roomCreator && playerOneNoEligio) {
           state.growScore("playerTwo", () => {
             cs.result = "perdiste";
             state.setState(cs);
             Router.go("/result");
           });
-        }
-        if (!cs.roomCreator && playerTwoNoEligio) {
+        } else if (!cs.roomCreator && playerTwoNoEligio) {
           state.growScore("playerOne", () => {
             cs.result = "perdiste";
             state.setState(cs);

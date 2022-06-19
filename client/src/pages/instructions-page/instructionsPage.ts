@@ -13,7 +13,7 @@ class instructions extends HTMLElement {
     this.shadow.innerHTML = `
           <div class="contenedor">
             <custom-text>
-                Presioná jugar y elegí: piedra, papel o tijera antes de que pasen los 3 segundos.<br>
+                Presioná jugar y elegí: piedra, papel o tijera antes de que pasen los 10 segundos.<br>
                 Suerte!
             </custom-text>
             <custom-button class="play-button">Jugar!</custom-button>
@@ -60,11 +60,11 @@ class instructions extends HTMLElement {
     playButton.addEventListener("click", () => {
       if (cs.roomCreator) {
         state.playerIsReady("playerOne", () => {
-          Router.go("/choose-room");
+          Router.go("/waiting-oponent");
         });
       } else if (!cs.roomCreator) {
         state.playerIsReady("playerTwo", () => {
-          Router.go("/choose-room");
+          Router.go("/waiting-oponent");
         });
       }
     });

@@ -59,6 +59,7 @@ class ChoosePage extends HTMLElement {
     papel.addEventListener("click", () => {
       if (cs.roomCreator) {
         state.playersChoice("playerOne", "papel", () => {
+          console.log("papel");
           Router.go("/waiting");
         });
       } else {
