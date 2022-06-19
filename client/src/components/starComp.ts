@@ -24,7 +24,6 @@ class StarComp extends HTMLElement {
         width: auto;
         animation:lower 3s linear infinite;
         z-index: 2;
-        background: url("../img/ganaste.svg");
       }
      .scoreCont{
         height: 245px;
@@ -48,9 +47,9 @@ class StarComp extends HTMLElement {
     this.shadow.appendChild(style);
   }
   sync() {
-    const ganaste = require("../img/ganaste.svg");
-    const perdiste = require("../img/perdiste.svg");
-    const empataste = require("../img/empataste.svg");
+    const ganaste = require("../img/ganaste.png");
+    const perdiste = require("../img/perdiste.png");
+    const empataste = require("../img/empataste.png");
 
     const lastState = state.getState();
 
