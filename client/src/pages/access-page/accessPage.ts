@@ -76,7 +76,7 @@ class AccessRoomPage extends HTMLElement {
         border:none;
         padding: 7px;
         text-align: center;
-        box-shadow: 10px 5px 5px black;
+        box-shadow: 5px 5px 2px #c7c7c7;
       }
       .button{
         width: 103%;
