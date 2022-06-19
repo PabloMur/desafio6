@@ -47,9 +47,9 @@ class StarComp extends HTMLElement {
     this.shadow.appendChild(style);
   }
   sync() {
-    const ganaste = require("../img/ganaste.png");
-    const perdiste = require("../img/perdiste.png");
-    const empataste = require("../img/empataste.png");
+    const ganaste = require("./ganaste.png") as any;
+    const perdiste = require("./perdiste.png") as any;
+    const empataste = require("./empataste.png") as any;
 
     const lastState = state.getState();
 
