@@ -49,7 +49,9 @@ class Contador extends HTMLElement {
       if (terminoTiempo) {
         clearInterval(setIN);
         if (playerOneNoEligio && playerTwoNoEligio) {
-          Router.go("/instructions");
+          state.replay(() => {
+            Router.go("/instructions");
+          });
         } else if (cs.roomCreator && playerOneNoEligio) {
           state.growScore("playerTwo", () => {
             cs.result = "perdiste";
